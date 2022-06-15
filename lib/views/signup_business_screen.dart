@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:rentit4me/network/api.dart';
 import 'package:rentit4me/themes/constant.dart';
-import 'package:rentit4me/views/home_screen.dart';
+import 'package:rentit4me/views/otp_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -29,17 +29,20 @@ class _SignupScreenState extends State<SignupScreen> {
   final confirmpwdController = TextEditingController();
   int _value = 0;
 
-  int usertypevalue = 0;
+  //int usertypevalue = 0;
+  //bool _businessnamevisibility = false;
 
   String countrycode;
-  var code = [
-    '+91',
-    '+92',
-    '+132',
-    '+63',
-    '+62',
-    '+64'
-  ];
+  String countryname;
+  var countrycodelist = [''];
+  var countrynamelist = [''];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _getCountryData();
+  }
 
   @override
   void dispose() {
@@ -80,7 +83,7 @@ class _SignupScreenState extends State<SignupScreen> {
          child: SingleChildScrollView(
            child: Column(
              children: [
-               Row(
+               /*Row(
                  children: [
                    Row(
                      children: [
@@ -91,6 +94,7 @@ class _SignupScreenState extends State<SignupScreen> {
                            onChanged: (value) {
                              setState(() {
                                _value = value;
+                               _businessnamevisibility = true;
                                usertypevalue = 4;
                              });
                            }),
@@ -107,6 +111,7 @@ class _SignupScreenState extends State<SignupScreen> {
                            onChanged: (value) {
                              setState(() {
                                _value = value;
+                               _businessnamevisibility = false;
                                usertypevalue = 3;
                              });
                            }),
@@ -114,7 +119,7 @@ class _SignupScreenState extends State<SignupScreen> {
                      ],
                    ),
                  ],
-               ),
+               ),*/
                Padding(
                    padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
                    child: _fullnameTextbox("Full Name"),
@@ -137,11 +142,11 @@ class _SignupScreenState extends State<SignupScreen> {
                      height: 1,
                      color: Colors.black,
                    ),
-                   icon: Visibility (visible:true, child: Icon(Icons.arrow_drop_down_sharp, size: 20, color: kPrimaryColor)),
-                   items: code.map((String items) {
+                   icon: Visibility (visible:true, child: Icon(Icons.arrow_drop_down_sharp, size: 20, color: Colors.grey.shade700)),
+                   items: countrycodelist.map((String items) {
                      return DropdownMenuItem(
                        value: items,
-                       child: Text(items, style: TextStyle(color: kPrimaryColor, fontSize: 12)),
+                       child: Text(items, style: TextStyle(color: Colors.grey.shade700, fontSize: 15)),
                      );
                    }).toList(),
                    // After selecting the desired option,it will
@@ -154,9 +159,35 @@ class _SignupScreenState extends State<SignupScreen> {
                  ),
                ),
                Padding(
+                 padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 20.0),
+                 child: DropdownButton(
+                   value: countryname,
+                   hint: Text("Country Name", style: TextStyle(color: Colors.grey.shade700, fontSize: 15)),
+                   isExpanded: true,
+                   underline: Container(
+                     height: 1,
+                     color: Colors.black,
+                   ),
+                   icon: Visibility (visible:true, child: Icon(Icons.arrow_drop_down_sharp, size: 20, color: Colors.grey.shade700)),
+                   items: countrynamelist.map((String items) {
+                     return DropdownMenuItem(
+                       value: items,
+                       child: Text(items, style: TextStyle(color: Colors.grey.shade700, fontSize: 15)),
+                     );
+                   }).toList(),
+                   // After selecting the desired option,it will
+                   // change button value to selected value
+                   onChanged: (String newValue) {
+                     setState(() {
+                       countryname = newValue;
+                     });
+                   },
+                 ),
+               ),
+               /*Padding(
                  padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
                  child: _CountrynameTextbox("Country Name"),
-               ),
+               ),*/
                Padding(
                  padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
                  child: _mobileTextbox("Mobile"),
@@ -177,11 +208,7 @@ class _SignupScreenState extends State<SignupScreen> {
                  padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
                  child: InkWell(
                    onTap: (){
-                     if(usertypevalue == 0){
-                       showToast("Please select user type");
-                       return;
-                     }
-                     else if(nameController.text.toString().trim().isEmpty){
+                     if(nameController.text.toString().trim().isEmpty){
                        showToast("Please enter your name");
                        return;
                      }
@@ -206,8 +233,8 @@ class _SignupScreenState extends State<SignupScreen> {
                            nameController.text.toString(),
                            businessController.text.toString(), 
                            emailController.text.toString(),
-                           "91",
-                           countrynameController.text.toString(),
+                           countrycode,
+                           countryname,
                            mobileController.text.toString(), 
                            pwdController.text.toString(),
                            confirmpwdController.text.toString()
@@ -296,8 +323,6 @@ class _SignupScreenState extends State<SignupScreen> {
       ),
     );
   }
-
-
   Widget _CountrynameTextbox(_initialValue) {
     return Container(
       margin: EdgeInsets.only(left: 20, right: 20, bottom: 10),
@@ -319,7 +344,6 @@ class _SignupScreenState extends State<SignupScreen> {
       ),
     );
   }
-
   Widget _mobileTextbox(_initialValue) {
     return Container(
       margin: EdgeInsets.only(left: 20, right: 20, bottom: 10),
@@ -407,6 +431,21 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
+
+  Future _getCountryData() async{
+    var response = await http.get(Uri.parse(BASE_URL+countrycodeUrl));
+    if(response.statusCode == 200){
+      setState(() {
+           countrycodelist.clear();
+           countrynamelist.clear();
+           for(int i=0; i<jsonDecode(response.body)['Response'].length; i++){
+              countrycodelist.add("+"+jsonDecode(response.body)['Response'][i]['dialcode'].toString());
+              countrynamelist.add(jsonDecode(response.body)['Response'][i]['name'].toString());
+           }
+      });
+    }
+  }
+
   Future _register(String name, String business, String email, String countrycode, String country, String mobile, String password, String confirmpwd) async {
     setState(() {
       _loading = true;
@@ -416,20 +455,20 @@ class _SignupScreenState extends State<SignupScreen> {
       "name": name,
       "business_name": business,
       "email": email,
-      "countrycode": countrycode,
+      "countrycode": countrycode.split('+').elementAt(1),
       "country" : country,
       "mobile" : mobile,
-      "user_type" : usertypevalue,
+      "user_type" : "4",
       "password" : password
     }));
     final body = {
       "name": name,
       "business_name": business,
       "email": email,
-      "countrycode": countrycode,
+      "countrycode": countrycode.split('+').elementAt(1),
       "country" : country,
       "mobile" : mobile,
-      "user_type" : usertypevalue,
+      "user_type" : "4",
       "password" : password,
       "password_confirmation" : confirmpwd
     };
@@ -440,12 +479,31 @@ class _SignupScreenState extends State<SignupScreen> {
           'Content-Type': 'application/json'
         }
     );
-    print(BASE_URL + register);
+    print(response.body);
     if (response.statusCode == 200) {
       setState(() {
         _loading = false;
       });
-      print(response.body);
+      if(jsonDecode(response.body)['ErrorCode'].toString() == "0") {
+         _sendotp(mobile);
+      }
+      else{
+          if(jsonDecode(response.body)['ErrorMessage'].toString() == "The email has already been taken.")
+          {
+             showToast('Email address already exists');
+             return;
+          }
+          else if(jsonDecode(response.body)['ErrorMessage'].toString() == "The mobile has already been taken.")
+          {
+             showToast('Mobile number already exists');
+             return;
+          }
+         else{
+            showToast(jsonDecode(response.body)['ErrorMessage'].toString());
+            return;
+          }
+      }
+
     } else {
       setState(() {
         _loading = false;
@@ -453,5 +511,23 @@ class _SignupScreenState extends State<SignupScreen> {
       print(response.body);
       throw Exception('Failed to get data due to ${response.body}');
     }
+  }
+
+  Future _sendotp(String mobile) async{
+    final body = {
+      "mobile": mobile,
+    };
+    var response = await http.post(Uri.parse(BASE_URL + sendotp),
+        body: jsonEncode(body),
+        headers: {
+          "Accept": "application/json",
+          'Content-Type': 'application/json'
+        }
+    );
+    if(jsonDecode(response.body)['ErrorCode'].toString() == "0"){
+      showToast(jsonDecode(response.body)['Response']['otp'].toString());
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  OtpScreen(phone: mobile, otp: jsonDecode(response.body)['Response']['otp'].toString())));
+    }
+
   }
 }

@@ -1,10 +1,19 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:rentit4me/views/category_screen.dart';
+import 'package:rentit4me/views/OfferRecievedScreen.dart';
+import 'package:rentit4me/views/business_detail_screen.dart';
+import 'package:rentit4me/views/generate_ticket_screen.dart';
 import 'package:rentit4me/views/home_screen.dart';
 import 'package:rentit4me/views/login_screen.dart';
-import 'package:rentit4me/views/signup_screen.dart';
+import 'package:rentit4me/views/myorders_screen.dart';
+import 'package:rentit4me/views/myticket_screen.dart';
+import 'package:rentit4me/views/offer_made_screen.dart';
+import 'package:rentit4me/views/otp_screen.dart';
+import 'package:rentit4me/views/personal_detail_screen.dart';
+import 'package:rentit4me/views/product_detail_screen.dart';
+import 'package:rentit4me/views/signup_business_screen.dart';
+import 'package:rentit4me/views/user_detail_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -32,7 +41,7 @@ class _SplashScreenState extends State<SplashScreen> {
     var _isLoggedIn = prefs.getBool('logged_in');
     if (_isLoggedIn == true) {
       setState(() {
-        //_loggedIn = _isLoggedIn;
+        _loggedIn = _isLoggedIn;
       });
     } else {
       setState(() {
@@ -53,12 +62,26 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Widget homeOrLog() {
     if (this._loggedIn) {
-      var obj = 0;
+      //return OfferRecievedScreen();
+      //return OfferMadeScreen();
+       //return MyOrdersScreen();
+      //return MyticketScreen();
+       //return GenerateTicketScreen();
+       //return ProductDetailScreen();
+      //return BankAndBusinessDetailScreen();
+      //return PersonalDetailScreen();
       return HomeScreen();
     } else {
-      //return HomeScreen();
-      return LoginScreen();
-      //return CategoryScreen();
+      //return OfferRecievedScreen();
+      //return OfferMadeScreen();
+       //return MyOrdersScreen();
+      //return MyticketScreen();
+      //return GenerateTicketScreen();
+        //return HomeScreen();
+         //return ProductDetailScreen();
+        //return BankAndBusinessDetailScreen();
+       //return PersonalDetailScreen();
+       return LoginScreen();
     }
   }
 

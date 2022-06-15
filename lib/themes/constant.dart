@@ -24,26 +24,7 @@ const String kPhoneNumberNullError = "Please Enter your phone number";
 const String kAddressNullError = "Please Enter your address";
 
 
-String token(){
-   return "wrtaw46veltitizqhbs";
-}
 
- showToast(String msg){
+showToast(String msg){
    Fluttertoast.showToast(msg: msg, toastLength: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM);
  }
-
-
-final List monthlist = [
-  {'tile': 'JAN', 'title': 'JANUARY'},
-  {'tile': 'FEB', 'title': 'FEBRUARY'},
-  {'tile': 'MAR', 'title': 'MARCH'},
-  {'tile': 'APR', 'title': 'APRIL'},
-  {'tile': 'MAY', 'title': 'MAY'},
-  {'tile': 'JUN', 'title': 'JUNE'},
-  {'tile': 'JUL', 'title': 'JULY'},
-  {'tile': 'AUG', 'title': 'AUGUST'},
-  {'tile': 'SEP', 'title': 'SEPTEMBER'},
-  {'tile': 'OCT', 'title': 'OCTOBER'},
-  {'tile': 'NOV', 'title': 'NOVEMBER'},
-  {'tile': 'DEC', 'title': 'DECEMBER'},
-];

@@ -1,12 +1,14 @@
 import 'dart:convert';
 
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:rentit4me/network/api.dart';
 import 'package:rentit4me/themes/constant.dart';
 import 'package:http/http.dart' as http;
 import 'package:rentit4me/views/home_screen.dart';
-import 'package:rentit4me/views/signup_screen.dart';
+import 'package:rentit4me/views/signup_business_screen.dart';
+import 'package:rentit4me/views/signup_consumer_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -19,9 +21,53 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
 
   bool _loading = false;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+
+  String _connectionStatus = 'Unknown';
+  final Connectivity _connectivity = Connectivity();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    initConnectivity();
+  }
+
+  Future<void> initConnectivity() async {
+    ConnectivityResult result;
+    try {
+      result = await _connectivity.checkConnectivity();
+    } on Exception catch (e) {
+      print(e.toString());
+    }
+    if (!mounted) {
+      return Future.value(null);
+    }
+    return _updateConnectionStatus(result);
+  }
+
+  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+    switch (result) {
+      case ConnectivityResult.wifi:
+      case ConnectivityResult.mobile:
+      case ConnectivityResult.none:
+        setState(() {
+          _connectionStatus = result.toString();
+        });
+        if(_connectionStatus.toString() == ConnectivityResult.none.toString()){
+          _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text("Please check your internet connection.", style: TextStyle(color: Colors.white)),backgroundColor: Colors.red));
+        }
+        break;
+      default:
+        setState(() {
+          _connectionStatus = 'Failed to get connectivity.';
+        });
+        break;
+    }
+  }
 
   @override
   void dispose() {
@@ -34,6 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
+        key: _scaffoldKey,
         backgroundColor: Colors.white,
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -69,13 +116,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       child: Column(
                         children: [
-                          SizedBox(height: 20),
+                          SizedBox(height: 10),
                           Text("Sign In", style: TextStyle(color: Colors.deepOrangeAccent, fontSize: 16)),
                           Padding(
-                              padding: EdgeInsets.fromLTRB(15, 10, 15, 0),
+                              padding: EdgeInsets.only(left: 15, top: 10, right: 15),
                               child: Container(
-                                height: 40,
+                                height: 50,
                                 width: double.infinity,
+                                alignment: Alignment.center,
                                 decoration: const BoxDecoration(
                                     borderRadius: BorderRadius.all(Radius.circular(5.0))
                                 ),
@@ -85,8 +133,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                     borderRadius: BorderRadius.circular(5.0),
                                   ),
                                   child: Padding(
-                                    padding: EdgeInsets.only(left: 10),
-                                    child: TextFormField(
+                                    padding: EdgeInsets.only(left: 10, bottom: 7.0),
+                                    child: TextField(
                                       decoration: const InputDecoration(
                                         hintText: "Email",
                                         hintStyle: TextStyle(
@@ -104,9 +152,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               )),
                           Padding(
-                              padding: EdgeInsets.fromLTRB(15, 10, 15, 0),
+                              padding: EdgeInsets.only(left: 15, top: 10, right: 15),
                               child: Container(
-                                height: 40,
+                                height: 50,
                                 width: double.infinity,
                                 decoration: const BoxDecoration(
                                     borderRadius: BorderRadius.all(Radius.circular(5.0))
@@ -116,7 +164,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(5.0),
                                     ), child: Padding(
-                                  padding: EdgeInsets.only(left: 10),
+                                  padding: EdgeInsets.only(left: 10, bottom: 7.0),
                                   child: TextFormField(
                                     decoration: const InputDecoration(
                                       hintText: "Password",
@@ -230,18 +278,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Container(
                         height: 45,
                         width: size.width * 0.80,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                             borderRadius: BorderRadius.all(Radius.circular(20.0)),
                             gradient: LinearGradient(
                               begin: Alignment.topRight,
                               end: Alignment.bottomLeft,
                               colors: [
-                                Colors.blue,
+                                Colors.deepOrange.shade400,
                                 Colors.red,
                               ],
                             )
                         ),
-                        child: Center(
+                        child: const Center(
                           child: Text(
                             'Click Here To Signup',
                             style: TextStyle(
@@ -264,21 +312,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     padding: EdgeInsets.fromLTRB(0, 15, 0, 0),
                     child: InkWell(
                       onTap: (){
-                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  SignupScreen()));
+                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  SignupConsumerScreen()));
                       },
                       child: Container(
                         height: 45,
                         width: size.width * 0.80,
                         decoration: const BoxDecoration(
                             borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                            gradient: LinearGradient(
-                              begin: Alignment.topRight,
-                              end: Alignment.bottomLeft,
-                              colors: [
-                                Colors.blue,
-                                Colors.red,
-                              ],
-                            )
+                            color: Colors.purple
                         ),
                         child: const Center(
                           child: Text(
@@ -303,10 +344,6 @@ class _LoginScreenState extends State<LoginScreen> {
       _loading = true;
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    print(jsonEncode({
-      "email": email,
-      "password" : password
-    }));
     final body = {
       "email": email,
       "password" : password,
@@ -318,16 +355,18 @@ class _LoginScreenState extends State<LoginScreen> {
           'Content-Type': 'application/json'
         }
     );
-    print(response.body);
     if (response.statusCode == 200) {
       setState(() {
         _loading = false;
       });
-      if(jsonDecode(response.body)['message'].toString() == "Success"){
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  HomeScreen()));
+      if(jsonDecode(response.body)['ErrorCode'].toString() == "0"){
+         prefs.setBool('logged_in', true);
+         prefs.setString('userid', jsonDecode(response.body)['Response']['id'].toString());
+         prefs.setString('usertype', jsonDecode(response.body)['Response']['user_type'].toString());
+         Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  HomeScreen()));
       }
       else {
-
+          showToast(jsonDecode(response.body)['ErrorMessage'].toString());
       }
     } else {
       setState(() {
