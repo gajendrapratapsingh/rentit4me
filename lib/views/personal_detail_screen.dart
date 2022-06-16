@@ -68,7 +68,7 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _getprofileData();
+    _getcheckapproveData();
     _getcountryData();
   }
 
@@ -367,10 +367,10 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
                               ),
                             )
                         ),
-                        initialkyc == "Yes" ? SizedBox(height: 10) : SizedBox(),
-                        initialkyc == "Yes" ? Text("Adhar Number", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)) : SizedBox(),
-                        initialkyc == "Yes" ? SizedBox(height: 8.0) : SizedBox(),
-                        initialkyc == "Yes" ? Container(
+                        initialkyc == "Yes"  && usertype == "3" ? SizedBox(height: 10) : SizedBox(),
+                        initialkyc == "Yes"  && usertype == "3" ? Text("Adhar Number", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)) : SizedBox(),
+                        initialkyc == "Yes"  && usertype == "3" ? SizedBox(height: 8.0) : SizedBox(),
+                        initialkyc == "Yes"  && usertype == "3" ? Container(
                             decoration: BoxDecoration(
                                 border: Border.all(
                                     width: 1,
@@ -393,10 +393,10 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
                               ),
                             )
                         ) : SizedBox(),
-                        initialkyc == "Yes" ? SizedBox(height: 10) : SizedBox(),
-                        initialkyc == "Yes" ? Text("Adhar Card", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)) : SizedBox(),
-                        initialkyc == "Yes" ? SizedBox(height: 8.0) : SizedBox(),
-                        initialkyc == "Yes" ? Container(
+                        initialkyc == "Yes"  && usertype == "3" ? SizedBox(height: 10) : SizedBox(),
+                        initialkyc == "Yes"  && usertype == "3" ? Text("Adhar Card", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)) : SizedBox(),
+                        initialkyc == "Yes"  && usertype == "3" ? SizedBox(height: 8.0) : SizedBox(),
+                        initialkyc == "Yes"  && usertype == "3" ? Container(
                             decoration: BoxDecoration(
                                 border: Border.all(
                                     width: 1,
@@ -413,12 +413,6 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
                                     radius: 25,
                                     backgroundImage: FileImage(File(adharcarddoc)),
                                   ),
-                                  /*CircleAvatar(
-                                      child: profileimage == null || profileimage == "null" || profileimage == "" ? Image.asset('assets/images/no_image.jpg') : CachedNetworkImage(
-                                        imageUrl: profileimage,
-                                        errorWidget: (context, url, error) => Icon(Icons.error),
-                                      ),
-                                    ),*/
                                   InkWell(
                                     onTap: (){
                                       _captureadharcard();
@@ -602,7 +596,7 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
                 SizedBox(height: 10),
                 InkWell(
                   onTap: (){
-                    if(kyc == "1"){
+                    if(kyc == "1" && usertype == "3"){
                       _personaldetailupdatewithdoc(country_id, state_id, city_id, address, commpref, kyc, trustbadge);
                     }
                     else{
@@ -632,12 +626,13 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
     );
   }
 
-  Future _getprofileData() async{
+  Future _getcheckapproveData() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final body = {
-      "id": prefs.getString('userid'),
+      //"user_id": "846",  //this is business user id
+       "user_id": prefs.getString('userid'),
     };
-    var response = await http.post(Uri.parse(BASE_URL + profileUrl),
+    var response = await http.post(Uri.parse(BASE_URL + checkapprove),
         body: jsonEncode(body),
         headers: {
           "Accept" : "application/json",
@@ -649,19 +644,8 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
     if (response.statusCode == 200) {
       var data = json.decode(response.body)['Response'];
       setState(() {
-         usertype = data['User']['user_type'].toString();
-        //profileimage = data['User']['avatar_base_url'].toString()+data['User']['avatar_path'].toString();
-        //myads = data['My Ads'].toString();
-        //mobile = data['User']['mobile'].toString();
-        //name = data['User']['name'].toString();
-        //email = data['User']['email'].toString();
-        //address = data['User']['address'].toString();
-        //fburl = data['User']['facebook_url'].toString();
-        //googleplusurl = data['User']['google_plus_url'].toString();
-        //instragramurl = data['User']['instagram_url'].toString();
-        //linkdinurl = data['User']['linkedin_url'].toString();
-        //youtubeurl = data['User']['youtube_url'].toString();
-        //pincode = data['User']['pincode'].toString();
+         usertype = data['user_type'].toString();
+
       });
 
     } else {
@@ -752,8 +736,7 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
   }
 
   Future _personaldetailupdatewithdoc(String countryid, String stateid, String cityid, String address, String commpref, String kyc, String trustbadge) async{
-    print("with doc"+ adharcarddoc);
-    print("adhar number "+adharnum);
+    //print("with doc"+ adharcarddoc);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState((){
       _loading = true;
@@ -815,7 +798,6 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
   }
 
   Future _personaldetailupdatewithoutdoc(String countryid, String stateid, String cityid, String address, String commpref, String kyc, String trustbadge) async{
-    print("without doc");
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState((){
       _loading = true;
@@ -830,6 +812,7 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
     print("city id "+city_id);
 
     var requestMulti = http.MultipartRequest('POST', Uri.parse(BASE_URL+personalupdate));
+    //requestMulti.fields["id"] = "846";
     requestMulti.fields["id"] = prefs.getString('userid');
     requestMulti.fields["address"] = address;
     requestMulti.fields["country"] = country_id;

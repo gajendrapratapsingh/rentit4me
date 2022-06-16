@@ -40,3 +40,4 @@ const String membershippay = "pay-for-membarship";
 const String trustedbadgepay = "pay-for-trusted-badge";
 const String offermadepay = "pay-for-order";
 const String transactions = "transactions";
+const String checkapprove = "check-approve";

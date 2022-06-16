@@ -61,11 +61,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   String productimage = 'https://images.unsplash.com/photo-1523205771623-e0faa4d2813d?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=89719a0d55dd05e2deae4120227e6efc&auto=format&fit=crop&w=1953&q=80';
 
+  String usertype;
+  String trustedbadge;
+  String trustedbadgeapproval;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _getproductDetail(productid);
+    _getcheckapproveData();
     _getmakeoffer(productid);
   }
 
@@ -175,223 +180,446 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                        ),
                      ),
                      InkWell(
-                       onTap: (){
-                         setState((){
-                           productQty = null;
-                           totalrent=0;
-                           useramount = null;
-                           days = null;
-                           totalsecurity = 0;
-                           finalamount = 0;
-                         });
-                         showDialog(
-                             context: context, barrierDismissible: false, builder: (context)=> StatefulBuilder(
-                             builder: (context, setState){
-                               return AlertDialog(title: const Align(
-                                 alignment: Alignment.topLeft,
-                                 child: Text("Make An Offer", style: TextStyle(color: Colors.deepOrangeAccent)),
-                               ),content:
-                               Container(
-                                 child: SingleChildScrollView(
-                                   child: Column(
-                                       children:[
-                                         DropdownButtonHideUnderline(
-                                           child: DropdownButton<String>(
-                                             hint: Text("Select", style: TextStyle(color: Colors.black, fontSize: 18)),
-                                             value: renttypename,
-                                             elevation: 16,
-                                             isExpanded: true,
-                                             style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
-                                             onChanged: (String data) {
-                                               setState(() {
-                                                 rentpricelist.forEach((element) {
-                                                   if(element['rent_type_name'].toString() == data.toString()){
-                                                     renttypename = data.toString();
-                                                     productamount = element['price'].toString();
-                                                     useramount = element['price'].toString();
-                                                     renttypeid = element['rent_type_id'].toString();
-                                                     renteramount = "Listed Price: ${element['price'].toString()+"/"+element['rent_type_name'].toString()}";
-                                                   }
-                                                 });
-                                               });
-                                             },
-                                             items: renttypelist.map<DropdownMenuItem<String>>((String value) {
-                                               return DropdownMenuItem<String>(
-                                                 value: value,
-                                                 child: Text(value),
-                                               );
-                                             }).toList(),
-                                           ),
-                                         ),
-                                         SizedBox(height: 2),
-                                         Divider(height: 1, color: Colors.grey, thickness: 1),
-                                         SizedBox(height: 20),
-                                         Align(
-                                             alignment: Alignment.topLeft,
-                                             child: renteramount == "null" || renteramount == null || renteramount == "" ?  Text("Listed Price: 0", style: TextStyle(color: Colors.black, fontSize: 16)) : Text(renteramount, style: TextStyle(color: Colors.black, fontSize: 16))
-                                         ),
-                                         SizedBox(height: 2),
-                                         Divider(height: 1, color: Colors.grey, thickness: 1),
-                                         SizedBox(height: 20),
-                                         Align(
-                                             alignment: Alignment.topLeft,
-                                             child: securitydeposit == "" || securitydeposit == "null" || securitydeposit == null ? Text("Security Deposit : 0", style: TextStyle(color: Colors.black, fontSize: 16)) : Text("Security Deposit: $securitydeposit", style: TextStyle(color: Colors.black, fontSize: 16))
-                                         ),
-                                         SizedBox(height: 2),
-                                         Divider(height: 1, color: Colors.grey, thickness: 1),
-                                         SizedBox(height: 10),
-                                         TextField(
-                                           keyboardType: TextInputType.number,
-                                           decoration: const InputDecoration(
-                                             hintText: 'Enter Product Quantity',
-                                             border: null,
-                                           ),
-                                           onChanged: (value){
-                                             setState(() {
-                                                if(negotiable == "0"){
-                                                  productQty = value.toString();
-                                                  days == "null" || days == "" || days == null ? totalrent = 0 : totalrent = int.parse(productQty)*int.parse(days)*int.parse(productamount);
-                                                  totalsecurity = int.parse(productQty)*int.parse(securitydeposit);
-                                                  days == "null" || days == "" || days == null ? finalamount = totalsecurity+totalrent : finalamount = totalrent+totalsecurity;
-                                                }
-                                                else{
-                                                 setState((){
-                                                   useramount = useramount == null ? null : useramount;
-                                                   days=days == null ? null : days;
-                                                 });
+                       onTap: () {
+                          if(trustedbadge == "1"){
+                            if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
+                              showToast("Your verification is under process.");
+                            }
+                            else{
+                              setState((){
+                                productQty = null;
+                                totalrent=0;
+                                useramount = null;
+                                days = null;
+                                totalsecurity = 0;
+                                finalamount = 0;
+                              });
+                              showDialog(context: context, barrierDismissible: false, builder: (context)=> StatefulBuilder(
+                                  builder: (context, setState){
+                                    return AlertDialog(title: const Align(
+                                      alignment: Alignment.topLeft,
+                                      child: Text("Make An Offer", style: TextStyle(color: Colors.deepOrangeAccent)),
+                                    ),content:
+                                    Container(
+                                      child: SingleChildScrollView(
+                                        child: Column(
+                                            children:[
+                                              DropdownButtonHideUnderline(
+                                                child: DropdownButton<String>(
+                                                  hint: Text("Select", style: TextStyle(color: Colors.black, fontSize: 18)),
+                                                  value: renttypename,
+                                                  elevation: 16,
+                                                  isExpanded: true,
+                                                  style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
+                                                  onChanged: (String data) {
+                                                    setState(() {
+                                                      rentpricelist.forEach((element) {
+                                                        if(element['rent_type_name'].toString() == data.toString()){
+                                                          renttypename = data.toString();
+                                                          productamount = element['price'].toString();
+                                                          useramount = element['price'].toString();
+                                                          renttypeid = element['rent_type_id'].toString();
+                                                          renteramount = "Listed Price: ${element['price'].toString()+"/"+element['rent_type_name'].toString()}";
+                                                        }
+                                                      });
+                                                    });
+                                                  },
+                                                  items: renttypelist.map<DropdownMenuItem<String>>((String value) {
+                                                    return DropdownMenuItem<String>(
+                                                      value: value,
+                                                      child: Text(value),
+                                                    );
+                                                  }).toList(),
+                                                ),
+                                              ),
+                                              SizedBox(height: 2),
+                                              Divider(height: 1, color: Colors.grey, thickness: 1),
+                                              SizedBox(height: 20),
+                                              Align(
+                                                  alignment: Alignment.topLeft,
+                                                  child: renteramount == "null" || renteramount == null || renteramount == "" ?  Text("Listed Price: 0", style: TextStyle(color: Colors.black, fontSize: 16)) : Text(renteramount, style: TextStyle(color: Colors.black, fontSize: 16))
+                                              ),
+                                              SizedBox(height: 2),
+                                              Divider(height: 1, color: Colors.grey, thickness: 1),
+                                              SizedBox(height: 20),
+                                              Align(
+                                                  alignment: Alignment.topLeft,
+                                                  child: securitydeposit == "" || securitydeposit == "null" || securitydeposit == null ? Text("Security Deposit : 0", style: TextStyle(color: Colors.black, fontSize: 16)) : Text("Security Deposit: $securitydeposit", style: TextStyle(color: Colors.black, fontSize: 16))
+                                              ),
+                                              SizedBox(height: 2),
+                                              Divider(height: 1, color: Colors.grey, thickness: 1),
+                                              SizedBox(height: 10),
+                                              TextField(
+                                                keyboardType: TextInputType.number,
+                                                decoration: const InputDecoration(
+                                                  hintText: 'Enter Product Quantity',
+                                                  border: null,
+                                                ),
+                                                onChanged: (value){
+                                                  setState(() {
+                                                    if(negotiable == "0"){
+                                                      productQty = value.toString();
+                                                      days == "null" || days == "" || days == null ? totalrent = 0 : totalrent = int.parse(productQty)*int.parse(days)*int.parse(productamount);
+                                                      totalsecurity = int.parse(productQty)*int.parse(securitydeposit);
+                                                      days == "null" || days == "" || days == null ? finalamount = totalsecurity+totalrent : finalamount = totalrent+totalsecurity;
+                                                    }
+                                                    else{
+                                                      setState((){
+                                                        useramount = useramount == null ? null : useramount;
+                                                        days=days == null ? null : days;
+                                                      });
 
-                                                  int qtyg = int.parse(value.toString());
-                                                  int useramountg = useramount == null ? 1 : int.parse(useramount.toString());
+                                                      int qtyg = int.parse(value.toString());
+                                                      int useramountg = useramount == null ? 1 : int.parse(useramount.toString());
+                                                      int daysg = days == null ? 1 : int.parse(days.toString());
+
+                                                      int totalrentg = qtyg*useramountg*daysg;
+                                                      setState((){
+                                                        totalrent = 0;
+                                                        productQty = qtyg.toString();
+                                                        totalrent = totalrentg;
+                                                        totalsecurity = int.parse(securitydeposit)*qtyg;
+                                                        finalamount = totalsecurity + totalrent;
+                                                      });
+                                                    }
+
+                                                  });
+                                                },
+                                              ),
+                                              negotiable == "1" ? TextField(
+                                                keyboardType: TextInputType.number,
+                                                decoration: InputDecoration(
+                                                  hintText: _getrenttypeamounthint(renttypename),
+                                                  border: null,
+                                                ),
+                                                onChanged: (value){
+                                                  setState((){
+                                                    productQty = productQty == null ? null : productQty;
+                                                    days = days == null ? null : days;
+                                                  });
+                                                  int qtyg = int.parse(productQty.toString());
+                                                  int useramountg =  int.parse(value.toString());
                                                   int daysg = days == null ? 1 : int.parse(days.toString());
-
                                                   int totalrentg = qtyg*useramountg*daysg;
                                                   setState((){
                                                     totalrent = 0;
-                                                    productQty = qtyg.toString();
+                                                    totalrent = totalrentg;
+                                                    useramount = useramountg.toString();
+                                                    totalsecurity = int.parse(securitydeposit)*qtyg;
+                                                    finalamount = totalsecurity + totalrent;
+                                                  });
+                                                },
+                                              ) : SizedBox(),
+                                              TextField(
+                                                keyboardType: TextInputType.number,
+                                                decoration: InputDecoration(
+                                                  hintText: _getrenttypehint(renttypename),
+                                                  border: null,
+                                                ),
+                                                onChanged: (value){
+                                                  if(negotiable == "0") {
+                                                    setState((){
+                                                      productQty = productQty == null ? null : productQty;
+                                                      days = value.toString();
+                                                      days == null ? totalrent = 0 : totalrent = int.parse(productQty)*int.parse(days)*int.parse(productamount);
+                                                      totalsecurity = int.parse(productQty)*int.parse(securitydeposit);
+                                                      days == "null" || days == "" || days == null ? finalamount = totalsecurity+totalrent : finalamount = totalrent+totalsecurity;
+                                                    });
+                                                  }
+                                                  else{
+                                                    setState((){
+                                                      productQty= productQty == null ? null : productQty;
+                                                      useramount= useramount == null ? null : useramount;
+                                                    });
+
+                                                    int qtyg = int.parse(productQty.toString());
+                                                    int useramountg = useramount == null ? 1 : int.parse(useramount.toString());
+                                                    int daysg =  int.parse(value.toString());
+                                                    int totalrentg = qtyg*useramountg*daysg;
+                                                    setState((){
+                                                      totalrent = 0;
+                                                      days = daysg.toString();
+                                                      totalrent = totalrentg;
+                                                      totalsecurity = int.parse(securitydeposit)*qtyg;
+                                                      finalamount = totalsecurity + totalrent;
+                                                    });
+                                                  }
+                                                },
+                                              ),
+                                              SizedBox(height: 20),
+                                              Align(
+                                                  alignment: Alignment.topLeft,
+                                                  child: totalrent == "" || totalrent == "null" || totalrent == null ? Text("Total Rent : 0", style: TextStyle(color: Colors.black, fontSize: 16)) : Text("Total Rent: $totalrent", style: TextStyle(color: Colors.black, fontSize: 16))
+                                              ),
+                                              SizedBox(height: 2),
+                                              Divider(height: 1, color: Colors.grey, thickness: 1),
+                                              SizedBox(height: 20),
+                                              Align(
+                                                  alignment: Alignment.topLeft,
+                                                  child: totalsecurity == "" || totalsecurity == "null" || totalsecurity == null ? Text("Total Security : 0", style: TextStyle(color: Colors.black, fontSize: 16)) : Text("Total Security: $totalsecurity", style: TextStyle(color: Colors.black, fontSize: 16))
+                                              ),
+                                              SizedBox(height: 2),
+                                              Divider(height: 1, color: Colors.grey, thickness: 1),
+                                              SizedBox(height: 20),
+                                              Align(
+                                                  alignment: Alignment.topLeft,
+                                                  child: finalamount == "" || finalamount == "null" || finalamount == null ? Text("Final Amount : 0", style: TextStyle(color: Colors.black, fontSize: 16)) : Text("Final Amount: $finalamount", style: TextStyle(color: Colors.black, fontSize: 16))
+                                              ),
+                                              SizedBox(height: 2),
+                                              Divider(height: 1, color: Colors.grey, thickness: 1),
+                                              SizedBox(height: 10),
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Text(startDate, style: TextStyle(color: Colors.black, fontSize: 16)),
+                                                  IconButton(onPressed: (){
+                                                    _selectStartDate(context, setState);
+                                                  }, icon: Icon(Icons.calendar_today, size: 16))
+                                                ],
+                                              ),
+                                              Divider(height: 1, color: Colors.grey, thickness: 1),
+                                              SizedBox(height: 25),
+                                              InkWell(
+                                                onTap: () {
+                                                  _setmakeoffer();
+                                                },
+                                                child: Container(
+                                                  height: 45,
+                                                  width: double.infinity,
+                                                  alignment: Alignment.center,
+                                                  decoration: const BoxDecoration(
+                                                      color: Colors.deepOrangeAccent,
+                                                      borderRadius: BorderRadius.all(Radius.circular(8.0))
+                                                  ),
+                                                  child: Text("Make Offer", style: TextStyle(color: Colors.white)),
+                                                ),
+                                              )
+                                            ]
+                                        ),
+                                      ),
+                                    )
+                                    );
+                                  }
+                              ));
+                            }
+                          }
+                          else{
+                            setState((){
+                              productQty = null;
+                              totalrent=0;
+                              useramount = null;
+                              days = null;
+                              totalsecurity = 0;
+                              finalamount = 0;
+                            });
+                            showDialog(context: context, barrierDismissible: false, builder: (context)=> StatefulBuilder(
+                                builder: (context, setState){
+                                  return AlertDialog(title: const Align(
+                                    alignment: Alignment.topLeft,
+                                    child: Text("Make An Offer", style: TextStyle(color: Colors.deepOrangeAccent)),
+                                  ),content:
+                                  Container(
+                                    child: SingleChildScrollView(
+                                      child: Column(
+                                          children:[
+                                            DropdownButtonHideUnderline(
+                                              child: DropdownButton<String>(
+                                                hint: Text("Select", style: TextStyle(color: Colors.black, fontSize: 18)),
+                                                value: renttypename,
+                                                elevation: 16,
+                                                isExpanded: true,
+                                                style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
+                                                onChanged: (String data) {
+                                                  setState(() {
+                                                    rentpricelist.forEach((element) {
+                                                      if(element['rent_type_name'].toString() == data.toString()){
+                                                        renttypename = data.toString();
+                                                        productamount = element['price'].toString();
+                                                        useramount = element['price'].toString();
+                                                        renttypeid = element['rent_type_id'].toString();
+                                                        renteramount = "Listed Price: ${element['price'].toString()+"/"+element['rent_type_name'].toString()}";
+                                                      }
+                                                    });
+                                                  });
+                                                },
+                                                items: renttypelist.map<DropdownMenuItem<String>>((String value) {
+                                                  return DropdownMenuItem<String>(
+                                                    value: value,
+                                                    child: Text(value),
+                                                  );
+                                                }).toList(),
+                                              ),
+                                            ),
+                                            SizedBox(height: 2),
+                                            Divider(height: 1, color: Colors.grey, thickness: 1),
+                                            SizedBox(height: 20),
+                                            Align(
+                                                alignment: Alignment.topLeft,
+                                                child: renteramount == "null" || renteramount == null || renteramount == "" ?  Text("Listed Price: 0", style: TextStyle(color: Colors.black, fontSize: 16)) : Text(renteramount, style: TextStyle(color: Colors.black, fontSize: 16))
+                                            ),
+                                            SizedBox(height: 2),
+                                            Divider(height: 1, color: Colors.grey, thickness: 1),
+                                            SizedBox(height: 20),
+                                            Align(
+                                                alignment: Alignment.topLeft,
+                                                child: securitydeposit == "" || securitydeposit == "null" || securitydeposit == null ? Text("Security Deposit : 0", style: TextStyle(color: Colors.black, fontSize: 16)) : Text("Security Deposit: $securitydeposit", style: TextStyle(color: Colors.black, fontSize: 16))
+                                            ),
+                                            SizedBox(height: 2),
+                                            Divider(height: 1, color: Colors.grey, thickness: 1),
+                                            SizedBox(height: 10),
+                                            TextField(
+                                              keyboardType: TextInputType.number,
+                                              decoration: const InputDecoration(
+                                                hintText: 'Enter Product Quantity',
+                                                border: null,
+                                              ),
+                                              onChanged: (value){
+                                                setState(() {
+                                                  if(negotiable == "0"){
+                                                    productQty = value.toString();
+                                                    days == "null" || days == "" || days == null ? totalrent = 0 : totalrent = int.parse(productQty)*int.parse(days)*int.parse(productamount);
+                                                    totalsecurity = int.parse(productQty)*int.parse(securitydeposit);
+                                                    days == "null" || days == "" || days == null ? finalamount = totalsecurity+totalrent : finalamount = totalrent+totalsecurity;
+                                                  }
+                                                  else{
+                                                    setState((){
+                                                      useramount = useramount == null ? null : useramount;
+                                                      days=days == null ? null : days;
+                                                    });
+
+                                                    int qtyg = int.parse(value.toString());
+                                                    int useramountg = useramount == null ? 1 : int.parse(useramount.toString());
+                                                    int daysg = days == null ? 1 : int.parse(days.toString());
+
+                                                    int totalrentg = qtyg*useramountg*daysg;
+                                                    setState((){
+                                                      totalrent = 0;
+                                                      productQty = qtyg.toString();
+                                                      totalrent = totalrentg;
+                                                      totalsecurity = int.parse(securitydeposit)*qtyg;
+                                                      finalamount = totalsecurity + totalrent;
+                                                    });
+                                                  }
+
+                                                });
+                                              },
+                                            ),
+                                            negotiable == "1" ? TextField(
+                                              keyboardType: TextInputType.number,
+                                              decoration: InputDecoration(
+                                                hintText: _getrenttypeamounthint(renttypename),
+                                                border: null,
+                                              ),
+                                              onChanged: (value){
+                                                setState((){
+                                                  productQty = productQty == null ? null : productQty;
+                                                  days = days == null ? null : days;
+                                                });
+                                                int qtyg = int.parse(productQty.toString());
+                                                int useramountg =  int.parse(value.toString());
+                                                int daysg = days == null ? 1 : int.parse(days.toString());
+                                                int totalrentg = qtyg*useramountg*daysg;
+                                                setState((){
+                                                  totalrent = 0;
+                                                  totalrent = totalrentg;
+                                                  useramount = useramountg.toString();
+                                                  totalsecurity = int.parse(securitydeposit)*qtyg;
+                                                  finalamount = totalsecurity + totalrent;
+                                                });
+                                              },
+                                            ) : SizedBox(),
+                                            TextField(
+                                              keyboardType: TextInputType.number,
+                                              decoration: InputDecoration(
+                                                hintText: _getrenttypehint(renttypename),
+                                                border: null,
+                                              ),
+                                              onChanged: (value){
+                                                if(negotiable == "0") {
+                                                  setState((){
+                                                    productQty = productQty == null ? null : productQty;
+                                                    days = value.toString();
+                                                    days == null ? totalrent = 0 : totalrent = int.parse(productQty)*int.parse(days)*int.parse(productamount);
+                                                    totalsecurity = int.parse(productQty)*int.parse(securitydeposit);
+                                                    days == "null" || days == "" || days == null ? finalamount = totalsecurity+totalrent : finalamount = totalrent+totalsecurity;
+                                                  });
+                                                }
+                                                else{
+                                                  setState((){
+                                                    productQty= productQty == null ? null : productQty;
+                                                    useramount= useramount == null ? null : useramount;
+                                                  });
+
+                                                  int qtyg = int.parse(productQty.toString());
+                                                  int useramountg = useramount == null ? 1 : int.parse(useramount.toString());
+                                                  int daysg =  int.parse(value.toString());
+                                                  int totalrentg = qtyg*useramountg*daysg;
+                                                  setState((){
+                                                    totalrent = 0;
+                                                    days = daysg.toString();
                                                     totalrent = totalrentg;
                                                     totalsecurity = int.parse(securitydeposit)*qtyg;
                                                     finalamount = totalsecurity + totalrent;
                                                   });
                                                 }
-
-                                             });
-                                           },
-                                         ),
-                                         negotiable == "1" ? TextField(
-                                           keyboardType: TextInputType.number,
-                                           decoration: InputDecoration(
-                                             hintText: _getrenttypeamounthint(renttypename),
-                                             border: null,
-                                           ),
-                                           onChanged: (value){
-                                             setState((){
-                                               productQty = productQty == null ? null : productQty;
-                                               days = days == null ? null : days;
-                                             });
-                                             int qtyg = int.parse(productQty.toString());
-                                             int useramountg =  int.parse(value.toString());
-                                             int daysg = days == null ? 1 : int.parse(days.toString());
-                                             int totalrentg = qtyg*useramountg*daysg;
-                                             setState((){
-                                               totalrent = 0;
-                                               totalrent = totalrentg;
-                                               useramount = useramountg.toString();
-                                               totalsecurity = int.parse(securitydeposit)*qtyg;
-                                               finalamount = totalsecurity + totalrent;
-                                             });
-                                           },
-                                         ) : SizedBox(),
-                                         TextField(
-                                           keyboardType: TextInputType.number,
-                                           decoration: InputDecoration(
-                                             hintText: _getrenttypehint(renttypename),
-                                             border: null,
-                                           ),
-                                           onChanged: (value){
-                                             if(negotiable == "0") {
-                                               setState((){
-                                                 productQty = productQty == null ? null : productQty;
-                                                 days = value.toString();
-                                                 days == null ? totalrent = 0 : totalrent = int.parse(productQty)*int.parse(days)*int.parse(productamount);
-                                                 totalsecurity = int.parse(productQty)*int.parse(securitydeposit);
-                                                 days == "null" || days == "" || days == null ? finalamount = totalsecurity+totalrent : finalamount = totalrent+totalsecurity;
-                                               });
-                                             }
-                                             else{
-                                               setState((){
-                                                 productQty= productQty == null ? null : productQty;
-                                                 useramount= useramount == null ? null : useramount;
-                                               });
-
-                                               int qtyg = int.parse(productQty.toString());
-                                               int useramountg = useramount == null ? 1 : int.parse(useramount.toString());
-                                               int daysg =  int.parse(value.toString());
-                                               int totalrentg = qtyg*useramountg*daysg;
-                                               setState((){
-                                                 totalrent = 0;
-                                                 days = daysg.toString();
-                                                 totalrent = totalrentg;
-                                                 totalsecurity = int.parse(securitydeposit)*qtyg;
-                                                 finalamount = totalsecurity + totalrent;
-                                               });
-                                             }
-                                           },
-                                         ),
-                                         SizedBox(height: 20),
-                                         Align(
-                                             alignment: Alignment.topLeft,
-                                             child: totalrent == "" || totalrent == "null" || totalrent == null ? Text("Total Rent : 0", style: TextStyle(color: Colors.black, fontSize: 16)) : Text("Total Rent: $totalrent", style: TextStyle(color: Colors.black, fontSize: 16))
-                                         ),
-                                         SizedBox(height: 2),
-                                         Divider(height: 1, color: Colors.grey, thickness: 1),
-                                         SizedBox(height: 20),
-                                         Align(
-                                             alignment: Alignment.topLeft,
-                                             child: totalsecurity == "" || totalsecurity == "null" || totalsecurity == null ? Text("Total Security : 0", style: TextStyle(color: Colors.black, fontSize: 16)) : Text("Total Security: $totalsecurity", style: TextStyle(color: Colors.black, fontSize: 16))
-                                         ),
-                                         SizedBox(height: 2),
-                                         Divider(height: 1, color: Colors.grey, thickness: 1),
-                                         SizedBox(height: 20),
-                                         Align(
-                                             alignment: Alignment.topLeft,
-                                             child: finalamount == "" || finalamount == "null" || finalamount == null ? Text("Final Amount : 0", style: TextStyle(color: Colors.black, fontSize: 16)) : Text("Final Amount: $finalamount", style: TextStyle(color: Colors.black, fontSize: 16))
-                                         ),
-                                         SizedBox(height: 2),
-                                         Divider(height: 1, color: Colors.grey, thickness: 1),
-                                         SizedBox(height: 10),
-                                         Row(
-                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                           children: [
-                                             Text(startDate, style: TextStyle(color: Colors.black, fontSize: 16)),
-                                             IconButton(onPressed: (){
-                                               _selectStartDate(context, setState);
-                                             }, icon: Icon(Icons.calendar_today, size: 16))
-                                           ],
-                                         ),
-                                         Divider(height: 1, color: Colors.grey, thickness: 1),
-                                         SizedBox(height: 25),
-                                         InkWell(
-                                           onTap: () {
-                                             _setmakeoffer();
-                                           },
-                                           child: Container(
-                                             height: 45,
-                                             width: double.infinity,
-                                             alignment: Alignment.center,
-                                             decoration: const BoxDecoration(
-                                                 color: Colors.deepOrangeAccent,
-                                                 borderRadius: BorderRadius.all(Radius.circular(8.0))
-                                             ),
-                                             child: Text("Make Offer", style: TextStyle(color: Colors.white)),
-                                           ),
-                                         )
-                                       ]
-                                   ),
-                                 ),
-                               )
-                               );
-                             }
-                         ));
+                                              },
+                                            ),
+                                            SizedBox(height: 20),
+                                            Align(
+                                                alignment: Alignment.topLeft,
+                                                child: totalrent == "" || totalrent == "null" || totalrent == null ? Text("Total Rent : 0", style: TextStyle(color: Colors.black, fontSize: 16)) : Text("Total Rent: $totalrent", style: TextStyle(color: Colors.black, fontSize: 16))
+                                            ),
+                                            SizedBox(height: 2),
+                                            Divider(height: 1, color: Colors.grey, thickness: 1),
+                                            SizedBox(height: 20),
+                                            Align(
+                                                alignment: Alignment.topLeft,
+                                                child: totalsecurity == "" || totalsecurity == "null" || totalsecurity == null ? Text("Total Security : 0", style: TextStyle(color: Colors.black, fontSize: 16)) : Text("Total Security: $totalsecurity", style: TextStyle(color: Colors.black, fontSize: 16))
+                                            ),
+                                            SizedBox(height: 2),
+                                            Divider(height: 1, color: Colors.grey, thickness: 1),
+                                            SizedBox(height: 20),
+                                            Align(
+                                                alignment: Alignment.topLeft,
+                                                child: finalamount == "" || finalamount == "null" || finalamount == null ? Text("Final Amount : 0", style: TextStyle(color: Colors.black, fontSize: 16)) : Text("Final Amount: $finalamount", style: TextStyle(color: Colors.black, fontSize: 16))
+                                            ),
+                                            SizedBox(height: 2),
+                                            Divider(height: 1, color: Colors.grey, thickness: 1),
+                                            SizedBox(height: 10),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Text(startDate, style: TextStyle(color: Colors.black, fontSize: 16)),
+                                                IconButton(onPressed: (){
+                                                  _selectStartDate(context, setState);
+                                                }, icon: Icon(Icons.calendar_today, size: 16))
+                                              ],
+                                            ),
+                                            Divider(height: 1, color: Colors.grey, thickness: 1),
+                                            SizedBox(height: 25),
+                                            InkWell(
+                                              onTap: () {
+                                                _setmakeoffer();
+                                              },
+                                              child: Container(
+                                                height: 45,
+                                                width: double.infinity,
+                                                alignment: Alignment.center,
+                                                decoration: const BoxDecoration(
+                                                    color: Colors.deepOrangeAccent,
+                                                    borderRadius: BorderRadius.all(Radius.circular(8.0))
+                                                ),
+                                                child: Text("Make Offer", style: TextStyle(color: Colors.white)),
+                                              ),
+                                            )
+                                          ]
+                                      ),
+                                    ),
+                                  )
+                                  );
+                                }
+                            ));
+                          }
                        },
                        child: Container(
                          height: 45,
@@ -508,6 +736,32 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
          ),
        ),
     );
+  }
+
+  Future _getcheckapproveData() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final body = {
+      //"user_id": "846",  //this is business user id
+      "user_id": prefs.getString('userid'),
+    };
+    var response = await http.post(Uri.parse(BASE_URL + checkapprove),
+        body: jsonEncode(body),
+        headers: {
+          "Accept" : "application/json",
+          'Content-Type' : 'application/json'
+        }
+    );
+    if (response.statusCode == 200) {
+      var data = json.decode(response.body)['Response'];
+      setState(() {
+        usertype = data['user_type'].toString();
+        trustedbadge = data['trusted_badge'].toString();
+        trustedbadgeapproval = data['trusted_badge_approval'].toString();
+      });
+
+    } else {
+      throw Exception('Failed to get data due to ${response.body}');
+    }
   }
 
   String _getrenttypeamounthint(String renttype){

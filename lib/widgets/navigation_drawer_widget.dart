@@ -17,6 +17,7 @@ import 'package:rentit4me/views/myorders_screen.dart';
 import 'package:rentit4me/views/myticket_screen.dart';
 import 'package:rentit4me/views/offer_made_screen.dart';
 import 'package:rentit4me/views/payment_screen.dart';
+import 'package:rentit4me/views/pending_status_screen.dart';
 import 'package:rentit4me/views/profile_screen.dart';
 import 'package:rentit4me/views/select_membership_screen.dart';
 import 'package:rentit4me/views/user_detail_screen.dart';
@@ -37,11 +38,17 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
   String urlImage;
   String mobile;
 
+  //Check Approval
+  String usertype;
+  String trustedbadge;
+  String trustedbadgeapproval;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _getuserdetail();
+    _getcheckapproveData();
   }
 
   Future _getuserdetail() async{
@@ -103,7 +110,18 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                       Align(
                           alignment : Alignment.topLeft,
                           child: TextButton(
-                            onPressed: (){Navigator.push(context, MaterialPageRoute(builder: (context) => SelectMemberShipScreen()));},
+                            onPressed: (){
+                              if(trustedbadge == "1") {
+                                 if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
+                                   Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                                 }
+                                 else{
+                                   Navigator.push(context, MaterialPageRoute(builder: (context) => SelectMemberShipScreen()));
+                                 }
+                              }
+                              else{
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => SelectMemberShipScreen()));
+                              }},
                             child: Text("Membership & Subscriptions", style: TextStyle(color: Colors.white, fontSize: 16)),
                           )
                       ),
@@ -111,7 +129,17 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                           alignment : Alignment.topLeft,
                           child: TextButton(
                             onPressed: (){
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentScreen()));
+                              if(trustedbadge == "1") {
+                                 if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
+                                   Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                                 }
+                                 else{
+                                   Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentScreen()));
+                                 }
+                              }
+                              else{
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentScreen()));
+                              }
                             },
                             child: Text("Payment", style: TextStyle(color: Colors.white, fontSize: 16)),
                           )
@@ -120,7 +148,17 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                           alignment : Alignment.topLeft,
                           child: TextButton(
                             onPressed: (){
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => GenerateTicketScreen()));
+                              if(trustedbadge == "1"){
+                                 if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
+                                   Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                                 }
+                                 else{
+                                   Navigator.push(context, MaterialPageRoute(builder: (context) => GenerateTicketScreen()));
+                                 }
+                              }
+                              else{
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => GenerateTicketScreen()));
+                              }
                             },
                             child: Text("Generate Ticket", style: TextStyle(color: Colors.white, fontSize: 16)),
                           )
@@ -129,9 +167,17 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                           alignment : Alignment.topLeft,
                           child: TextButton(
                             onPressed: (){
-                              Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => MyticketScreen(),
-                              ));
+                              if(trustedbadge == "1"){
+                                if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                                }
+                                else{
+                                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => MyticketScreen()));
+                                }
+                              }
+                              else{
+                                Navigator.of(context).push(MaterialPageRoute(builder: (context) => MyticketScreen()));
+                              }
                             },
                             child: Text("My Ticket", style: TextStyle(color: Colors.white, fontSize: 16)),
                           )
@@ -204,14 +250,39 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                       Align(
                         alignment: Alignment.topLeft,
                         child: TextButton(
-                          onPressed: (){Navigator.push(context, MaterialPageRoute(builder: (context) => OfferMadeScreen()));},
+                          onPressed: (){
+                            if(trustedbadge == "1"){
+                              if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                              }
+                              else{
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => OfferMadeScreen()));
+                              }
+                            }
+                            else{
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => OfferMadeScreen()));
+                            }
+                            },
                           child:  Text("Offers Made", style: TextStyle(color: Colors.white, fontSize: 16)),
                         ),
                       ),
                       Align(
                         alignment: Alignment.topLeft,
                         child: TextButton(
-                          onPressed: (){Navigator.push(context, MaterialPageRoute(builder: (context) => OfferRecievedScreen()));},
+                          onPressed: (){
+                            if(trustedbadge == "1"){
+                              if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                              }
+                              else{
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => OfferRecievedScreen()));
+                              }
+                            }
+                            else{
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => OfferRecievedScreen()));
+                            }
+
+                            },
                           child: Text("Offers Recieved", style: TextStyle(color: Colors.white, fontSize: 16)),
                         ),
                       ),
@@ -227,21 +298,53 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                         alignment: Alignment.topLeft,
                         child: TextButton(
                           onPressed: (){
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => MyOrdersScreen()));
+                            if(trustedbadge == "1") {
+                              if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                              }
+                              else{
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => MyOrdersScreen()));
+                              }
+                            }
+                            else{
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => MyOrdersScreen()));
+                            }
                           },
                           child: Text("My Orders", style: TextStyle(color: Colors.white, fontSize: 16)),
                         ),
                       ),
                       Align(
                         alignment: Alignment.topLeft,
-                        child: TextButton(onPressed: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => ActiveOrderScreen()));
+                        child: TextButton(onPressed: () {
+                          if(trustedbadge == "1") {
+                            if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                            }
+                            else{
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => ActiveOrderScreen()));
+                            }
+                          }
+                          else{
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => ActiveOrderScreen()));
+                          }
+
                         }, child: Text("Active Orders", style: TextStyle(color: Colors.white, fontSize: 16))),
                       ),
                       Align(
                         alignment: Alignment.topLeft,
                         child: TextButton(onPressed: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => CompletedOrderScreen()));
+                          if(trustedbadge == "1"){
+                            if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                            }
+                            else{
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => CompletedOrderScreen()));
+                            }
+                          }
+                          else{
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => CompletedOrderScreen()));
+                          }
+
                         }, child: Text("Completed Orders", style: TextStyle(color: Colors.white, fontSize: 16))),
                       ),
                       Align(
@@ -264,7 +367,18 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                         alignment: Alignment.topLeft,
                         child: TextButton(
                           onPressed: (){
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => UserDetailScreen()));
+                            if(trustedbadge == "1"){
+                              if(trustedbadgeapproval == null || trustedbadgeapproval == "null" || trustedbadgeapproval == "" || trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                              }
+                              else{
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => UserDetailScreen()));
+                              }
+                            }
+                            else{
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => UserDetailScreen()));
+                            }
+
                           },
                           child: Text("Basic Detail", style: TextStyle(color: Colors.white, fontSize: 16)),
                         ),
@@ -380,6 +494,32 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
     if (response.statusCode == 200) {
       var data = json.decode(response.body)['Response'];
       return data;
+    } else {
+      throw Exception('Failed to get data due to ${response.body}');
+    }
+  }
+
+  Future _getcheckapproveData() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final body = {
+      //"user_id": "846",  //this is business user id
+      "user_id": prefs.getString('userid'),
+    };
+    var response = await http.post(Uri.parse(BASE_URL + checkapprove),
+        body: jsonEncode(body),
+        headers: {
+          "Accept" : "application/json",
+          'Content-Type' : 'application/json'
+        }
+    );
+    if (response.statusCode == 200) {
+      var data = json.decode(response.body)['Response'];
+      setState(() {
+         usertype = data['user_type'].toString();
+         trustedbadge = data['trusted_badge'].toString();
+         trustedbadgeapproval = data['trusted_badge_approval'].toString();
+      });
+
     } else {
       throw Exception('Failed to get data due to ${response.body}');
     }
