@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:rentit4me/views/OfferRecievedScreen.dart';
 import 'package:rentit4me/views/business_detail_screen.dart';
+import 'package:rentit4me/views/dashboard.dart';
 import 'package:rentit4me/views/generate_ticket_screen.dart';
 import 'package:rentit4me/views/home_screen.dart';
 import 'package:rentit4me/views/login_screen.dart';
@@ -33,7 +34,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     _checkLoggedIn();
-     _loadWidget();
+    _loadWidget();
   }
 
   _checkLoggedIn() async {
@@ -64,24 +65,24 @@ class _SplashScreenState extends State<SplashScreen> {
     if (this._loggedIn) {
       //return OfferRecievedScreen();
       //return OfferMadeScreen();
-       //return MyOrdersScreen();
+      //return MyOrdersScreen();
       //return MyticketScreen();
-       //return GenerateTicketScreen();
-       //return ProductDetailScreen();
+      //return GenerateTicketScreen();
+      //return ProductDetailScreen();
       //return BankAndBusinessDetailScreen();
       //return PersonalDetailScreen();
-      return HomeScreen();
+      return Dashboard();
     } else {
       //return OfferRecievedScreen();
       //return OfferMadeScreen();
-       //return MyOrdersScreen();
+      //return MyOrdersScreen();
       //return MyticketScreen();
       //return GenerateTicketScreen();
-        //return HomeScreen();
-         //return ProductDetailScreen();
-        //return BankAndBusinessDetailScreen();
-       //return PersonalDetailScreen();
-       return LoginScreen();
+      //return HomeScreen();
+      //return ProductDetailScreen();
+      //return BankAndBusinessDetailScreen();
+      //return PersonalDetailScreen();
+      return LoginScreen();
     }
   }
 
@@ -89,11 +90,10 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Center(
-          child: Image.asset(
-            'assets/images/logo.png',
-            scale: 10,
-          ),
-        )
-    );
+      child: Image.asset(
+        'assets/images/logo.png',
+        scale: 10,
+      ),
+    ));
   }
 }

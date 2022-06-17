@@ -6,6 +6,7 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:rentit4me/network/api.dart';
 import 'package:rentit4me/themes/constant.dart';
 import 'package:http/http.dart' as http;
+import 'package:rentit4me/views/dashboard.dart';
 import 'package:rentit4me/views/home_screen.dart';
 import 'package:rentit4me/views/signup_business_screen.dart';
 import 'package:rentit4me/views/signup_consumer_screen.dart';
@@ -19,7 +20,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
   bool _loading = false;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -57,8 +57,12 @@ class _LoginScreenState extends State<LoginScreen> {
         setState(() {
           _connectionStatus = result.toString();
         });
-        if(_connectionStatus.toString() == ConnectivityResult.none.toString()){
-          _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text("Please check your internet connection.", style: TextStyle(color: Colors.white)),backgroundColor: Colors.red));
+        if (_connectionStatus.toString() ==
+            ConnectivityResult.none.toString()) {
+          _scaffoldKey.currentState.showSnackBar(SnackBar(
+              content: Text("Please check your internet connection.",
+                  style: TextStyle(color: Colors.white)),
+              backgroundColor: Colors.red));
         }
         break;
       default:
@@ -117,87 +121,107 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Column(
                         children: [
                           SizedBox(height: 10),
-                          Text("Sign In", style: TextStyle(color: Colors.deepOrangeAccent, fontSize: 16)),
+                          Text("Sign In",
+                              style: TextStyle(
+                                  color: Colors.deepOrangeAccent,
+                                  fontSize: 16)),
                           Padding(
-                              padding: EdgeInsets.only(left: 15, top: 10, right: 15),
+                              padding:
+                                  EdgeInsets.only(left: 15, top: 10, right: 15),
                               child: Container(
                                 height: 50,
                                 width: double.infinity,
                                 alignment: Alignment.center,
                                 decoration: const BoxDecoration(
-                                    borderRadius: BorderRadius.all(Radius.circular(5.0))
-                                ),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(5.0))),
                                 child: Card(
                                   color: Colors.white,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(5.0),
                                   ),
                                   child: Padding(
-                                    padding: EdgeInsets.only(left: 10, bottom: 7.0),
+                                    padding:
+                                        EdgeInsets.only(left: 10, bottom: 7.0),
                                     child: TextField(
                                       decoration: const InputDecoration(
                                         hintText: "Email",
                                         hintStyle: TextStyle(
                                             color: kPrimaryColor,
                                             fontWeight: FontWeight.w500,
-                                            fontSize: 14
-                                        ),
+                                            fontSize: 14),
                                         border: InputBorder.none,
                                       ),
                                       onChanged: (String value) {
-                                           emailController.text = value.toString();
+                                        emailController.text = value.toString();
                                       },
                                     ),
                                   ),
                                 ),
                               )),
                           Padding(
-                              padding: EdgeInsets.only(left: 15, top: 10, right: 15),
+                              padding:
+                                  EdgeInsets.only(left: 15, top: 10, right: 15),
                               child: Container(
                                 height: 50,
                                 width: double.infinity,
                                 decoration: const BoxDecoration(
-                                    borderRadius: BorderRadius.all(Radius.circular(5.0))
-                                ),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(5.0))),
                                 child: Card(
                                     color: Colors.white,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(5.0),
-                                    ), child: Padding(
-                                  padding: EdgeInsets.only(left: 10, bottom: 7.0),
-                                  child: TextFormField(
-                                    decoration: const InputDecoration(
-                                      hintText: "Password",
-                                      hintStyle: TextStyle(
-                                          color: kPrimaryColor,
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 14
-                                      ),
-                                      border: InputBorder.none,
                                     ),
-                                    onChanged: (String value) {
-                                      passwordController.text = value.toString();
-                                    },
-                                  ),
-                                )
-                                ),
+                                    child: Padding(
+                                      padding: EdgeInsets.only(
+                                          left: 10, bottom: 7.0),
+                                      child: TextFormField(
+                                        decoration: const InputDecoration(
+                                          hintText: "Password",
+                                          hintStyle: TextStyle(
+                                              color: kPrimaryColor,
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 14),
+                                          border: InputBorder.none,
+                                        ),
+                                        onChanged: (String value) {
+                                          passwordController.text =
+                                              value.toString();
+                                        },
+                                      ),
+                                    )),
                               )),
                           Padding(
                             padding: EdgeInsets.fromLTRB(15, 10, 15, 0),
                             child: InkWell(
-                              onTap: (){
-                                 if(emailController.text.toString().trim().length == 0 || emailController.text.toString().trim().isEmpty){
-                                   showToast("Please enter valid email address");
-                                   return;
-                                 }
-                                 else if(passwordController.text.isEmpty || passwordController.text.toString().trim().length == 0){
-                                   showToast("Please enter valid password");
-                                   return;
-                                 }
-                                 else{
-                                   _login(emailController.text.toString().trim(), passwordController.text.toString().trim());
-                                 }
-
+                              onTap: () {
+                                if (emailController.text
+                                            .toString()
+                                            .trim()
+                                            .length ==
+                                        0 ||
+                                    emailController.text
+                                        .toString()
+                                        .trim()
+                                        .isEmpty) {
+                                  showToast("Please enter valid email address");
+                                  return;
+                                } else if (passwordController.text.isEmpty ||
+                                    passwordController.text
+                                            .toString()
+                                            .trim()
+                                            .length ==
+                                        0) {
+                                  showToast("Please enter valid password");
+                                  return;
+                                } else {
+                                  _login(
+                                      emailController.text.toString().trim(),
+                                      passwordController.text
+                                          .toString()
+                                          .trim());
+                                }
                               },
                               child: Container(
                                 height: 45,
@@ -205,9 +229,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                 alignment: Alignment.center,
                                 decoration: const BoxDecoration(
                                     color: kPrimaryColor,
-                                    borderRadius: BorderRadius.all(Radius.circular(21))
-                                ),
-                                child: Text("Login", style: TextStyle(color: Colors.white, fontSize: 16)),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(21))),
+                                child: Text("Login",
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 16)),
                               ),
                             ),
                           ),
@@ -219,18 +245,23 @@ class _LoginScreenState extends State<LoginScreen> {
                               alignment: Alignment.center,
                               decoration: const BoxDecoration(
                                   color: kPrimaryColor,
-                                  borderRadius: BorderRadius.all(Radius.circular(21))
-                              ),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(21))),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
                                   Padding(
                                     padding: EdgeInsets.only(left: 15),
-                                    child: Image.asset('assets/images/facebook.png', scale: 20,),
+                                    child: Image.asset(
+                                      'assets/images/facebook.png',
+                                      scale: 20,
+                                    ),
                                   ),
                                   const Padding(
                                     padding: EdgeInsets.only(left: 5.0),
-                                    child: Text("Login with Facebook",style: TextStyle(fontSize: 14, color: Colors.white)),
+                                    child: Text("Login with Facebook",
+                                        style: TextStyle(
+                                            fontSize: 14, color: Colors.white)),
                                   )
                                 ],
                               ),
@@ -244,17 +275,22 @@ class _LoginScreenState extends State<LoginScreen> {
                               alignment: Alignment.center,
                               decoration: const BoxDecoration(
                                   color: Colors.red,
-                                  borderRadius: BorderRadius.all(Radius.circular(21))
-                              ),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(21))),
                               child: Row(
                                 children: [
                                   Padding(
                                     padding: EdgeInsets.only(left: 15),
-                                    child: Image.asset('assets/images/google.png', scale: 20, color: Colors.white),
+                                    child: Image.asset(
+                                        'assets/images/google.png',
+                                        scale: 20,
+                                        color: Colors.white),
                                   ),
                                   const Padding(
                                     padding: EdgeInsets.only(left: 5.0),
-                                    child: Text("Login with Google",style: TextStyle(fontSize: 14, color: Colors.white)),
+                                    child: Text("Login with Google",
+                                        style: TextStyle(
+                                            fontSize: 14, color: Colors.white)),
                                   )
                                 ],
                               ),
@@ -267,19 +303,28 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const Padding(
                   padding: EdgeInsets.fromLTRB(0, 15, 0, 0),
-                  child: Text("Are you a Business?", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w400)),
+                  child: Text("Are you a Business?",
+                      style: TextStyle(
+                          color: kPrimaryColor,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400)),
                 ),
                 Padding(
                     padding: EdgeInsets.fromLTRB(0, 15, 0, 0),
                     child: InkWell(
-                      onTap: (){
-                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  SignupScreen()));
+                      onTap: () {
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    SignupScreen()));
                       },
                       child: Container(
                         height: 45,
                         width: size.width * 0.80,
                         decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(20.0)),
                             gradient: LinearGradient(
                               begin: Alignment.topRight,
                               end: Alignment.bottomLeft,
@@ -287,8 +332,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 Colors.deepOrange.shade400,
                                 Colors.red,
                               ],
-                            )
-                        ),
+                            )),
                         child: const Center(
                           child: Text(
                             'Click Here To Signup',
@@ -302,25 +346,32 @@ class _LoginScreenState extends State<LoginScreen> {
                     )),
                 const Padding(
                     padding: EdgeInsets.fromLTRB(15, 15, 15, 0),
-                    child: Divider(color: Colors.black, height: 1)
-                ),
+                    child: Divider(color: Colors.black, height: 1)),
                 const Padding(
                   padding: EdgeInsets.fromLTRB(0, 15, 0, 0),
-                  child: Text("Are you a Consumer?", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w400)),
+                  child: Text("Are you a Consumer?",
+                      style: TextStyle(
+                          color: kPrimaryColor,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400)),
                 ),
                 Padding(
                     padding: EdgeInsets.fromLTRB(0, 15, 0, 0),
                     child: InkWell(
-                      onTap: (){
-                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  SignupConsumerScreen()));
+                      onTap: () {
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    SignupConsumerScreen()));
                       },
                       child: Container(
                         height: 45,
                         width: size.width * 0.80,
                         decoration: const BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                            color: Colors.purple
-                        ),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(20.0)),
+                            color: Colors.purple),
                         child: const Center(
                           child: Text(
                             'Click Here To Signup',
@@ -335,8 +386,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ],
             ),
           ),
-        )
-    );
+        ));
   }
 
   Future _login(String email, String password) async {
@@ -346,27 +396,28 @@ class _LoginScreenState extends State<LoginScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final body = {
       "email": email,
-      "password" : password,
+      "password": password,
     };
     var response = await http.post(Uri.parse(BASE_URL + login),
         body: jsonEncode(body),
         headers: {
           "Accept": "application/json",
           'Content-Type': 'application/json'
-        }
-    );
+        });
     if (response.statusCode == 200) {
       setState(() {
         _loading = false;
       });
-      if(jsonDecode(response.body)['ErrorCode'].toString() == "0"){
-         prefs.setBool('logged_in', true);
-         prefs.setString('userid', jsonDecode(response.body)['Response']['id'].toString());
-         prefs.setString('usertype', jsonDecode(response.body)['Response']['user_type'].toString());
-         Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  HomeScreen()));
-      }
-      else {
-          showToast(jsonDecode(response.body)['ErrorMessage'].toString());
+      if (jsonDecode(response.body)['ErrorCode'].toString() == "0") {
+        prefs.setBool('logged_in', true);
+        prefs.setString(
+            'userid', jsonDecode(response.body)['Response']['id'].toString());
+        prefs.setString('usertype',
+            jsonDecode(response.body)['Response']['user_type'].toString());
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (BuildContext context) => Dashboard()));
+      } else {
+        showToast(jsonDecode(response.body)['ErrorMessage'].toString());
       }
     } else {
       setState(() {

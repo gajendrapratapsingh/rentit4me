@@ -1,6 +1,7 @@
 const String BASE_URL = "https://dev.techstreet.in/rentit4me/public/api/";
 
-const String imagepath = "https://dev.techstreet.in/rentit4me/public/assets/frontend/images/category/";
+const String imagepath =
+    "https://dev.techstreet.in/rentit4me/public/assets/frontend/images/category/";
 const String sliderpath = "https://dev.techstreet.in/rentit4me/public/";
 const String bannerpath = "https://dev.techstreet.in/rentit4me/public/";
 
@@ -41,3 +42,5 @@ const String trustedbadgepay = "pay-for-trusted-badge";
 const String offermadepay = "pay-for-order";
 const String transactions = "transactions";
 const String checkapprove = "check-approve";
+const String search = "leads/search";
+const String categoryclick = "category-click";
