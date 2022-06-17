@@ -266,7 +266,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                                     else{
                                                       setState((){
                                                         useramount = useramount == null ? null : useramount;
-                                                        days=days == null ? null : days;
+                                                        days = days == null ? null : days;
                                                       });
 
                                                       int qtyg = int.parse(value.toString());
