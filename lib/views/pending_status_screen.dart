@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:rentit4me/themes/constant.dart';
 
-
 class PendingStatusScreen extends StatefulWidget {
   const PendingStatusScreen({Key key}) : super(key: key);
 
@@ -13,7 +12,6 @@ class PendingStatusScreen extends StatefulWidget {
 }
 
 class _PendingStatusScreenState extends State<PendingStatusScreen> {
-
   bool _loading = false;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -48,8 +46,12 @@ class _PendingStatusScreenState extends State<PendingStatusScreen> {
         setState(() {
           _connectionStatus = result.toString();
         });
-        if(_connectionStatus.toString() == ConnectivityResult.none.toString()){
-          _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text("Please check your internet connection.", style: TextStyle(color: Colors.white)),backgroundColor: Colors.red));
+        if (_connectionStatus.toString() ==
+            ConnectivityResult.none.toString()) {
+          _scaffoldKey.currentState.showSnackBar(SnackBar(
+              content: Text("Please check your internet connection.",
+                  style: TextStyle(color: Colors.white)),
+              backgroundColor: Colors.red));
         }
         break;
       default:
@@ -96,12 +98,22 @@ class _PendingStatusScreenState extends State<PendingStatusScreen> {
                     child: Column(
                       children: [
                         SizedBox(height: 10),
-                        Text("Under Process", style: TextStyle(color: Colors.black, fontSize: 21, fontWeight: FontWeight.w700)),
+                        Text("Under Process",
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 21,
+                                fontWeight: FontWeight.w700)),
                         const SizedBox(height: 15),
-                        Text("Your Application is under process, Approval pending from Admin For Trusted Badge.", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 18, fontWeight: FontWeight.w500)),
+                        Text(
+                            "Your Application is under process, Approval pending from Admin For Trusted Badge.",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500)),
                         SizedBox(height: 15),
                         InkWell(
-                          onTap: (){
+                          onTap: () {
                             Navigator.pop(context);
                           },
                           child: Container(
@@ -109,13 +121,12 @@ class _PendingStatusScreenState extends State<PendingStatusScreen> {
                               decoration: BoxDecoration(
                                   color: Colors.deepOrangeAccent,
                                   border: Border.all(
-                                      width: 1,
-                                      color: Colors.deepOrangeAccent
-                                  ),
-                                  borderRadius: BorderRadius.all(Radius.circular(12))
-                              ),
-                              child: Text("Back to Home", style: TextStyle(color: Colors.white, fontSize: 16))
-                          ),
+                                      width: 1, color: Colors.deepOrangeAccent),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(12))),
+                              child: Text("Back to Home",
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 16))),
                         ),
                       ],
                     ),
