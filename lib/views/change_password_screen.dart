@@ -1,8 +1,14 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:rentit4me/network/api.dart';
 import 'package:rentit4me/themes/constant.dart';
 import 'package:rentit4me/views/forget_password_screen.dart';
+import 'package:rentit4me/views/login_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({Key key}) : super(key: key);
@@ -72,17 +78,16 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 2.0,
-        leading: Padding(
-          padding: EdgeInsets.only(left: 10),
-          child: Image.asset('assets/images/logo.png'),
-        ),
+        leading: InkWell(
+            onTap: () {
+              Navigator.of(context).pop();
+            },
+            child: Icon(
+              Icons.arrow_back,
+              color: kPrimaryColor,
+            )),
         title: Text("Change Password", style: TextStyle(color: kPrimaryColor)),
         centerTitle: true,
-        /*actions: [
-          IconButton(onPressed:(){}, icon: Icon(Icons.edit, color: kPrimaryColor)),
-          IconButton(onPressed:(){}, icon: Icon(Icons.account_circle, color: kPrimaryColor)),
-          IconButton(onPressed:(){}, icon: Icon(Icons.menu, color: kPrimaryColor))
-        ],*/
       ),
       body: ModalProgressHUD(
         inAsyncCall: _loading,
@@ -98,11 +103,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       children: [
-                        const Align(
-                          alignment: Alignment.topLeft,
-                          child: Text("Change Password", style: TextStyle(color: kPrimaryColor, fontSize: 18, fontWeight: FontWeight.w700)),
-                        ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 5),
                         const Align(
                             alignment: Alignment.topLeft,
                             child: Text("Current Password", style: TextStyle(color: kPrimaryColor, fontSize: 14, fontWeight: FontWeight.w500))),
@@ -191,10 +192,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                            padding: EdgeInsets.only(left: size.width * 0.50),
                            child: TextButton(
                              onPressed: (){
+                               //_resetpassword();
                                Navigator.push(context, MaterialPageRoute(builder: (context) => ForgetPasswordScreen()));
                              },
                              child: Column(
-                               children: [
+                               children: const[
                                  Text("Forget Password", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
                                  Divider(color: kPrimaryColor, height: 2, thickness: 1),
                                ],
@@ -208,7 +210,21 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 SizedBox(height: 10),
                 InkWell(
                   onTap: () {
-                    //_generateticket();
+                      if(currentpassword == "" || currentpassword == null || currentpassword == "Enter your password"){
+                         showToast("Please enter current password");
+                         return;
+                      }
+                      else if(newpassword == "" || newpassword == null || newpassword == "Enter New Password"){
+                         showToast("Please enter new password");
+                         return;
+                      }
+                      else if(confirmpassword == "" || confirmpassword == null || confirmpassword == "Enter Confirm Password"){
+                        showToast("Please enter confirm password");
+                         return;
+                      }
+                      else{
+                         _changepassword();
+                      }
                   },
                   child: Card(
                     elevation: 8.0,
@@ -233,5 +249,57 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _changepassword() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState((){
+      _loading = true;
+    });
+    final body = {
+      "id": prefs.getString('userid'),
+      "current_password" : currentpassword,
+      "new_password" : newpassword,
+      "new_confirm_password" : confirmpassword
+    };
+    var response = await http.post(Uri.parse(BASE_URL + "change-password"),
+        body: jsonEncode(body),
+        headers: {
+          "Accept": "application/json",
+          'Content-Type': 'application/json'
+        }
+    );
+    print(response.body);
+    if (response.statusCode == 200) {
+      if(jsonDecode(response.body)['ErrorCode'].toString() == "0"){
+        setState((){
+          _loading = false;
+        });
+        showToast(jsonDecode(response.body)['ErrorMessage'].toString());
+        prefs.clear();
+        Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+      }
+      else {
+        setState((){
+          _loading = false;
+        });
+        showToast(jsonDecode(response.body)['ErrorMessage'].toString());
+      }
+    } else {
+      setState((){
+        _loading = false;
+      });
+      print(response.body);
+      throw Exception('Failed to get data due to ${response.body}');
+    }
+  }
+
+  Future<void> _resetpassword() async{
+    const url = "https://dev.techstreet.in/rentit4me/public/password/reset";
+    if (await canLaunch(url))
+      await launch(url);
+    else
+      // can't launch url, there is some error
+      throw "Could not launch $url";
   }
 }

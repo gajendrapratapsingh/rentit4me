@@ -1,13 +1,13 @@
 const String BASE_URL = "https://dev.techstreet.in/rentit4me/public/api/";
 
-const String imagepath =
-    "https://dev.techstreet.in/rentit4me/public/assets/frontend/images/category/";
+const String imagepath = "https://dev.techstreet.in/rentit4me/public/assets/frontend/images/category/";
 const String sliderpath = "https://dev.techstreet.in/rentit4me/public/";
 const String bannerpath = "https://dev.techstreet.in/rentit4me/public/";
 
 const String register = "signup";
 const String login = "login";
 const String categoryUrl = "categories";
+const String subcategoryUrl = "fetch-subcategory";
 const String homeUrl = "home";
 const String countrycodeUrl = "country-with-code";
 const String profileUrl = "profile";
@@ -29,6 +29,7 @@ const String billingandtaxation = "billing-and-taxation";
 const String generateticket = "new-ticket";
 const String ticketlist = "all-tickets";
 const String viewticket = "my-ticket";
+const String fetchticket = "fetch-comment";
 const String myorders = "my-orders";
 const String activeorders = "active-orders";
 const String completedorders = "completed-orders";
@@ -44,3 +45,29 @@ const String transactions = "transactions";
 const String checkapprove = "check-approve";
 const String search = "leads/search";
 const String categoryclick = "category-click";
+const String postadstore = "post-ad-store";
+const String bulkstorepost = "import";
+const String listingUrl = "listings";
+const String changepasswordUrl = "change-password";
+
+const String postboost = "posted-ads/boost";
+const String previewpost = "preview-posted-ads";
+const String editviewpost = "posted-ads/edit";
+const String updatepost = "posted-ads/update";
+const String payforboost = "pay-for-boostAd";
+const String payformembership = "pay-for-membarship";
+
+const String messagesurl = "inbox";
+
+const String makepayment = "payment";
+const String chathistory = "chat-history";
+const String chatuserlist = "chat-list";
+const String createdialogid = "initializechat";
+
+const String offerdetail = "offers-details";
+const String orderdetail = "order-details";
+const String rating = "order-rating";
+
+const String ticketpostcomment = "post-comment";
+const String orderrespond = "renter-orders/status";
+const String filterUrl = "browse-ads";

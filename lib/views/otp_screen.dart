@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:http/http.dart' as http;
@@ -28,6 +29,54 @@ class _OtpScreenState extends State<OtpScreen> {
   String otp;
   _OtpScreenState(this.phone, this.otp);
 
+  String _connectionStatus = 'Unknown';
+  final Connectivity _connectivity = Connectivity();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    initConnectivity();
+  }
+
+  // Platform messages are asynchronous, so we initialize in an async method.
+  Future<void> initConnectivity() async {
+    ConnectivityResult result;
+    try {
+      result = await _connectivity.checkConnectivity();
+    } on Exception catch (e) {
+      print(e.toString());
+    }
+    if (!mounted) {
+      return Future.value(null);
+    }
+    return _updateConnectionStatus(result);
+  }
+
+  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+    switch (result) {
+      case ConnectivityResult.wifi:
+      case ConnectivityResult.mobile:
+      case ConnectivityResult.none:
+        setState(() {
+          _connectionStatus = result.toString();
+        });
+        if (_connectionStatus.toString() ==
+            ConnectivityResult.none.toString()) {
+          _scaffoldKey.currentState.showSnackBar(SnackBar(
+              content: Text("Please check your internet connection.",
+                  style: TextStyle(color: Colors.white)),
+              backgroundColor: Colors.red));
+        }
+        break;
+      default:
+        setState(() {
+          _connectionStatus = 'Failed to get connectivity.';
+        });
+        break;
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -39,17 +88,16 @@ class _OtpScreenState extends State<OtpScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 2.0,
-        leading: Padding(
-          padding: EdgeInsets.only(left: 10),
-          child: Image.asset('assets/images/logo.png'),
-        ),
+        leading: InkWell(
+            onTap: () {
+              Navigator.of(context).pop();
+            },
+            child: const Icon(
+              Icons.arrow_back,
+              color: kPrimaryColor,
+            )),
         title: Text("OTP", style: TextStyle(color: kPrimaryColor)),
         centerTitle: true,
-        /*actions: [
-          IconButton(onPressed:(){}, icon: Icon(Icons.edit, color: kPrimaryColor)),
-          IconButton(onPressed:(){}, icon: Icon(Icons.account_circle, color: kPrimaryColor)),
-          IconButton(onPressed:(){}, icon: Icon(Icons.menu, color: kPrimaryColor))
-        ],*/
       ),
       body: ModalProgressHUD(
         color: Colors.indigo,
@@ -120,6 +168,9 @@ class _OtpScreenState extends State<OtpScreen> {
               ),
               InkWell(
                 onTap: (){
+                  setState((){
+                     userotp = null;
+                  });
                    _resendotp(phone);
                 },
                 child: const Padding(
@@ -146,25 +197,24 @@ class _OtpScreenState extends State<OtpScreen> {
           aspectRatio: 1.0,
           child: TextField(
             autofocus: true,
-            onChanged: (value) {
+            onChanged:(value) {
               print(value);
               if (value.length == 1 && last == false) {
                 FocusScope.of(context).nextFocus();
               }
-              if (value.length == 0 && first == false) {
+              if(value.length == 0 && first == false) {
                 FocusScope.of(context).previousFocus();
               }
               if(userotp == null || userotp == ""){
-                setState(() {
-                  userotp = value;
+                setState((){
+                   userotp = value.toString().trim();
                 });
               }
               else{
                 setState(() {
-                  userotp = userotp+value;
+                    userotp = userotp+value.toString().trim();
                 });
               }
-              print(userotp);
             },
             showCursor: true,
             readOnly: false,
@@ -191,22 +241,31 @@ class _OtpScreenState extends State<OtpScreen> {
         "Submit",
         style: TextStyle(color: Colors.white),
       ),
-      onPressed: (){
-         if(userotp != otp){
-            print(userotp);
-            print(otp);
-            showToast("Please enter valid otp");
-            return;
+      onPressed: () {
+        if (_connectionStatus.toString() ==
+            ConnectivityResult.none.toString()) {
+          _scaffoldKey.currentState.showSnackBar(const SnackBar(
+              content: Text("Please check your internet connection.",
+                  style: TextStyle(color: Colors.white)),
+              backgroundColor: Colors.red));
+        } else {
+          print("calling");
+          print(otp);
+          print(userotp);
+          if(userotp.toString().trim() != otp.toString().trim()){
+             showToast("Please enter valid otp");
+             return;
           }
-         else{
-           _verifyotp(phone, otp);
-         }
-
+          else{
+            _verifyotp(phone, otp);
+          }
+        }
       },
       style: ElevatedButton.styleFrom(
-          primary: kPrimaryColor,
+          primary: Colors.indigo,
           padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-          textStyle: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500)),
+          textStyle: const TextStyle(
+              color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500)),
     );
   }
 
@@ -228,7 +287,6 @@ class _OtpScreenState extends State<OtpScreen> {
         otp = "";
         otp = jsonDecode(response.body)['Response']['otp'].toString();
       });
-      //Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  OtpScreen()));
     }
 
   }
@@ -246,11 +304,15 @@ class _OtpScreenState extends State<OtpScreen> {
           'Content-Type': 'application/json'
         }
     );
+    print(response.body);
     if(jsonDecode(response.body)['ErrorCode'].toString() == "0"){
       showToast(jsonDecode(response.body)['ErrorMessage'].toString());
       prefs.setString('userid', jsonDecode(response.body)['Response']['id'].toString());
       prefs.setBool('logged_in', true);
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  SelectMemberShipScreen()));
+    }
+    else{
+      showToast(jsonDecode(response.body)['ErrorMessage'].toString());
     }
 
   }

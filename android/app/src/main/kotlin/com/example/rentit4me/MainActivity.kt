@@ -1,4 +1,4 @@
-package com.example.rentit4me
+package com.rent.renteeforme
 
 import io.flutter.embedding.android.FlutterActivity
 

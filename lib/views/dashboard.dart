@@ -1,10 +1,14 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:rentit4me/network/api.dart';
+import 'package:http/http.dart' as http;
 import 'package:rentit4me/views/bottomNavigation.dart';
 import 'package:rentit4me/views/home_screen.dart';
 import 'package:rentit4me/views/offer_made_screen.dart';
 import 'package:rentit4me/views/tabItem.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Dashboard extends StatefulWidget {
   @override
@@ -71,6 +75,7 @@ class DashboardState extends State<Dashboard> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    _getuserdetail();
   }
 
   @override
@@ -109,5 +114,29 @@ class DashboardState extends State<Dashboard> {
             tabs: tabs,
           )),
     );
+  }
+
+  Future _getuserdetail() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final body = {
+      "id": prefs.getString('userid'),
+    };
+    var response = await http.post(Uri.parse(BASE_URL + profileUrl),
+        body: jsonEncode(body),
+        headers: {
+          "Accept" : "application/json",
+          'Content-Type' : 'application/json'
+        }
+    );
+    if (response.statusCode == 200) {
+      if(json.decode(response.body)['Response'] != null){
+        prefs.setString('quickid', json.decode(response.body)['Response']['User']['quickblox_id'].toString());
+        prefs.setString('quicklogin', json.decode(response.body)['Response']['User']['quickblox_email'].toString());
+        prefs.setString('quickpassword', json.decode(response.body)['Response']['User']['quickblox_password'].toString());
+      }
+
+    } else {
+      throw Exception('Failed to get data due to ${response.body}');
+    }
   }
 }

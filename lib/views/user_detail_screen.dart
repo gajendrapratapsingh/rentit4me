@@ -8,6 +8,7 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:rentit4me/network/api.dart';
 import 'package:rentit4me/themes/constant.dart';
 import 'package:http/http.dart' as http;
+import 'package:rentit4me/views/home_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserDetailScreen extends StatefulWidget {
@@ -20,20 +21,16 @@ class UserDetailScreen extends StatefulWidget {
 class _UserDetailScreenState extends State<UserDetailScreen> {
 
   bool _loading = false;
-  String productimage = 'https://images.unsplash.com/photo-1523205771623-e0faa4d2813d?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=89719a0d55dd05e2deae4120227e6efc&auto=format&fit=crop&w=1953&q=80';
 
   List<dynamic> countrylistData = [];
-  List<String> _countrydata = [];
   String initialcountryname;
   String country_id;
 
   List<dynamic> statelistData = [];
-  List<String> _statedata = [];
   String initialstatename;
   String state_id;
 
   List<dynamic> citylistData = [];
-  List<String> _citydata = [];
   String initialcityname;
   String city_id;
 
@@ -58,8 +55,13 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
   int _hidemobile = 0;
   bool _hidemob = false;
 
-  int emailvalue;
-  int smsvalue;
+  List<int> commprefs = [];
+
+  String countryhint = "Select Country";
+  String statehint = "Select State";
+  String cityhint = "Select City";
+
+  bool profilepicbool = false;
 
 
   @override
@@ -77,17 +79,16 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 2.0,
-        leading: Padding(
-          padding: EdgeInsets.only(left: 10),
-          child: Image.asset('assets/images/logo.png'),
-        ),
+        leading: InkWell(
+            onTap: () {
+              Navigator.of(context).pop();
+            },
+            child: const Icon(
+              Icons.arrow_back,
+              color: kPrimaryColor,
+            )),
         title: Text("Profile", style: TextStyle(color: kPrimaryColor)),
         centerTitle: true,
-        /*actions: [
-          IconButton(onPressed:(){}, icon: Icon(Icons.edit, color: kPrimaryColor)),
-          IconButton(onPressed:(){}, icon: Icon(Icons.account_circle, color: kPrimaryColor)),
-          IconButton(onPressed:(){}, icon: Icon(Icons.menu, color: kPrimaryColor))
-        ],*/
       ),
       body: ModalProgressHUD(
         inAsyncCall: _loading,
@@ -106,19 +107,36 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                      padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 8.0),
                      child: Row(
                        children: [
-                         CircleAvatar(
-                           child: ClipRRect(
-                             borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                             child: Image.network(productimage, fit: BoxFit.fill),
-                           ),
-                         ),
+                         profileimage == null || profileimage == "" ? ClipRRect(
+                           borderRadius: BorderRadius.circular(20),
+                           child: Container(
+                            height: 45,
+                            width: 45,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20)
+                            ),
+                            child: CircleAvatar(child: Image.asset('assets/images/no_image.jpg'))),
+                         ) : ClipRRect(
+                             borderRadius: BorderRadius.circular(22),
+                            child: Container(
+                              height: 45,
+                              width: 45,
+                             decoration: BoxDecoration(
+                                 borderRadius: BorderRadius.circular(22)
+                             ),
+                              child: CachedNetworkImage(
+                                  imageUrl: profileimage,
+                                  placeholder: (context, url) => CircularProgressIndicator(),
+                                  errorWidget: (context, url, error) => Image.asset('assets/images/no_image.jpg'),
+                              ),
+                            )),
                          SizedBox(width: 10),
                          Expanded(
                              child: Column(
                                crossAxisAlignment: CrossAxisAlignment.start,
                                mainAxisAlignment: MainAxisAlignment.center,
                                children: [
-                                 Text("Hi! $name", style: TextStyle(color: Colors.deepOrangeAccent, fontSize: 16, fontWeight: FontWeight.w500)),
+                                 name == null || name == "" ? Text("Hi! Guest", style: TextStyle(color: Colors.deepOrangeAccent, fontSize: 16, fontWeight: FontWeight.w500)) : Text("Hi! $name", style: TextStyle(color: Colors.deepOrangeAccent, fontSize: 16, fontWeight: FontWeight.w500)),
                                  membership == "" || membership == null || membership == "null" ? SizedBox() : Text("Membership: $membership", style: TextStyle(color: kPrimaryColor, fontSize: 16))
                                ],
                              )
@@ -128,7 +146,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                              Column(
                                mainAxisAlignment: MainAxisAlignment.center,
                                children: [
-                                 Text("$myads", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
+                                 myads == null || myads == "" ? SizedBox() : Text("$myads", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
                                  Text("My Ads", style: TextStyle(color: Colors.deepOrangeAccent, fontSize: 16))
                                ],
                              ),
@@ -195,7 +213,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                            children: [
                               Text("Hide Mobile", style: TextStyle(color: kPrimaryColor, fontWeight: FontWeight.bold)),
                               SizedBox(width: 10),
-                              Checkbox(value: _hidemob, onChanged: (value){
+                              Checkbox(value: _hidemob, onChanged:(value){
                                 if(value){
                                   setState(() {
                                     _hidemob = value;
@@ -223,7 +241,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                      child: Column(
                        crossAxisAlignment: CrossAxisAlignment.start,
                        children: [
-                         Align(
+                         const Align(
                            alignment: Alignment.center,
                            child: Text("Basic Detail", style: TextStyle(color: kPrimaryColor, fontSize: 21, fontWeight: FontWeight.w700)),
                          ),
@@ -245,10 +263,8 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                                    hintText: name,
                                    border: InputBorder.none,
                                  ),
-                                 onChanged: (value){
-                                   setState(() {
+                                 onChanged:(value){
                                      name = value;
-                                   });
                                  },
                                ),
                              )
@@ -269,7 +285,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                                child: Row(
                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                  children: [
-                                   profileimage.toString() == "" || profileimage.toString() == "null" ? SizedBox() : CircleAvatar(
+                                     profileimage.toString() == "" || profileimage.toString() == "null" ? SizedBox() : CircleAvatar(
                                      radius: 25,
                                      backgroundImage: FileImage(File(profileimage)),
                                     ),
@@ -310,7 +326,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                      child: Column(
                        crossAxisAlignment: CrossAxisAlignment.start,
                        children: [
-                         Align(
+                         const Align(
                            alignment: Alignment.center,
                            child: Text("Social Network", style: TextStyle(color: kPrimaryColor, fontSize: 21, fontWeight: FontWeight.w700)),
                          ),
@@ -333,9 +349,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                                    border: InputBorder.none,
                                  ),
                                  onChanged: (value){
-                                   setState(() {
-                                      fburl = value;
-                                   });
+                                   fburl = value;
                                  },
                                ),
                              )
@@ -359,9 +373,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                                    border: InputBorder.none,
                                  ),
                                  onChanged: (value){
-                                   setState(() {
-                                     twitterurl = value;
-                                   });
+                                   twitterurl = value;
                                  },
                                ),
                              )
@@ -432,6 +444,11 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                              child: Padding(
                                padding: EdgeInsets.only(left: 8.0),
                                child: TextField(
+                                 onChanged: (value){
+                                    setState((){
+                                       linkdinurl = value;
+                                    });
+                                 },
                                  decoration: InputDecoration(
                                    hintText: linkdinurl == null || linkdinurl == "null" || linkdinurl == "" ? "" : linkdinurl,
                                    border: InputBorder.none,
@@ -477,13 +494,10 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                      child: Column(
                        crossAxisAlignment: CrossAxisAlignment.start,
                        children: [
-                         Align(
-                           alignment: Alignment.center,
-                           child: Text("Setting", style: TextStyle(color: kPrimaryColor, fontSize: 21, fontWeight: FontWeight.w700)),
-                         ),
-                         SizedBox(height: 10),
-                         Text("Country*", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
-                         SizedBox(height: 8.0),
+                         const Align(alignment: Alignment.center, child: Text("Setting", style: TextStyle(color: kPrimaryColor, fontSize: 21, fontWeight: FontWeight.w700))),
+                         const SizedBox(height: 10),
+                         const Text("Country*", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
+                         const SizedBox(height: 8.0),
                          Container(
                              decoration: BoxDecoration(
                                  border: Border.all(
@@ -496,35 +510,33 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                                padding: const EdgeInsets.only(left: 10.0, right: 10.0),
                                child: DropdownButtonHideUnderline(
                                  child: DropdownButton<String>(
-                                   hint: Text("Select Country", style: TextStyle(color: Colors.black)),
+                                   hint: Text(countryhint, style: TextStyle(color: Colors.black)),
                                    value: initialcountryname,
                                    elevation: 16,
                                    isExpanded: true,
                                    style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
                                    onChanged: (String data) {
                                      setState(() {
-                                       countrylistData.forEach((element) {
-                                         if(element['name'].toString() == data.toString()){
-                                           initialcountryname = data.toString();
-                                           country_id = element['id'].toString();
-                                           _getStateData(country_id);
-                                         }
-                                       });
-                                     });
+                                         initialcountryname = data.toString();
+                                         initialstatename = null;
+                                         initialcityname = null;
+                                         country_id = data.toString();
+                                         _getStateData(data);
+                                    });
                                    },
-                                   items: _countrydata.map<DropdownMenuItem<String>>((String value) {
+                                   items: countrylistData.map((items) {
                                      return DropdownMenuItem<String>(
-                                       value: value,
-                                       child: Text(value),
+                                       value: items['id'].toString(),
+                                       child: Text(items['name']),
                                      );
                                    }).toList(),
                                  ),
                                ),
                              )
                          ),
-                         SizedBox(height: 10),
-                         Text("State", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
-                         SizedBox(height: 8.0),
+                         const SizedBox(height: 10),
+                         const Text("State", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
+                         const SizedBox(height: 8.0),
                          Container(
                              decoration: BoxDecoration(
                                  border: Border.all(
@@ -539,17 +551,19 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                                  child: DropdownButton<String>(
                                    elevation: 16,
                                    isExpanded: true,
-                                   hint: Text("Select State", style: TextStyle(color: Colors.black, fontSize: 16)),
-                                   items: _statedata.map((String item) => DropdownMenuItem<String>(child: Text(item), value: item)).toList(),
-                                   onChanged: (String value) {
+                                   hint: Text(statehint, style: TextStyle(color: Colors.black, fontSize: 16)),
+                                   items: statelistData.map((items) {
+                                     return DropdownMenuItem<String>(
+                                       value: items['id'].toString(),
+                                       child: Text(items['name']),
+                                     );
+                                   }).toList(),
+                                   onChanged: (String data) {
                                      setState(() {
-                                       this.initialstatename = value;
-                                       statelistData.forEach((element) {
-                                         if(element['name'].toString() == value.toString()){
-                                           state_id = element['id'].toString();
-                                           _getCityData(state_id);
-                                         }
-                                       });
+                                       initialstatename = data.toString();
+                                       initialcityname = null;
+                                       state_id = data.toString();
+                                       _getCityData(state_id);
                                      });
                                    },
                                    value: initialstatename,
@@ -557,9 +571,9 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                                ),
                              )
                          ),
-                         SizedBox(height: 10),
-                         Text("City*", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
-                         SizedBox(height: 8.0),
+                         const SizedBox(height: 10),
+                         const Text("City*", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
+                         const SizedBox(height: 8.0),
                          Container(
                              decoration: BoxDecoration(
                                  border: Border.all(
@@ -572,34 +586,30 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                                padding: const EdgeInsets.only(left: 10.0, right: 10.0),
                                child: DropdownButtonHideUnderline(
                                  child: DropdownButton<String>(
-                                   hint: Text("Select City", style: TextStyle(color: Colors.black)),
+                                   hint: Text(cityhint, style: TextStyle(color: Colors.black)),
                                    value: initialcityname,
                                    elevation: 16,
                                    isExpanded: true,
                                    style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
                                    onChanged: (String data) {
                                      setState(() {
-                                       citylistData.forEach((element) {
-                                         if(element['name'].toString() == data.toString()){
-                                           initialcityname = data.toString();
-                                           city_id = element['id'].toString();
-                                         }
-                                       });
+                                       initialcityname = data.toString();
+                                       city_id = data.toString();
                                      });
                                    },
-                                   items: _citydata.map<DropdownMenuItem<String>>((String value) {
+                                   items: citylistData.map((items) {
                                      return DropdownMenuItem<String>(
-                                       value: value,
-                                       child: Text(value),
+                                       value: items['id'].toString(),
+                                       child: Text(items['name']),
                                      );
                                    }).toList(),
                                  ),
                                ),
                              )
                          ),
-                         SizedBox(height: 10),
-                         Text("Address", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
-                         SizedBox(height: 8.0),
+                         const SizedBox(height: 10),
+                         const Text("Address", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
+                         const SizedBox(height: 8.0),
                          Container(
                              decoration: BoxDecoration(
                                  border: Border.all(
@@ -618,9 +628,9 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                                ),
                              )
                          ),
-                         SizedBox(height: 10),
-                         Text("Pincode", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
-                         SizedBox(height: 8.0),
+                         const SizedBox(height: 10),
+                         const Text("Pincode", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
+                         const SizedBox(height: 8.0),
                          Container(
                              decoration: BoxDecoration(
                                  border: Border.all(
@@ -632,6 +642,11 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                              child: Padding(
                                padding: const EdgeInsets.only(left: 10.0),
                                child: TextField(
+                                 onChanged: (value){
+                                    setState((){
+                                        pincode = value;
+                                    });
+                                 },
                                  decoration: InputDecoration(
                                    hintText: pincode == null || pincode == "null" || pincode == "" ? "" : pincode,
                                    border: InputBorder.none,
@@ -639,8 +654,8 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                                ),
                              )
                          ),
-                         SizedBox(height: 10),
-                         Text("Communication Preferences*", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
+                         const SizedBox(height: 10),
+                         const Text("Communication Preferences*", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
                          SizedBox(height: 8.0),
                          Row(
                            mainAxisAlignment: MainAxisAlignment.start,
@@ -650,8 +665,15 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                                    Checkbox(value: _emailcheck, onChanged: (value){
                                        setState(() {
                                          _emailcheck = value;
-                                         if(_emailcheck){
-                                            emailvalue = 1;
+                                         if(_emailcheck) {
+                                            commprefs.add(1);
+                                         }
+                                         else{
+                                           commprefs.forEach((element) {
+                                              if(element == 1){
+                                                 commprefs.removeWhere((element) => element == 1);
+                                              }
+                                           });
                                          }
                                        });
                                    }),
@@ -664,8 +686,15 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                                  Checkbox(value: _smscheck, onChanged: (value){
                                    setState(() {
                                      _smscheck = value;
-                                     if(_smscheck){
-                                       smsvalue = 2;
+                                     if(_smscheck) {
+                                       commprefs.add(2);
+                                     }
+                                     else{
+                                       commprefs.forEach((element) {
+                                         if(element == 2){
+                                           commprefs.removeWhere((element) => element == 2);
+                                         }
+                                       });
                                      }
                                    });
                                  }),
@@ -681,8 +710,53 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                  SizedBox(height: 10),
                  InkWell(
                    onTap: (){
-                     _basicdetailupdate(name, profileimage, fburl, twitterurl, googleplusurl, instragramurl,
+
+                    if(email == null || email == null){
+                       showToast("Please enter your email");
+                       return;
+                    }
+                    else if(mobile == "" || mobile == null){
+                        showToast("Please enter mobile");
+                        return;
+                    }
+                    else if(name == "" || name == null){
+                        showToast("Please enter your name");
+                        return;
+                    }
+                    else if(!profilepicbool && profileimage.length == 0){
+                      showToast("Please select your profile picture");
+                      return;
+                    }
+                    else if(country_id == "" || country_id == null){
+                      showToast("Please select your country");
+                      return;
+                    }
+                    else if(state_id == "" || state_id == null){
+                      showToast("Please select your state");
+                      return;
+                    }
+                    else if(city_id == "" || city_id == null){
+                      showToast("Please select your city");
+                      return;
+                    }
+                    else if(address == "" || address == null){
+                      showToast("Please enter your address");
+                      return;
+                    }
+                    else if(pincode == "" || pincode == null){
+                      showToast("Please enter your pincode");
+                      return;
+                    }
+                    else if(commprefs.length == 0){
+                      showToast("Please select almost one communication preference");
+                      return;
+                    }
+                    else{
+                      _basicdetailupdate(name, profileimage, fburl, twitterurl, googleplusurl, instragramurl,
                          linkdinurl, youtubeurl, categoryUrl, state_id, city_id, address, pincode);
+                    }
+
+                     
                    },
                    child: Container(
                      width: double.infinity,
@@ -734,6 +808,9 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
   );
 
   Future _getprofileData() async{
+     setState((){
+        _loading = true;
+     });
      SharedPreferences prefs = await SharedPreferences.getInstance();
      final body = {
        "id": prefs.getString('userid'),
@@ -745,24 +822,55 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
            'Content-Type' : 'application/json'
          }
      );
-     if (response.statusCode == 200) {
+     print(response.body);
+     if(response.statusCode == 200) {
        var data = json.decode(response.body)['Response'];
        setState(() {
-         profileimage = data['User']['avatar_base_url'].toString()+data['User']['avatar_path'].toString();
+         _loading = false;
+
+         profileimage = sliderpath+data['User']['avatar_path'].toString();
          myads = data['My Ads'].toString();
          mobile = data['User']['mobile'].toString();
          name = data['User']['name'].toString();
          email = data['User']['email'].toString();
          address = data['User']['address'].toString();
          fburl = data['User']['facebook_url'].toString();
+         twitterurl = data['User']['twitter_url'].toString();
          googleplusurl = data['User']['google_plus_url'].toString();
          instragramurl = data['User']['instagram_url'].toString();
          linkdinurl = data['User']['linkedin_url'].toString();
          youtubeurl = data['User']['youtube_url'].toString();
          pincode = data['User']['pincode'].toString();
+         _hidemob = data['User']['mobile_hidden'] == 1 ? true : false;
+
+         country_id = data['User']['country'].toString();
+         state_id = data['User']['state'].toString();
+         city_id = data['User']['city'].toString();
+
+         countryhint = data['User']['country_name'].toString();
+         statehint = data['User']['state_name'].toString();
+         cityhint = data['User']['city_name'].toString();
+
+
+        List selectedList=  data['User']['preferences'].toString().split(",");
+selectedList.forEach((element) {
+  commprefs.add(int.parse(element));
+});
+        if(selectedList.contains("1")){
+          _emailcheck=true;
+        }
+         if(selectedList.contains("2")){
+           _smscheck=true;
+         }
+
+
+
        });
 
      } else {
+       setState((){
+          _loading = false;
+       });
        throw Exception('Failed to get data due to ${response.body}');
      }
   }
@@ -774,14 +882,10 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
           'Content-Type' : 'application/json'
         }
     );
-    print(response.body);
     if (response.statusCode == 200) {
       Iterable list = json.decode(response.body)['Response']['countries'];
       setState(() {
         countrylistData.addAll(list);
-        countrylistData.forEach((element) {
-          _countrydata.add(element['name'].toString());
-        });
       });
     } else {
       print(response.body);
@@ -790,9 +894,10 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
   }
 
   Future _getStateData(String id) async{
-    print("country id "+id);
-    statelistData.clear();
-    _statedata.clear();
+    setState((){
+      statelistData.clear();
+      _loading = true;
+    });
     final body = {
       "id": int.parse(id),
     };
@@ -803,26 +908,25 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
           'Content-Type' : 'application/json'
         }
     );
-    //print(response.body);
     if (response.statusCode == 200) {
       Iterable list = json.decode(response.body)['Response']['states'];
-      print(list);
       setState(() {
+        _loading = false;
         statelistData.addAll(list);
-        statelistData.forEach((element) {
-          _statedata.add(element['name'].toString());
-        });
       });
     } else {
-      print(response.body);
+      setState(() {
+        _loading = false;
+      });
       throw Exception('Failed to get data due to ${response.body}');
     }
   }
 
   Future _getCityData(String id) async{
-    print("state id "+id);
-    citylistData.clear();
-    _citydata.clear();
+    setState((){
+       citylistData.clear();
+       _loading = true;
+    });
     final body = {
       "id": int.parse(id),
     };
@@ -836,15 +940,14 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
     //print(response.body);
     if (response.statusCode == 200) {
       Iterable list = json.decode(response.body)['Response']['cities'];
-      print(list);
       setState(() {
+        _loading = false;
         citylistData.addAll(list);
-        citylistData.forEach((element) {
-          _citydata.add(element['name'].toString());
-        });
       });
     } else {
-      print(response.body);
+      setState((){
+        _loading = false;
+      });
       throw Exception('Failed to get data due to ${response.body}');
     }
   }
@@ -884,6 +987,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                             if (result != null) {
                               setState(() {
                                 profileimage = result.path.toString();
+                                profilepicbool = true;
                               });
                             }
                             Navigator.of(context).pop();
@@ -910,6 +1014,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                             if (result != null) {
                               setState(() {
                                  profileimage = result.path.toString();
+                                 profilepicbool = true;
                               });
                             }
                             Navigator.of(context).pop();
@@ -944,6 +1049,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
     print("8 "+linkedin);
     print("9 "+youtube);
     print("10 "+pincode);
+    print("11 "+twitterurl);
     print("country id "+country_id);
     print("state id "+state_id);
     print("city id "+city_id);
@@ -956,7 +1062,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
     requestMulti.fields["state"] = state_id;
     requestMulti.fields["city"] = city_id;
     requestMulti.fields["pincode"] = pincode;
-    requestMulti.fields["com_prefs"] = smsvalue.toString()+","+emailvalue.toString();
+    requestMulti.fields["com_prefs"] = commprefs.join(",");
     requestMulti.fields["instagram_url"] = instagram;
     requestMulti.fields["mobile_hidden"] = _hidemobile.toString();
     requestMulti.fields["google_plus_url"] = google;
@@ -965,8 +1071,9 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
     requestMulti.fields["linkedin_url"] = linkedin;
     requestMulti.fields["youtube_url"] = youtube;
 
-    requestMulti.files.add(await http.MultipartFile.fromPath('avatar', picpath));
-
+    if(profilepicbool){
+      requestMulti.files.add(await http.MultipartFile.fromPath('avatar', picpath));
+    }
     requestMulti.send().then((response) {
       response.stream.toBytes().then((value) {
         try {
@@ -977,10 +1084,9 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
           });
           var jsonData = jsonDecode(responseString);
           if (jsonData['ErrorCode'].toString() != "0") {
-            //_personaldetailupdate()
-            //showToast(jsonData['Response'].toString());
           } else {
-            showToast(jsonData['Response'].toString());
+            showToast(jsonData['ErrorMessage'].toString());
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => HomeScreen()));
           }
         } catch (e) {
           setState((){
@@ -990,4 +1096,6 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
       });
     });
   }
+
+
 }

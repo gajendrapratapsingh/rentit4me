@@ -1,7 +1,10 @@
 import 'dart:convert';
 
+import 'package:dropdown_search/dropdown_search.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:email_validator/email_validator.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:rentit4me/network/api.dart';
 import 'package:rentit4me/themes/constant.dart';
@@ -32,16 +35,27 @@ class _SignupScreenState extends State<SignupScreen> {
   //int usertypevalue = 0;
   //bool _businessnamevisibility = false;
 
+  String selectedCode = "Country Code";
   String countrycode;
   String countryname;
+  var countrycodelistwithname = [''];
   var countrycodelist = [''];
   var countrynamelist = [''];
+
+  String fcmToken;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _getCountryData();
+
+    FirebaseMessaging.instance.getToken().then((value) {
+      setState(() {
+        fcmToken = value.toString();
+        print(fcmToken);
+      });
+    });
   }
 
   @override
@@ -83,43 +97,6 @@ class _SignupScreenState extends State<SignupScreen> {
          child: SingleChildScrollView(
            child: Column(
              children: [
-               /*Row(
-                 children: [
-                   Row(
-                     children: [
-                       Radio(
-                           value: 1,
-                           groupValue: _value,
-                           activeColor: kPrimaryColor,
-                           onChanged: (value) {
-                             setState(() {
-                               _value = value;
-                               _businessnamevisibility = true;
-                               usertypevalue = 4;
-                             });
-                           }),
-                       const Text('Are you a business?',
-                           style: TextStyle(fontSize: 12))
-                     ],
-                   ),
-                   Row(
-                     children: [
-                       Radio(
-                           value: 2,
-                           activeColor: kPrimaryColor,
-                           groupValue: _value,
-                           onChanged: (value) {
-                             setState(() {
-                               _value = value;
-                               _businessnamevisibility = false;
-                               usertypevalue = 3;
-                             });
-                           }),
-                       const Text('Are you a consumer?', style: TextStyle(fontSize: 12))
-                     ],
-                   ),
-                 ],
-               ),*/
                Padding(
                    padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
                    child: _fullnameTextbox("Full Name"),
@@ -132,62 +109,74 @@ class _SignupScreenState extends State<SignupScreen> {
                  padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
                  child: _emailTextbox("Email Address"),
                ),
+               // Padding(
+               //   padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 20.0),
+               //   child: DropdownButton(
+               //     value: countrycode,
+               //     hint: Text("Country Code", style: TextStyle(color: Colors.grey.shade700, fontSize: 15)),
+               //     isExpanded: true,
+               //     underline: Container(
+               //       height: 1,
+               //       color: Colors.black,
+               //     ),
+               //     icon: Visibility (visible:true, child: Icon(Icons.arrow_drop_down_sharp, size: 20, color: Colors.grey.shade700)),
+               //     items: countrycodelist.map((String items) {
+               //       return DropdownMenuItem(
+               //         value: items,
+               //         child: Text(items, style: TextStyle(color: Colors.grey.shade700, fontSize: 15)),
+               //       );
+               //     }).toList(),
+               //     // After selecting the desired option,it will
+               //     // change button value to selected value
+               //     onChanged: (String newValue) {
+               //       setState(() {
+               //         countrycode = newValue;
+               //       });
+               //     },
+               //   ),
+               // ),
                Padding(
-                 padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 20.0),
-                 child: DropdownButton(
-                   value: countrycode,
-                   hint: Text("Country Code", style: TextStyle(color: Colors.grey.shade700, fontSize: 15)),
-                   isExpanded: true,
-                   underline: Container(
-                     height: 1,
-                     color: Colors.black,
-                   ),
-                   icon: Visibility (visible:true, child: Icon(Icons.arrow_drop_down_sharp, size: 20, color: Colors.grey.shade700)),
-                   items: countrycodelist.map((String items) {
-                     return DropdownMenuItem(
-                       value: items,
-                       child: Text(items, style: TextStyle(color: Colors.grey.shade700, fontSize: 15)),
-                     );
+                 padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
+                 child: DropdownSearch(
+                   selectedItem: selectedCode,
+                   mode: Mode.DIALOG,
+                   showSelectedItem: true,
+                   autoFocusSearchBox: true,
+                   showSearchBox: true,
+                   hint: 'Country Code',
+                   dropdownSearchDecoration:  InputDecoration(
+                       enabledBorder: OutlineInputBorder(
+                           borderRadius: BorderRadius.circular(12),
+                           borderSide: BorderSide.none
+                       ),
+                       contentPadding: EdgeInsets.only(left: 10)),
+                   items: countrycodelistwithname.map((e) {
+                     return e.toString();
                    }).toList(),
-                   // After selecting the desired option,it will
-                   // change button value to selected value
-                   onChanged: (String newValue) {
-                     setState(() {
-                       countrycode = newValue;
-                     });
+                   onChanged: (value) {
+                     if(value!="Country Code")
+                     {
+                       countrycodelistwithname.forEach((element) {
+                         if(element.toString() == value){
+                           setState(() {
+                             countrycode="";
+                              countrycode = element.split("+")[1];
+                           });
+                         }
+                       });
+                     }else{
+                       showToast("Select Country Code");
+                     }
+                     print(countrycode);
                    },
                  ),
                ),
-               Padding(
-                 padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 20.0),
-                 child: DropdownButton(
-                   value: countryname,
-                   hint: Text("Country Name", style: TextStyle(color: Colors.grey.shade700, fontSize: 15)),
-                   isExpanded: true,
-                   underline: Container(
-                     height: 1,
-                     color: Colors.black,
-                   ),
-                   icon: Visibility (visible:true, child: Icon(Icons.arrow_drop_down_sharp, size: 20, color: Colors.grey.shade700)),
-                   items: countrynamelist.map((String items) {
-                     return DropdownMenuItem(
-                       value: items,
-                       child: Text(items, style: TextStyle(color: Colors.grey.shade700, fontSize: 15)),
-                     );
-                   }).toList(),
-                   // After selecting the desired option,it will
-                   // change button value to selected value
-                   onChanged: (String newValue) {
-                     setState(() {
-                       countryname = newValue;
-                     });
-                   },
+               const Padding(
+                 padding: EdgeInsets.only(left: 20.0, right: 20.0),
+                 child: Divider(
+                   color: Colors.black,
                  ),
                ),
-               /*Padding(
-                 padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
-                 child: _CountrynameTextbox("Country Name"),
-               ),*/
                Padding(
                  padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
                  child: _mobileTextbox("Mobile"),
@@ -212,12 +201,16 @@ class _SignupScreenState extends State<SignupScreen> {
                        showToast("Please enter your name");
                        return;
                      }
+                     else if(countrycode == null || countrycode == "" || countrycode == "Country Code"){
+                       showToast("Please select country code");
+                       return;
+                     }
                      else if(businessController.text.toString().trim().isEmpty){
                        showToast("Please enter your business name");
                        return;
                      }
-                     else if(emailController.text.toString().trim().isEmpty){
-                       showToast("Please enter email address");
+                     else if(emailController.text.toString().trim().isEmpty && EmailValidator.validate(emailController.text.toString().trim()) == false){
+                       showToast("Please enter valid email address");
                        return;
                      }
                      else if(mobileController.text.toString().trim().isEmpty){
@@ -234,7 +227,6 @@ class _SignupScreenState extends State<SignupScreen> {
                            businessController.text.toString(), 
                            emailController.text.toString(),
                            countrycode,
-                           countryname,
                            mobileController.text.toString(), 
                            pwdController.text.toString(),
                            confirmpwdController.text.toString()
@@ -302,11 +294,13 @@ class _SignupScreenState extends State<SignupScreen> {
       ),
     );
   }
+
   Widget _emailTextbox(_initialValue) {
     return Container(
       margin: EdgeInsets.only(left: 20, right: 20, bottom: 10),
       child: TextFormField(
         textCapitalization: TextCapitalization.sentences,
+        keyboardType: TextInputType.emailAddress,
         validator: (value) {
           return null;
         },
@@ -348,8 +342,8 @@ class _SignupScreenState extends State<SignupScreen> {
     return Container(
       margin: EdgeInsets.only(left: 20, right: 20, bottom: 10),
       child: TextFormField(
-        //textCapitalization: TextCapitalization.sentences,
         keyboardType: TextInputType.number,
+        maxLength: 10,
         validator: (value) {
           return null;
         },
@@ -362,7 +356,10 @@ class _SignupScreenState extends State<SignupScreen> {
         cursorColor: kPrimaryColor,
         decoration: InputDecoration(
             hintText: _initialValue.toString(),
-            labelText: 'Mobile*'),
+            labelText: 'Mobile*',
+            counterText: "",
+        ),
+
       ),
     );
   }
@@ -370,8 +367,8 @@ class _SignupScreenState extends State<SignupScreen> {
     return Container(
       margin: EdgeInsets.only(left: 20, right: 20, bottom: 10),
       child: TextFormField(
-        //textCapitalization: TextCapitalization.sentences,
         keyboardType: TextInputType.number,
+        maxLength: 10,
         validator: (value) {
           return null;
         },
@@ -384,7 +381,9 @@ class _SignupScreenState extends State<SignupScreen> {
         cursorColor: kPrimaryColor,
         decoration: InputDecoration(
             hintText: _initialValue.toString(),
-            labelText: 'Alternate Mobile(optional)'),
+            labelText: 'Alternate Mobile(optional)',
+            counterText: "",
+        ),
       ),
     );
   }
@@ -436,17 +435,20 @@ class _SignupScreenState extends State<SignupScreen> {
     var response = await http.get(Uri.parse(BASE_URL+countrycodeUrl));
     if(response.statusCode == 200){
       setState(() {
+           countrycodelistwithname.clear();
            countrycodelist.clear();
            countrynamelist.clear();
-           for(int i=0; i<jsonDecode(response.body)['Response'].length; i++){
-              countrycodelist.add("+"+jsonDecode(response.body)['Response'][i]['dialcode'].toString());
-              countrynamelist.add(jsonDecode(response.body)['Response'][i]['name'].toString());
-           }
+
+           jsonDecode(response.body)['Response'].forEach((element){
+             countrycodelistwithname.add(element['name'].toString()+" "+"+"+element['dialcode'].toString());
+             countrycodelist.add("+"+element['dialcode'].toString());
+             countrynamelist.add(element['name'].toString());
+           });
       });
     }
   }
 
-  Future _register(String name, String business, String email, String countrycode, String country, String mobile, String password, String confirmpwd) async {
+  Future _register(String name, String business, String email, String countrycode, String mobile, String password, String confirmpwd) async {
     setState(() {
       _loading = true;
     });
@@ -455,22 +457,22 @@ class _SignupScreenState extends State<SignupScreen> {
       "name": name,
       "business_name": business,
       "email": email,
-      "countrycode": countrycode.split('+').elementAt(1),
-      "country" : country,
+      "countrycode": countrycode,
       "mobile" : mobile,
       "user_type" : "4",
-      "password" : password
+      "password" : password,
+       "token" : fcmToken
     }));
     final body = {
       "name": name,
       "business_name": business,
       "email": email,
-      "countrycode": countrycode.split('+').elementAt(1),
-      "country" : country,
+      "countrycode": countrycode,
       "mobile" : mobile,
       "user_type" : "4",
       "password" : password,
-      "password_confirmation" : confirmpwd
+      "password_confirmation" : confirmpwd,
+      "token" : fcmToken
     };
     var response = await http.post(Uri.parse(BASE_URL + register),
         body: jsonEncode(body),
@@ -485,6 +487,7 @@ class _SignupScreenState extends State<SignupScreen> {
         _loading = false;
       });
       if(jsonDecode(response.body)['ErrorCode'].toString() == "0") {
+          prefs.setString('userid', jsonDecode(response.body)['Response']['id'].toString());
          _sendotp(mobile);
       }
       else{

@@ -8,6 +8,7 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:rentit4me/network/api.dart';
 import 'package:rentit4me/themes/constant.dart';
 import 'package:rentit4me/views/home_screen.dart';
+import 'package:rentit4me/views/make_payment_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BankAndBusinessDetailScreen extends StatefulWidget {
@@ -39,6 +40,9 @@ class _BankAndBusinessDetailScreenState extends State<BankAndBusinessDetailScree
   String ifsccode;
   String accountno;
 
+  String package_id;
+  String payment_status;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -54,17 +58,16 @@ class _BankAndBusinessDetailScreenState extends State<BankAndBusinessDetailScree
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 2.0,
-        leading: Padding(
-          padding: EdgeInsets.only(left: 10),
-          child: Image.asset('assets/images/logo.png'),
-        ),
-        title: Text("Business Detail", style: TextStyle(color: kPrimaryColor)),
+        leading: InkWell(
+            onTap: () {
+              Navigator.of(context).pop();
+            },
+            child: const Icon(
+              Icons.arrow_back,
+              color: kPrimaryColor,
+            )),
+        title: const Text("Business Detail", style: TextStyle(color: kPrimaryColor)),
         centerTitle: true,
-        /*actions: [
-          IconButton(onPressed:(){}, icon: Icon(Icons.edit, color: kPrimaryColor)),
-          IconButton(onPressed:(){}, icon: Icon(Icons.account_circle, color: kPrimaryColor)),
-          IconButton(onPressed:(){}, icon: Icon(Icons.menu, color: kPrimaryColor))
-        ],*/
       ),
       body: ModalProgressHUD(
         inAsyncCall: _loading,
@@ -519,7 +522,46 @@ class _BankAndBusinessDetailScreenState extends State<BankAndBusinessDetailScree
                 ),
                 InkWell(
                   onTap: (){
-                    _billingandtaxation();
+                    if(accounttype == null || accounttype == "" || accounttype == "Select"){
+                      showToast("Please select account type");
+                    }
+                    else if(bankname == null || bankname == ""){
+                      showToast("Please enter bank name");
+                    }
+                    else if(branchname == null || branchname == ""){
+                      showToast('Please enter branch name');
+                    }
+                    else if(accountno == null || accountno == ""){
+                      showToast('Please enter account number');
+                    }
+                    else if(ifsccode == null || ifsccode == ""){
+                      showToast('Please enter ifsc code');
+                    }
+                    else if(businessname == null || businessname == ""){
+                      showToast('Please enter business name');
+                    }
+                    else if(gstno == null || gstno == ""){
+                      showToast('Please enter GST number');
+                    }
+                    else if(panno == null || panno == ""){
+                      showToast('Please enter pan number');
+                    }
+                    else if(adharno == null || adharno == ""){
+                      showToast('Please enter adhar number');
+                    }
+                    else if(gstdoc == null || gstdoc == ""){
+                      showToast('Please upload GST document');
+                    }
+                    else if(pancarddoc == null || pancarddoc == ""){
+                      showToast('Please upload pan document');
+                    }
+                    else if(adharcarddoc == null || adharcarddoc == ""){
+                      showToast('Please upload adhar document');
+                    }
+                    else{
+                      _billingandtaxation();
+                    }
+
                   },
                   child: Container(
                     width: double.infinity,
@@ -562,6 +604,8 @@ class _BankAndBusinessDetailScreenState extends State<BankAndBusinessDetailScree
       setState(() {
         usertype = data['User']['user_type'].toString();
         businessname = data['User']['business_name'].toString();
+        package_id = data['User']['package_id'].toString();
+        payment_status = data['User']['payment_status'].toString();
       });
 
     } else {
@@ -599,7 +643,17 @@ class _BankAndBusinessDetailScreenState extends State<BankAndBusinessDetailScree
           var jsonData = jsonDecode(responseString);
           print("response "+jsonData.toString());
           if (jsonData['ErrorCode'].toString() == "0") {
-             Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  HomeScreen()));
+            if(package_id != null && package_id.toString() != "1") {
+              if(payment_status == "1"){
+                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  HomeScreen()));
+              }
+              else{
+                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  MakePaymentScreen()));
+              }
+             }
+             else{
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  HomeScreen()));
+             }
           } else {
             showToast(jsonData['Response'].toString());
           }
@@ -713,4 +767,6 @@ class _BankAndBusinessDetailScreenState extends State<BankAndBusinessDetailScree
                   )
                 ])));
   }
+
+
 }

@@ -71,17 +71,16 @@ class _PendingStatusScreenState extends State<PendingStatusScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 2.0,
-        leading: Padding(
-          padding: EdgeInsets.only(left: 10),
-          child: Image.asset('assets/images/logo.png'),
-        ),
+        leading: InkWell(
+            onTap: () {
+              Navigator.of(context).pop();
+            },
+            child: Icon(
+              Icons.arrow_back,
+              color: kPrimaryColor,
+            )),
         title: Text("Rentit4me", style: TextStyle(color: kPrimaryColor)),
         centerTitle: true,
-        /*actions: [
-          IconButton(onPressed:(){}, icon: Icon(Icons.edit, color: kPrimaryColor)),
-          IconButton(onPressed:(){}, icon: Icon(Icons.account_circle, color: kPrimaryColor)),
-          IconButton(onPressed:(){}, icon: Icon(Icons.menu, color: kPrimaryColor))
-        ],*/
       ),
       body: ModalProgressHUD(
         inAsyncCall: _loading,
@@ -98,13 +97,13 @@ class _PendingStatusScreenState extends State<PendingStatusScreen> {
                     child: Column(
                       children: [
                         SizedBox(height: 10),
-                        Text("Under Process",
+                        const Text("Under Process",
                             style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 21,
                                 fontWeight: FontWeight.w700)),
                         const SizedBox(height: 15),
-                        Text(
+                        const Text(
                             "Your Application is under process, Approval pending from Admin For Trusted Badge.",
                             textAlign: TextAlign.center,
                             style: TextStyle(

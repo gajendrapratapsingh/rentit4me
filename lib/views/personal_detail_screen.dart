@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:rentit4me/network/api.dart';
 import 'package:rentit4me/themes/constant.dart';
 import 'package:rentit4me/views/business_detail_screen.dart';
 import 'package:rentit4me/views/home_screen.dart';
+import 'package:rentit4me/views/make_payment_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PersonalDetailScreen extends StatefulWidget {
@@ -24,17 +28,14 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
   String usertype;
 
   List<dynamic> countrylistData = [];
-  List<String> _countrydata = [];
   String initialcountryname;
   String country_id;
 
   List<dynamic> statelistData = [];
-  List<String> _statedata = [];
   String initialstatename;
   String state_id;
 
   List<dynamic> citylistData = [];
-  List<String> _citydata = [];
   String initialcityname;
   String city_id;
 
@@ -55,14 +56,22 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
   int emailvalue;
   int smsvalue;
 
-  String commpref, kyc, trustbadge;
+  String kyc, trustbadge;
+
+  List<int> commprefs = [];
+
+  List<String> _accounttypelist = ["Saving", "Current"];
+
+  String selectedCountry = "Select Country";
+  String selectedState = "Select State";
+  String selectedCity = "Select City";
 
   //Bank detail
-  String bankname= "";
+  String bankname = "";
   String branchname = "";
   String ifsccode = "";
-  String accounttype = "";
-  String acoountno = "";
+  String accounttype;
+  String accountno = "";
 
   @override
   void initState() {
@@ -76,21 +85,20 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 2.0,
-        leading: Padding(
-          padding: EdgeInsets.only(left: 10),
-          child: Image.asset('assets/images/logo.png'),
-        ),
+        leading: InkWell(
+            onTap: () {
+              Navigator.of(context).pop();
+            },
+            child: const Icon(
+              Icons.arrow_back,
+              color: kPrimaryColor,
+            )),
         title: Text("Personal Detail", style: TextStyle(color: kPrimaryColor)),
         centerTitle: true,
-        /*actions: [
-          IconButton(onPressed:(){}, icon: Icon(Icons.edit, color: kPrimaryColor)),
-          IconButton(onPressed:(){}, icon: Icon(Icons.account_circle, color: kPrimaryColor)),
-          IconButton(onPressed:(){}, icon: Icon(Icons.menu, color: kPrimaryColor))
-        ],*/
       ),
       body: ModalProgressHUD(
         inAsyncCall: _loading,
@@ -109,118 +117,221 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
                       children: [
                         Text("Country*", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
                         SizedBox(height: 8.0),
-                        Container(
-                            decoration: BoxDecoration(
-                                border: Border.all(
-                                    width: 1,
-                                    color: Colors.deepOrangeAccent
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 2, 0, 2),
+                          child: DropdownSearch(
+                            selectedItem: selectedCountry,
+                            mode: Mode.DIALOG,
+                            showSelectedItem: true,
+                            autoFocusSearchBox: true,
+                            showSearchBox: true,
+                            hint: 'Select Country',
+                            dropdownSearchDecoration:  InputDecoration(
+                                enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(color: Colors.deepOrangeAccent,width: 1)
+
                                 ),
-                                borderRadius: BorderRadius.all(Radius.circular(12))
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-                              child: DropdownButtonHideUnderline(
-                                child: DropdownButton<String>(
-                                  hint: Text("Select Country", style: TextStyle(color: Colors.black)),
-                                  value: initialcountryname,
-                                  elevation: 16,
-                                  isExpanded: true,
-                                  style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
-                                  onChanged: (String data) {
-                                    setState(() {
-                                      countrylistData.forEach((element) {
-                                        if(element['name'].toString() == data.toString()){
-                                          initialcountryname = data.toString();
-                                          country_id = element['id'].toString();
-                                          _getStateData(country_id);
-                                        }
-                                      });
-                                    });
-                                  },
-                                  items: _countrydata.map<DropdownMenuItem<String>>((String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(value),
-                                    );
-                                  }).toList(),
-                                ),
-                              ),
-                            )
+                                contentPadding: EdgeInsets.only(left: 10)),
+                            items: countrylistData.map((e) {
+                              return e['name'].toString();
+                            }).toList(),
+                            onChanged: (value) {
+                               if(value!="Select Country")
+                               {
+                                 countrylistData.forEach((element) {
+                                 if(element['name'].toString()==value){
+                                  setState(() {
+                                    initialcountryname = value.toString();
+                                    initialstatename = null;
+                                    initialcityname = null;
+                                    country_id = element['id'].toString();
+                                    _getStateData(element['id'].toString());
+                                  });
+                                }
+                              });
+                             }else{
+                               showToast("Select Country");
+                              }
+                            },
+                          ),
                         ),
+                        // Container(
+                        //     decoration: BoxDecoration(
+                        //         border: Border.all(
+                        //             width: 1,
+                        //             color: Colors.deepOrangeAccent
+                        //         ),
+                        //         borderRadius: BorderRadius.all(Radius.circular(12))
+                        //     ),
+                        //     child: Padding(
+                        //       padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+                        //       child: DropdownButtonHideUnderline(
+                        //         child: DropdownButton<String>(
+                        //           hint: Text("Select Country", style: TextStyle(color: Colors.black)),
+                        //           value: initialcountryname,
+                        //           elevation: 16,
+                        //           isExpanded: true,
+                        //           style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
+                        //           onChanged: (String data) {
+                        //             setState(() {
+                        //               initialcountryname = data.toString();
+                        //               initialstatename = null;
+                        //               initialcityname = null;
+                        //               country_id = data.toString();
+                        //               _getStateData(data);
+                        //             });
+                        //           },
+                        //           items: countrylistData.map((items) {
+                        //             return DropdownMenuItem<String>(
+                        //               value: items['id'].toString(),
+                        //               child: Text(items['name']),
+                        //             );
+                        //           }).toList(),
+                        //         ),
+                        //       ),
+                        //     )
+                        // ),
                         SizedBox(height: 10),
                         Text("State*", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
                         SizedBox(height: 8.0),
-                        Container(
-                            decoration: BoxDecoration(
-                                border: Border.all(
-                                    width: 1,
-                                    color: Colors.deepOrangeAccent
-                                ),
-                                borderRadius: BorderRadius.all(Radius.circular(12))
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-                              child: DropdownButtonHideUnderline(
-                                child: DropdownButton<String>(
-                                  elevation: 16,
-                                  isExpanded: true,
-                                  hint: Text("Select State", style: TextStyle(color: Colors.black, fontSize: 16)),
-                                  items: _statedata.map((String item) => DropdownMenuItem<String>(child: Text(item), value: item)).toList(),
-                                  onChanged: (String value) {
-                                    setState(() {
-                                      this.initialstatename = value;
-                                      statelistData.forEach((element) {
-                                        if(element['name'].toString() == value.toString()){
-                                          state_id = element['id'].toString();
-                                          _getCityData(state_id);
-                                        }
-                                      });
-                                    });
-                                  },
-                                  value: initialstatename,
-                                ),
-                              ),
-                            )
+                        DropdownSearch(
+                          selectedItem: selectedState,
+                          mode: Mode.DIALOG,
+                          showSelectedItem: true,
+                          autoFocusSearchBox: true,
+                          showSearchBox: true,
+                          hint: 'Select State',
+                          dropdownSearchDecoration: InputDecoration(
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: Colors.deepOrangeAccent,width: 1)),
+                                contentPadding: EdgeInsets.only(left: 10)),
+                          items: statelistData.map((e) {
+                            return e['name'].toString();
+                          }).toList(),
+                          onChanged: (value) {
+                            if(value!="Select State")
+                            {
+                                statelistData.forEach((element) {
+                                if(element['name'].toString()==value){
+                                  setState(() {
+                                     initialstatename = value.toString();
+                                     initialstatename = null;
+                                     initialcityname = null;
+                                     state_id = element['id'].toString();
+                                    _getCityData(element['id'].toString());
+                                  });
+                                }
+                              });
+                            }else{
+                              showToast("Select State");
+                            }
+                          },
                         ),
+                        // Container(
+                        //     decoration: BoxDecoration(
+                        //         border: Border.all(
+                        //             width: 1,
+                        //             color: Colors.deepOrangeAccent
+                        //         ),
+                        //         borderRadius: BorderRadius.all(Radius.circular(12))
+                        //     ),
+                        //     child: Padding(
+                        //       padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+                        //       child: DropdownButtonHideUnderline(
+                        //         child: DropdownButton<String>(
+                        //           elevation: 16,
+                        //           isExpanded: true,
+                        //           hint: Text("Select State", style: TextStyle(color: Colors.black, fontSize: 16)),
+                        //           items: statelistData.map((items) {
+                        //             return DropdownMenuItem<String>(
+                        //               value: items['id'].toString(),
+                        //               child: Text(items['name']),
+                        //             );
+                        //           }).toList(),
+                        //           onChanged: (String data) {
+                        //             setState(() {
+                        //               initialstatename = data.toString();
+                        //               initialcityname = null;
+                        //               state_id = data.toString();
+                        //               _getCityData(state_id);
+                        //             });
+                        //           },
+                        //           value: initialstatename,
+                        //         ),
+                        //       ),
+                        //     )
+                        // ),
                         SizedBox(height: 10),
                         Text("City*", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
                         SizedBox(height: 8.0),
-                        Container(
-                            decoration: BoxDecoration(
-                                border: Border.all(
-                                    width: 1,
-                                    color: Colors.deepOrangeAccent
-                                ),
-                                borderRadius: BorderRadius.all(Radius.circular(12))
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-                              child: DropdownButtonHideUnderline(
-                                child: DropdownButton<String>(
-                                  hint: Text("Select City", style: TextStyle(color: Colors.black)),
-                                  value: initialcityname,
-                                  elevation: 16,
-                                  isExpanded: true,
-                                  style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
-                                  onChanged: (String data) {
-                                    setState(() {
-                                      citylistData.forEach((element) {
-                                        if(element['name'].toString() == data.toString()){
-                                          initialcityname = data.toString();
-                                          city_id = element['id'].toString();
-                                        }
-                                      });
-                                    });
-                                  },
-                                  items: _citydata.map<DropdownMenuItem<String>>((String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(value),
-                                    );
-                                  }).toList(),
-                                ),
-                              ),
-                            )
+                        // Container(
+                        //     decoration: BoxDecoration(
+                        //         border: Border.all(
+                        //             width: 1,
+                        //             color: Colors.deepOrangeAccent
+                        //         ),
+                        //         borderRadius: BorderRadius.all(Radius.circular(12))
+                        //     ),
+                        //     child: Padding(
+                        //       padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+                        //       child: DropdownButtonHideUnderline(
+                        //         child: DropdownButton<String>(
+                        //           hint: Text("Select City", style: TextStyle(color: Colors.black)),
+                        //           value: initialcityname,
+                        //           elevation: 16,
+                        //           isExpanded: true,
+                        //           style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
+                        //           onChanged: (String data) {
+                        //             setState(() {
+                        //               initialcityname = data.toString();
+                        //               city_id = data.toString();
+                        //             });
+                        //           },
+                        //           items: citylistData.map((items) {
+                        //             return DropdownMenuItem<String>(
+                        //               value: items['id'].toString(),
+                        //               child: Text(items['name']),
+                        //             );
+                        //           }).toList(),
+                        //         ),
+                        //       ),
+                        //     )
+                        // ),
+                        DropdownSearch(
+                          selectedItem: selectedCity,
+                          mode: Mode.DIALOG,
+                          showSelectedItem: true,
+                          autoFocusSearchBox: true,
+                          showSearchBox: true,
+                          hint: 'Select City',
+                          dropdownSearchDecoration: InputDecoration(
+                              enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(color: Colors.deepOrangeAccent,width: 1)),
+                              contentPadding: EdgeInsets.only(left: 10)),
+                          items: citylistData.map((e) {
+                            return e['name'].toString();
+                          }).toList(),
+                          onChanged: (value) {
+                            if(value!="Select City")
+                            {
+                              citylistData.forEach((element) {
+                                if(element['name'].toString()==value){
+                                  setState(() {
+                                    initialcityname = value.toString();
+                                    //initialstatename = null;
+                                    //initialcityname = null;
+                                    city_id = element['id'].toString();
+                                    //_getStateData(element['id'].toString());
+                                  });
+                                }
+                              });
+                            }else{
+                              showToast("Select Country");
+                            }
+                          },
                         ),
                         SizedBox(height: 10),
                         Text("Address*", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
@@ -239,6 +350,11 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
                                 decoration: InputDecoration(
                                   hintText: address,
                                   border: InputBorder.none,
+                                  suffixIcon: IconButton(onPressed: (){
+                                    if(address == null || address == ""){
+                                      _determinePosition().then((value) => _getAddress(value));
+                                    }
+                                  }, icon: Icon(Icons.my_location, color: address == null ? Colors.deepOrangeAccent : Colors.grey))
                                 ),
                                 onChanged: (value){
                                   setState((){
@@ -259,9 +375,15 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
                                 Checkbox(value: _emailcheck, onChanged: (value){
                                   setState(() {
                                     _emailcheck = value;
-                                    if(_emailcheck){
-                                      emailvalue = 1;
-                                      commpref = "1,";
+                                    if(_emailcheck) {
+                                      commprefs.add(1);
+                                    }
+                                    else{
+                                      commprefs.forEach((element) {
+                                        if(element == 1){
+                                          commprefs.removeWhere((element) => element == 1);
+                                        }
+                                      });
                                     }
                                   });
                                 }),
@@ -274,9 +396,15 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
                                 Checkbox(value: _smscheck, onChanged: (value){
                                   setState(() {
                                     _smscheck = value;
-                                    if(_smscheck){
-                                      smsvalue = 2;
-                                      commpref = "2,";
+                                    if(_smscheck) {
+                                      commprefs.add(2);
+                                    }
+                                    else{
+                                      commprefs.forEach((element) {
+                                        if(element == 2){
+                                          commprefs.removeWhere((element) => element == 2);
+                                        }
+                                      });
                                     }
                                   });
                                 }),
@@ -519,15 +647,16 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
                               child: Padding(
                                 padding: const EdgeInsets.only(left: 10.0),
                                 child: TextField(
+                                  keyboardType: TextInputType.number,
                                   decoration: InputDecoration(
-                                    hintText: acoountno,
+                                    hintText: accountno,
                                     border: InputBorder.none,
                                   ),
                                   onChanged: (value){
                                     setState((){
-                                      acoountno = value;
+                                      accountno = value;
                                     });
-                                  },
+                                    },
                                 ),
                               )
                           ),
@@ -546,17 +675,26 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
                                   borderRadius: BorderRadius.all(Radius.circular(12))
                               ),
                               child: Padding(
-                                padding: const EdgeInsets.only(left: 10.0),
-                                child: TextField(
-                                  decoration: InputDecoration(
-                                    hintText: accounttype,
-                                    border: InputBorder.none,
+                                padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    hint: Text("Select", style: TextStyle(color: Colors.black)),
+                                    value: accounttype,
+                                    elevation: 16,
+                                    isExpanded: true,
+                                    style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
+                                    onChanged: (String data) {
+                                      setState(() {
+                                        accounttype = data;
+                                      });
+                                    },
+                                    items: _accounttypelist.map<DropdownMenuItem<String>>((String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(value),
+                                      );
+                                    }).toList(),
                                   ),
-                                  onChanged: (value){
-                                    setState((){
-                                      accounttype = value;
-                                    });
-                                  },
                                 ),
                               )
                           ),
@@ -597,10 +735,68 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
                 InkWell(
                   onTap: (){
                     if(kyc == "1" && usertype == "3"){
-                      _personaldetailupdatewithdoc(country_id, state_id, city_id, address, commpref, kyc, trustbadge);
+                      if(country_id == null || country_id == ""){
+                        showToast("Please select your country");
+                      }
+                      else if(state_id == null || state_id == ""){
+                        showToast("Please select your state");
+                      }
+                      else if(city_id == null || city_id == ""){
+                        showToast("Please select your city");
+                      }
+                      else if(address == null || address == ""){
+                        showToast("Please enter your address");
+                      }
+                      else if(commprefs.isEmpty || commprefs.length == 0){
+                        showToast("Please check one communication preference");
+                      }
+                      else if(kyc == null || kyc == "" || kyc == "Select"){
+                        showToast("Please select kyc");
+                      }
+                      else if(trustbadge == null || trustbadge == "" || trustbadge == "Select"){
+                        showToast("Please select trusted Badge");
+                      }
+                      // else if(bankname == null || bankname == ""){
+                      //   showToast("Please enter bank name");
+                      // }
+                      // else if(branchname == null || bankname == ""){
+                      //   showToast("Please enter bank name");
+                      // }
+                      // else if(accountno == null || accountno == ""){
+                      //   showToast('Please enter account number');
+                      // }
+                      // else if(ifsccode == null || ifsccode == ""){
+                      //   showToast('Please enter ifsc code');
+                      // }
+                      else{
+                        _personaldetailupdatewithdoc(country_id, state_id, city_id, address, commprefs.join(","), kyc, trustbadge);
+                      }
                     }
                     else{
-                      _personaldetailupdatewithoutdoc(country_id, state_id, city_id, address, commpref, kyc, trustbadge);
+                      if(country_id == null || country_id == ""){
+                        showToast("Please select your country");
+                      }
+                      else if(state_id == null || state_id == ""){
+                        showToast("Please select your state");
+                      }
+                      else if(city_id == null || city_id == ""){
+                        showToast("Please select your city");
+                      }
+                      else if(address == null || address == ""){
+                        showToast("Please enter your address");
+                      }
+                      else if(commprefs.isEmpty || commprefs.length == 0){
+                        showToast("Please check one communication preference");
+                      }
+                      else if(kyc == null || kyc == "" || kyc == "Select"){
+                        showToast("Please select kyc");
+                      }
+                      else if(trustbadge == null || trustbadge == "" || trustbadge == "Select"){
+                        showToast("Please select trusted Badge");
+                      }
+                      else{
+                        _personaldetailupdatewithoutdoc(country_id, state_id, city_id, address, commprefs.join(","), kyc, trustbadge);
+                      }
                     }
                   },
                   child: Container(
@@ -629,7 +825,6 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
   Future _getcheckapproveData() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final body = {
-      //"user_id": "846",  //this is business user id
        "user_id": prefs.getString('userid'),
     };
     var response = await http.post(Uri.parse(BASE_URL + checkapprove),
@@ -645,7 +840,6 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
       var data = json.decode(response.body)['Response'];
       setState(() {
          usertype = data['user_type'].toString();
-
       });
 
     } else {
@@ -653,21 +847,57 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
     }
   }
 
+  Future _getprofileData() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final body = {
+      "id": prefs.getString('userid'),
+    };
+    var response = await http.post(Uri.parse(BASE_URL + profileUrl),
+        body: jsonEncode(body),
+        headers: {
+          "Accept" : "application/json",
+          'Content-Type' : 'application/json'
+        }
+    );
+    if (response.statusCode == 200) {
+      var data = json.decode(response.body)['Response'];
+      if(data['User']['package_id'] != null && data['User']['package_id'] != 1){
+         if(data['User']['payment_status'].toString() == "1"){
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  HomeScreen()));
+         }
+         else{
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  MakePaymentScreen()));
+         }
+      }
+      else{
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  HomeScreen()));
+      }
+
+    } else {
+      throw Exception('Failed to get data due to ${response.body}');
+    }
+  }
+
   Future _getcountryData() async{
+    setState((){
+      _loading=true;
+    });
     var response = await http.get(Uri.parse(BASE_URL + getCountries),
         headers: {
           "Accept" : "application/json",
           'Content-Type' : 'application/json'
         }
     );
-    print(response.body);
     if (response.statusCode == 200) {
       Iterable list = json.decode(response.body)['Response']['countries'];
       setState(() {
-        countrylistData.addAll(list);
-        countrylistData.forEach((element) {
-          _countrydata.add(element['name'].toString());
+        countrylistData.add({
+          "name": "Select",
+          "id": 0
         });
+        countrylistData.addAll(list);
+        _loading=false;
+
       });
     } else {
       print(response.body);
@@ -676,9 +906,10 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
   }
 
   Future _getStateData(String id) async{
-    print("country id "+id);
-    statelistData.clear();
-    _statedata.clear();
+    setState((){
+       _loading = true;
+       statelistData.clear();
+    });
     final body = {
       "id": int.parse(id),
     };
@@ -694,10 +925,8 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
       Iterable list = json.decode(response.body)['Response']['states'];
       print(list);
       setState(() {
+        _loading = false;
         statelistData.addAll(list);
-        statelistData.forEach((element) {
-          _statedata.add(element['name'].toString());
-        });
       });
     } else {
       print(response.body);
@@ -706,9 +935,10 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
   }
 
   Future _getCityData(String id) async{
-    print("state id "+id);
-    citylistData.clear();
-    _citydata.clear();
+    setState((){
+      _loading = true;
+      citylistData.clear();
+    });
     final body = {
       "id": int.parse(id),
     };
@@ -719,15 +949,11 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
           'Content-Type' : 'application/json'
         }
     );
-    //print(response.body);
     if (response.statusCode == 200) {
       Iterable list = json.decode(response.body)['Response']['cities'];
-      print(list);
       setState(() {
+        _loading = false;
         citylistData.addAll(list);
-        citylistData.forEach((element) {
-          _citydata.add(element['name'].toString());
-        });
       });
     } else {
       print(response.body);
@@ -736,7 +962,7 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
   }
 
   Future _personaldetailupdatewithdoc(String countryid, String stateid, String cityid, String address, String commpref, String kyc, String trustbadge) async{
-    //print("with doc"+ adharcarddoc);
+    print("with doc"+ adharcarddoc);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState((){
       _loading = true;
@@ -763,12 +989,12 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
     requestMulti.fields["bank_name"] = bankname;
     requestMulti.fields["branch_name"] = branchname;
     requestMulti.fields["ifsc"] = ifsccode;
-    requestMulti.fields["account_no"] = acoountno;
+    requestMulti.fields["account_no"] = accountno;
     requestMulti.fields["adhaar_no"] = adharnum;
 
-    requestMulti.files.add(await http.MultipartFile.fromPath('adhaar_doc', '/data/user/0/com.example.rentit4me/cache/scaled_image_picker2196264881771538336.jpg'));
+    //requestMulti.files.add(await http.MultipartFile.fromPath('adhaar_doc', '/data/user/0/com.rent.renteeforme/cache/scaled_image_picker2196264881771538336.jpg'));
 
-    //requestMulti.files.add(await http.MultipartFile.fromPath('adhaar_doc', adharcarddoc));
+    requestMulti.files.add(await http.MultipartFile.fromPath('adhaar_doc', adharcarddoc));
 
     requestMulti.send().then((response) {
       response.stream.toBytes().then((value) {
@@ -780,7 +1006,7 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
           var jsonData = jsonDecode(responseString);
           if (jsonData['ErrorCode'].toString() == "0") {
              if(jsonData['Response']['user_type'].toString() == "3"){
-               Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  HomeScreen()));
+                _getprofileData();
              }
              else{
                Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  BankAndBusinessDetailScreen()));
@@ -798,63 +1024,49 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
   }
 
   Future _personaldetailupdatewithoutdoc(String countryid, String stateid, String cityid, String address, String commpref, String kyc, String trustbadge) async{
+    print("Without doc");
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState((){
       _loading = true;
     });
-    print("0 "+prefs.getString('userid'));
-    print("5 "+address);
-    print("7 "+commpref);
-    print("8 "+kyc);
-    print("9 "+trustbadge);
-    print("country id "+country_id);
-    print("state id "+state_id);
-    print("city id "+city_id);
 
-    var requestMulti = http.MultipartRequest('POST', Uri.parse(BASE_URL+personalupdate));
-    //requestMulti.fields["id"] = "846";
-    requestMulti.fields["id"] = prefs.getString('userid');
-    requestMulti.fields["address"] = address;
-    requestMulti.fields["country"] = country_id;
-    requestMulti.fields["state"] = state_id;
-    requestMulti.fields["city"] = city_id;
-    requestMulti.fields["kyc"] = kyc;
-    requestMulti.fields["com_prefs"] = commpref;
-    requestMulti.fields["trusted_badge"] = trustbadge;
-    requestMulti.fields["account_type"] = accounttype;
-    requestMulti.fields["bank_name"] = bankname;
-    requestMulti.fields["branch_name"] = branchname;
-    requestMulti.fields["ifsc"] = ifsccode;
-    requestMulti.fields["account_no"] = acoountno;
-    //requestMulti.fields["adhaar_no"] = adharnum;
-
-    //requestMulti.files.add(await http.MultipartFile.fromPath('adhaar_doc', adharcarddoc));
-
-    requestMulti.send().then((response) {
-      response.stream.toBytes().then((value) {
-        try {
-          var responseString = String.fromCharCodes(value);
-          setState((){
-            _loading = false;
-          });
-          var jsonData = jsonDecode(responseString);
-          if (jsonData['ErrorCode'].toString() == "0") {
-            if(jsonData['Response']['user_type'].toString() == "3"){
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  HomeScreen()));
-            }
-            else{
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  BankAndBusinessDetailScreen()));
-            }
-          } else {
-            showToast(jsonData['Response'].toString());
-          }
-        } catch (e) {
-          setState((){
-            _loading = false;
-          });
+    final body = {
+         "id" : prefs.getString('userid'),
+         "address" : address,
+         "country" : country_id,
+         "state" : state_id,
+         "city" : city_id,
+         "kyc" :  kyc,
+         "com_prefs" : commpref,
+         "trusted_badge" : trustbadge,
+         "account_type" : accounttype,
+         "bank_name" : bankname,
+         "branch_name" : branchname,
+         "ifsc" : ifsccode,
+         "account_no" : accountno
+    };
+    var response = await http.post(Uri.parse(BASE_URL + personalupdate),
+        body: jsonEncode(body),
+        headers: {
+          "Accept" : "application/json",
+          'Content-Type' : 'application/json'
         }
+    );
+    print(response.body);
+    if (response.statusCode == 200) {
+      if(json.decode(response.body)['Response']['user_type'].toString() == "3"){
+        _getprofileData();
+        //Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  HomeScreen()));
+      }
+      else{
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  BankAndBusinessDetailScreen()));
+      }
+    } else {
+      setState(() {
+        _loading = false;
       });
-    });
+      throw Exception('Failed to get data due to ${response.body}');
+    }
   }
 
   Future<void> _captureadharcard() async {
@@ -935,4 +1147,47 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
                   )
                 ])));
   }
+
+  Future<Position> _determinePosition() async {
+    setState((){
+       _loading = true;
+    });
+    bool serviceEnabled;
+    LocationPermission permission;
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle appropriately.
+      return Future.error('Location permissions are permanently denied, we cannot request permissions.');
+    }
+    return await Geolocator.getCurrentPosition();
+  }
+
+  Future<void> _getAddress(value) async {
+    List<Placemark> placemarks = await placemarkFromCoordinates(value.latitude, value.longitude);
+    print(placemarks);
+    Placemark place = placemarks[0];
+    setState(() {
+      _loading = false;
+      address = place.subLocality.toString() +
+          "," +
+          place.locality.toString() +
+          "," +
+          place.postalCode.toString() +
+          "," +
+          place.administrativeArea.toString() +
+          "," +
+          place.country.toString();
+    });
+  }
+
 }

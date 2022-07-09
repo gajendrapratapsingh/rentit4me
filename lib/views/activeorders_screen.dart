@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:rentit4me/network/api.dart';
 import 'package:rentit4me/themes/constant.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,17 +16,19 @@ class ActiveOrderScreen extends StatefulWidget {
 
 class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
 
-  String searchvalue = " Search";
+  String searchvalue = "Search";
   List<dynamic> myactiveorderslist = [];
 
   bool _progress = false;
+
+  String startdate = "From Date";
+  String enddate = "To Date";
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _myactiveorderslist();
-
   }
 
   @override
@@ -35,288 +39,331 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 2.0,
-        leading: Padding(
-          padding: EdgeInsets.only(left: 10),
-          child: Image.asset('assets/images/logo.png'),
-        ),
+        leading: InkWell(
+            onTap: () {
+              Navigator.of(context).pop();
+            },
+            child: Icon(
+              Icons.arrow_back,
+              color: kPrimaryColor,
+            )),
         title: Text("Active Orders", style: TextStyle(color: kPrimaryColor)),
         centerTitle: true,
-        /*actions: [
-          IconButton(onPressed:(){}, icon: Icon(Icons.edit, color: kPrimaryColor)),
-          IconButton(onPressed:(){}, icon: Icon(Icons.account_circle, color: kPrimaryColor)),
-          IconButton(onPressed:(){}, icon: Icon(Icons.menu, color: kPrimaryColor))
-        ],*/
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              Card(
-                elevation: 4.0,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      const Align(
-                        alignment: Alignment.topLeft,
-                        child: Text("Filter", style: TextStyle(color: kPrimaryColor, fontSize: 18, fontWeight: FontWeight.w700)),
-                      ),
-                      const SizedBox(height: 10),
-                      const Align(
-                          alignment: Alignment.topLeft,
-                          child: Text("Search", style: TextStyle(color: kPrimaryColor, fontSize: 14, fontWeight: FontWeight.w500))),
-                      SizedBox(height: 10),
-                      Container(
-                          decoration: BoxDecoration(
-                              border: Border.all(
-                                  width: 1,
-                                  color: Colors.deepOrangeAccent
+      body: ModalProgressHUD(
+        inAsyncCall: _progress,
+        color: kPrimaryColor,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                Card(
+                  elevation: 4.0,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        SizedBox(height: 5),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 0.0),
+                          child: TextFormField(
+                            decoration: InputDecoration(
+                              enabled: true,
+                              focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(color: Colors.deepOrangeAccent)
                               ),
-                              borderRadius: BorderRadius.all(Radius.circular(12))
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 10.0),
-                            child: TextField(
-                              decoration: InputDecoration(
-                                hintText: searchvalue,
-                                border: InputBorder.none,
+                              enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(color: Colors.deepOrangeAccent,)
                               ),
-                              onChanged: (value){
-                                setState((){
-                                  searchvalue = value;
-                                });
-                              },
+                              contentPadding: EdgeInsets.only(left: 5),
+                              hintText: searchvalue,
+                              border: InputBorder.none,
                             ),
-                          )
-                      ),
-                      SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("From Date", style: TextStyle(color: kPrimaryColor, fontSize: 14, fontWeight: FontWeight.w500)),
-                              SizedBox(height: 10),
-                              Container(
-                                  width: size.width * 0.42,
-                                  decoration: BoxDecoration(
-                                      border: Border.all(
-                                          width: 1,
-                                          color: Colors.deepOrangeAccent
-                                      ),
-                                      borderRadius: BorderRadius.all(Radius.circular(12))
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 10.0),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text("From Date", style: TextStyle(color: Colors.grey)),
-                                        IconButton(onPressed: (){}, icon: Icon(Icons.calendar_today_sharp, size: 16, color: kPrimaryColor))
-                                      ],
-                                    ),
-                                  )
-                              ),
-                            ],
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("To Date", style: TextStyle(color: kPrimaryColor, fontSize: 14, fontWeight: FontWeight.w500)),
-                              SizedBox(height: 10),
-                              Container(
-                                  width: size.width * 0.42,
-                                  decoration: BoxDecoration(
-                                      border: Border.all(
-                                          width: 1,
-                                          color: Colors.deepOrangeAccent
-                                      ),
-                                      borderRadius: BorderRadius.all(Radius.circular(12))
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 10.0),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text("To Date", style: TextStyle(color: Colors.grey)),
-                                        IconButton(onPressed: (){}, icon: Icon(Icons.calendar_today_sharp, size: 16, color: kPrimaryColor))
-                                      ],
-                                    ),
-                                  )
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                      InkWell(
-                        onTap: () {
-                          //_generateticket();
-                        },
-                        child: Card(
-                          elevation: 8.0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          child: Container(
-                            height: 45,
-                            width: double.infinity,
-                            alignment: Alignment.center,
-                            decoration: const BoxDecoration(
-                                color: Colors.deepOrangeAccent,
-                                borderRadius: BorderRadius.all(Radius.circular(8.0))
-                            ),
-                            child: Text("Filter", style: TextStyle(color: Colors.white)),
+                            onChanged: (value){
+                              setState((){
+                                searchvalue = value;
+                              });
+                            },
                           ),
                         ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(height: 20),
-              Card(
-                elevation: 4.0,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text("Active Orders", style: TextStyle(color: kPrimaryColor, fontSize: 18, fontWeight: FontWeight.w700)),
-                          Visibility(visible: _progress, child: Container(height: 24, width: 24, child: CircularProgressIndicator(color: kPrimaryColor , strokeWidth: 2)))
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
-                          columns: const[
-                            DataColumn(label: Text('Order Id', textAlign: TextAlign.center, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold))),
-                            DataColumn(label: Text('Product', textAlign: TextAlign.center, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold))),
-                            DataColumn(label: Text('Quantity', textAlign: TextAlign.center, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold))),
-                            DataColumn(label: Text('Period', textAlign: TextAlign.center, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold))),
-                            DataColumn(label: Text('Rent Type', textAlign: TextAlign.center, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold))),
-                            DataColumn(label: Text('Product Price(INR)', textAlign: TextAlign.center, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold))),
-                            DataColumn(label: Text('Offer Amount(INR)', textAlign: TextAlign.center, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold))),
-                            DataColumn(label: Text('Total Rent(INR)', textAlign: TextAlign.center, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold))),
-                            DataColumn(label: Text('Total Security(INR)', textAlign: TextAlign.center, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold))),
-                            DataColumn(label: Text('Final Amount(INR)', textAlign: TextAlign.center, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold))),
-                            DataColumn(label: Text('Start Date', textAlign: TextAlign.center, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold))),
-                            DataColumn(label: Text('End Date', textAlign: TextAlign.center, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold))),
-                            DataColumn(label: Text('Created At', textAlign: TextAlign.center, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold))),
-                            DataColumn(label: Text('Status', textAlign: TextAlign.center, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold))),
-                            DataColumn(label: Text('Action', textAlign: TextAlign.center, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold))),
-                          ],
-                          rows: myactiveorderslist.map(
-                            ((element) => DataRow(
-                              cells: <DataCell>[
-                                DataCell(Text(element["order_id"].toString())),
-                                DataCell(Text(element["title"].toString())),
-                                DataCell(Text(element["quantity"].toString())),
-                                _getPeriod(element["period"].toString(), element["rent_type_name"].toString()),
-                                DataCell(Text(element["rent_type_name"].toString())),
-                                DataCell(Text(element["product_price"].toString())),
-                                DataCell(Text(element["renter_amount"].toString())),
-                                DataCell(Text(element["total_rent"].toString())),
-                                DataCell(Text(element["total_security"].toString())),
-                                DataCell(Text(element["final_amount"].toString())),
-                                DataCell(Text(element["start_date"].toString())),
-                                DataCell(Text(element["end_date"].toString())),
-                                DataCell(Text(element["created_at"].toString())),
-                                DataCell(Text(element["status"].toString())),
-                                element["status"].toString() ==  "delivered" ? DataCell(TextButton( onPressed: (){showDialog(context: context, barrierDismissible: false, builder: (context)=> StatefulBuilder(
-                                    builder: (context, setState){
-                                      return AlertDialog(title: const Align(
-                                        alignment: Alignment.topLeft,
-                                        child: Text("Response", style: TextStyle(color: Colors.deepOrangeAccent)),
-                                      ),content:
-                                      Container(
-                                        child: SingleChildScrollView(
-                                          child: Column(
-                                              children:[
-                                                SizedBox(height: 2),
-                                                Divider(height: 1, color: Colors.grey, thickness: 1),
-                                                SizedBox(height: 25),
-                                              ]
-                                          ),
+                        SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                //Text("From Date", style: TextStyle(color: kPrimaryColor, fontSize: 14, fontWeight: FontWeight.w500)),
+                                //SizedBox(height: 10),
+                                Container(
+                                    width: size.width * 0.42,
+                                    decoration: BoxDecoration(
+                                        border: Border.all(
+                                            width: 1,
+                                            color: Colors.deepOrangeAccent
                                         ),
-                                      )
-                                      );
-                                    }
-                                ));}, child: Text("Respond"))) : DataCell(Padding(padding: EdgeInsets.only(left: 20), child: Text("NA"))),
+                                        borderRadius: BorderRadius.all(Radius.circular(12))
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 10.0),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(startdate, style: TextStyle(color: Colors.grey)),
+                                          IconButton(onPressed: (){
+                                            _selectStartDate(context);
+                                          }, icon: Icon(Icons.calendar_today_sharp, size: 16, color: kPrimaryColor))
+                                        ],
+                                      ),
+                                    )
+                                ),
                               ],
-                            )),
-                          ).toList(),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                //Text("To Date", style: TextStyle(color: kPrimaryColor, fontSize: 14, fontWeight: FontWeight.w500)),
+                                //SizedBox(height: 10),
+                                Container(
+                                    width: size.width * 0.42,
+                                    decoration: BoxDecoration(
+                                        border: Border.all(
+                                            width: 1,
+                                            color: Colors.deepOrangeAccent
+                                        ),
+                                        borderRadius: BorderRadius.all(Radius.circular(12))
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 10.0),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(enddate, style: TextStyle(color: Colors.grey)),
+                                          IconButton(onPressed: (){
+                                            _selectEndtDate(context);
+                                          }, icon: Icon(Icons.calendar_today_sharp, size: 16, color: kPrimaryColor))
+                                        ],
+                                      ),
+                                    )
+                                ),
+                              ],
+                            )
+                          ],
                         ),
-                      )
-                    ],
+                        SizedBox(height: 10),
+                        InkWell(
+                          onTap: () {
+                            if(searchvalue == "Search" || searchvalue.length == 0 || searchvalue.isEmpty){
+                               _myactiveorderslistByDate();
+                            }
+                            else{
+                              _myactiveorderslistBySearch();
+                            }
+                          },
+                          child: Card(
+                            elevation: 8.0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: Container(
+                              height: 40,
+                              width: double.infinity,
+                              alignment: Alignment.center,
+                              decoration: const BoxDecoration(
+                                  color: Colors.deepOrangeAccent,
+                                  borderRadius: BorderRadius.all(Radius.circular(8.0))
+                              ),
+                              child: Text("Filter", style: TextStyle(color: Colors.white)),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+                SizedBox(height: 5),
+                Container(
+                   height: size.height * 0.50,
+                   child: ListView.separated(
+                    padding: EdgeInsets.zero,
+                    shrinkWrap: true,
+                    itemCount: myactiveorderslist.length,
+                    separatorBuilder: (BuildContext context, int index) => const Divider(),
+                    itemBuilder: (BuildContext context, int index){
+                       return InkWell(
+                         onTap: (){
+                           showDialog(
+                                context: context,
+                                builder: (_) => AlertDialog(
+                                title: Text('Detail Information'),
+                                content: SingleChildScrollView(child:  Column(children: [
+                                    Card(
+                                      color: Colors.grey[100],
+                                      child: ListTile(
+                                         title: Text("Order Id"),
+                                         subtitle: Text(myactiveorderslist[index]['order_id'].toString()),
+                                          
+                                      ),
+                                    ),
+                                    Card(
+                                      color: Colors.grey[100],
+                                      child: ListTile(
+                                         title: Text("Product Name"),
+                                         subtitle: Text(myactiveorderslist[index]["title"].toString()),
+                                          
+                                      ),
+                                    ),
+                                    Card(
+                                      color: Colors.grey[100],
+                                      child: ListTile(
+                                         title: Text("Product Quantity"),
+                                         subtitle: Text(myactiveorderslist[index]["quantity"].toString()),
+                                          
+                                      ),
+                                    ),
+                                    Card(
+                                      color: Colors.grey[100],
+                                      child: ListTile(
+                                         title: Text("Rent Type"),
+                                         subtitle: Text(myactiveorderslist[index]["rent_type_name"].toString()),
+                                          
+                                      ),
+                                    ),
+                                    Card(
+                                      color: Colors.grey[100],
+                                      child: ListTile(
+                                         title: Text("Period"),
+                                         subtitle: Text(myactiveorderslist[index]["period"].toString()),
+                                          
+                                      ),
+                                    ),
+                                    Card(
+                                      color: Colors.grey[100],
+                                      child: ListTile(
+                                         title: Text("Product Price(INR)"),
+                                         subtitle: Text(myactiveorderslist[index]["product_price"].toString()),
+                                          
+                                      ),
+                                    ),
+                                    Card(
+                                      color: Colors.grey[100],
+                                      child: ListTile(
+                                         title: Text("Offer Amount(INR)"),
+                                         subtitle: Text(myactiveorderslist[index]["renter_amount"].toString()),
+                                          
+                                      ),
+                                    ),
+                                    Card(
+                                      color: Colors.grey[100],
+                                      child: ListTile(
+                                         title: Text("Total Rent(INR)"),
+                                         subtitle: Text(myactiveorderslist[index]["total_rent"].toString()),
+                                          
+                                      ),
+                                    ),
+                                    Card(
+                                      color: Colors.grey[100],
+                                      child: ListTile(
+                                         title: Text("Total Security(INR)"),
+                                         subtitle: Text(myactiveorderslist[index]["total_security"].toString()),
+                                          
+                                      ),
+                                    ),
+                                    Card(
+                                      color: Colors.grey[100],
+                                      child: ListTile(
+                                         title: Text("Total Rent(INR)"),
+                                         subtitle: Text(myactiveorderslist[index]["total_rent"].toString()),
+                                          
+                                      ),
+                                    ),
+                                    Card(
+                                      color: Colors.grey[100],
+                                      child: ListTile(
+                                 title: Text("Final Amount(INR)"),
+                                         subtitle: Text(myactiveorderslist[index]["final_amount"].toString()),
+                                          
+                                      ),
+                                    ),
+                                  
+                                ]))));
+                         },
+                         child: Card(
+                            elevation: 4.0,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
+                              child: ListTile(
+                                 title: Text("Order Id : "+myactiveorderslist[index]['order_id'].toString()),
+                                 subtitle: Column(
+                                   crossAxisAlignment: CrossAxisAlignment.start,
+                                   children: [
+                                      Text("Product : "+myactiveorderslist[index]['title'].toString()),
+                                      SizedBox(height: 5),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text("Qty: "+myactiveorderslist[index]['quantity'].toString()),
+                                          Text("Period: "+myactiveorderslist[index]['period'].toString()),
+                                          Text("Rent type: "+myactiveorderslist[index]['rent_type_name'].toString()),
+                                      ])
+                                   ],
+                                 ),
+                                 trailing: myactiveorderslist[index]["offer_status"].toString() == "1" ? InkWell(
+                                      onTap: (){
+                                          
+                                      }, 
+                                      child: Container(
+                                         padding: EdgeInsets.all(4.0),
+                                         decoration: BoxDecoration(
+                                           borderRadius: BorderRadius.all(Radius.circular(4.0)),
+                                           border: Border.all(color: Colors.blue)
+                                        ),
+                                        child: Text("Action", style: TextStyle(color: Colors.blue)),
+                                      ), 
+                                 ) : _getaction(myactiveorderslist[index]["offer_status"].toString()),
+                              ),
+                            ),
+                         ),
+                       );
+                    },
+                ),
+                 )
+              
+              ],
+            ),
           ),
         ),
       ),
     );
+  
   }
 
-  DataCell _getPeriod(String period, String type) {
-    if(type == "hourly"){
-      if(period == "1"){
-        return DataCell(Text(period+" "+"Hour"));
-      }
-      else{
-        return DataCell(Text(period+" "+"Hours"));
-      }
-    }
-    else if(type == "yearly"){
-      if(period == "1"){
-        return DataCell(Text(period+" "+"Year"));
-      }
-      else{
-        return DataCell(Text(period+" "+"Years"));
-      }
-    }
-    else if(type == "monthly"){
-      if(period == "1"){
-        return DataCell(Text(period+" "+"Month"));
-      }
-      else{
-        return DataCell(Text(period+" "+"Months"));
-      }
-    }
-    else{
-      if(period == "1"){
-        return DataCell(Text(period+" "+"Day"));
-      }
-      else{
-        return DataCell(Text(period+" "+"Days"));
-      }
-    }
-  }
-
-  DataCell _getstatus(String statusvalue){
+  Widget _getaction(String statusvalue){
     if(statusvalue == "3"){
-      return DataCell(Text("Pending"));
+      return Container(
+        padding: EdgeInsets.all(4.0),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(4.0)),
+            border: Border.all(color: Colors.blue)
+        ),
+        child: Text("Edit", style: TextStyle(color: Colors.blue)),
+      );
     }
     else if(statusvalue == "13"){
-      return DataCell(Text("Completed"));
-    }
-    else if(statusvalue == "2"){
-      return DataCell(Text("Rejected"));
+      return Text("NA", style: TextStyle(color: Colors.grey));
     }
     else{
-      return DataCell(Text("Accepted"));
+      return Text("NA", style: TextStyle(color: Colors.grey));
     }
   }
 
   Future<void> _myactiveorderslist() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState((){
+      myactiveorderslist.clear();
       _progress = true;
     });
     final body = {
@@ -333,7 +380,7 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
     if (response.statusCode == 200) {
       if(jsonDecode(response.body)['ErrorCode'].toString() == "0"){
         setState((){
-           myactiveorderslist = jsonDecode(response.body)['Response']['Orders'];
+           myactiveorderslist.addAll(jsonDecode(response.body)['Response']['Orders']);
            _progress = false;
         });
       }
@@ -351,4 +398,160 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
       throw Exception('Failed to get data due to ${response.body}');
     }
   }
+
+  Future<void> _myactiveorderslistByDate() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState((){
+      myactiveorderslist.clear();
+      _progress = true;
+    });
+    final body = {
+      "id": prefs.getString('userid'),
+      "from_date": startdate,
+      "to_date": enddate
+    };
+    var response = await http.post(Uri.parse(BASE_URL + activeorders),
+        body: jsonEncode(body),
+        headers: {
+          "Accept": "application/json",
+          'Content-Type': 'application/json'
+        }
+    );
+    print(response.body);
+    if (response.statusCode == 200) {
+      if(jsonDecode(response.body)['ErrorCode'].toString() == "0"){
+        setState((){
+          myactiveorderslist.addAll(jsonDecode(response.body)['Response']['Orders']);
+          _progress = false;
+        });
+      }
+      else {
+        setState((){
+          _progress = false;
+        });
+        showToast(jsonDecode(response.body)['ErrorMessage'].toString());
+      }
+    } else {
+      setState((){
+        _progress = false;
+      });
+      print(response.body);
+      throw Exception('Failed to get data due to ${response.body}');
+    }
+  }
+
+  Future<void> _myactiveorderslistBySearch() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState((){
+      myactiveorderslist.clear();
+      _progress = true;
+    });
+    final body = {
+      "id": prefs.getString('userid'),
+      "search": searchvalue,
+    };
+    var response = await http.post(Uri.parse(BASE_URL + activeorders),
+        body: jsonEncode(body),
+        headers: {
+          "Accept": "application/json",
+          'Content-Type': 'application/json'
+        }
+    );
+    print(response.body);
+    if (response.statusCode == 200) {
+      if(jsonDecode(response.body)['ErrorCode'].toString() == "0"){
+        setState((){
+          myactiveorderslist.addAll(jsonDecode(response.body)['Response']['Orders']);
+          _progress = false;
+        });
+      }
+      else {
+        setState((){
+          _progress = false;
+        });
+        showToast(jsonDecode(response.body)['ErrorMessage'].toString());
+      }
+    } else {
+      setState((){
+        _progress = false;
+      });
+      print(response.body);
+      throw Exception('Failed to get data due to ${response.body}');
+    }
+  }
+
+  Future<void> _selectStartDate(BuildContext context) async {
+    final DateTime picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      //firstDate: DateTime.now().subtract(Duration(days: 0)),
+      firstDate: DateTime(2015, 8),
+      lastDate: DateTime(2101),
+      builder: (BuildContext context, Widget child) {
+        return Theme(
+          data: ThemeData(
+              primaryColor: Colors.indigo,
+              accentColor: Colors.indigo,
+              primarySwatch: const MaterialColor(
+                0xFF3949AB,
+                <int, Color>{
+                  50: Colors.indigo,
+                  100: Colors.indigo,
+                  200: Colors.indigo,
+                  300: Colors.indigo,
+                  400: Colors.indigo,
+                  500: Colors.indigo,
+                  600: Colors.indigo,
+                  700: Colors.indigo,
+                  800: Colors.indigo,
+                  900: Colors.indigo,
+                },
+              )),
+          child: child,
+        );
+      },
+    );
+    if (picked != null)
+      setState(() {
+        startdate = DateFormat('yyyy-MM-dd').format(picked);
+      });
+  }
+
+  Future<void> _selectEndtDate(BuildContext context) async {
+    final DateTime picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      //firstDate: DateTime.now().subtract(Duration(days: 0)),
+      firstDate: DateTime(2015, 8),
+      lastDate: DateTime(2101),
+      builder: (BuildContext context, Widget child) {
+        return Theme(
+          data: ThemeData(
+              primaryColor: Colors.indigo,
+              accentColor: Colors.indigo,
+              primarySwatch: const MaterialColor(
+                0xFF3949AB,
+                <int, Color>{
+                  50: Colors.indigo,
+                  100: Colors.indigo,
+                  200: Colors.indigo,
+                  300: Colors.indigo,
+                  400: Colors.indigo,
+                  500: Colors.indigo,
+                  600: Colors.indigo,
+                  700: Colors.indigo,
+                  800: Colors.indigo,
+                  900: Colors.indigo,
+                },
+              )),
+          child: child,
+        );
+      },
+    );
+    if (picked != null)
+      setState(() {
+        enddate = DateFormat('yyyy-MM-dd').format(picked);
+      });
+  }
+
 }

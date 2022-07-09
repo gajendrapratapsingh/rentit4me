@@ -4,21 +4,29 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:rentit4me/helper/dialog_helper.dart';
-import 'package:rentit4me/models/user_profile_data.dart';
 import 'package:rentit4me/network/api.dart';
 import 'package:rentit4me/themes/constant.dart';
+import 'package:rentit4me/views/Alllisting_screen.dart';
 import 'package:rentit4me/views/OfferRecievedScreen.dart';
+import 'package:rentit4me/views/activelisting_screen.dart';
 import 'package:rentit4me/views/activeorders_screen.dart';
+import 'package:rentit4me/views/add_list_screen.dart';
 import 'package:rentit4me/views/change_password_screen.dart';
+import 'package:rentit4me/views/chat_screen.dart';
 import 'package:rentit4me/views/completed_order_screen.dart';
 import 'package:rentit4me/views/generate_ticket_screen.dart';
-import 'package:rentit4me/views/home_screen.dart';
+
+import 'package:rentit4me/views/inactivelisting_screen.dart';
+import 'package:rentit4me/views/login_screen.dart';
+import 'package:rentit4me/views/message_screen.dart';
 import 'package:rentit4me/views/myorders_screen.dart';
 import 'package:rentit4me/views/myticket_screen.dart';
 import 'package:rentit4me/views/offer_made_screen.dart';
+import 'package:rentit4me/views/order_recieved_screen.dart';
 import 'package:rentit4me/views/payment_screen.dart';
 import 'package:rentit4me/views/pending_status_screen.dart';
 import 'package:rentit4me/views/profile_screen.dart';
+import 'package:rentit4me/views/promotedlist_screen.dart';
 import 'package:rentit4me/views/select_membership_screen.dart';
 import 'package:rentit4me/views/user_detail_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -56,12 +64,14 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
      if(prefs.getString('name') == null || prefs.getString('name') == "" || prefs.getString('name') == "null"){
        Future temp = _getprofileData();
        temp.then((value) {
-         setState(() {
-           urlImage = sliderpath+value['User']['avatar_path'].toString();
-           name = value['User']['name'].toString();
-           email = value['User']['email'].toString();
-           mobile = value['User']['mobile'].toString();
-         });
+          if(value != null){
+            setState(() {
+              urlImage = sliderpath+value['User']['avatar_path'].toString();
+              name = value['User']['name'].toString() == null ? "Hi Guest" : prefs.getString('name');
+              email = value['User']['email'].toString();
+              mobile = value['User']['mobile'].toString();
+            });
+          }
        });
 
        _setUserdetail(urlImage, name, email, mobile);
@@ -69,7 +79,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
      else{
         setState((){
             urlImage = prefs.getString('profile');
-            name = prefs.getString('name');
+            name = prefs.getString('name') == null ? "Hi Guest" : prefs.getString('name');
             email = prefs.getString('email');
             mobile = prefs.getString('mobile');
         });
@@ -107,80 +117,118 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                     collapsedIconColor: Colors.white,
                     title: Text("MY ACCOUNT", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
                     children: <Widget>[
-                      Align(
-                          alignment : Alignment.topLeft,
-                          child: TextButton(
-                            onPressed: (){
-                              if(trustedbadge == "1") {
-                                 if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
-                                   Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
-                                 }
-                                 else{
-                                   Navigator.push(context, MaterialPageRoute(builder: (context) => SelectMemberShipScreen()));
-                                 }
+                      InkWell(
+                        onTap: () async{
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                          if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                          }
+                          else{
+                            if(trustedbadge == "1") {
+                              if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
                               }
                               else{
                                 Navigator.push(context, MaterialPageRoute(builder: (context) => SelectMemberShipScreen()));
-                              }},
-                            child: Text("Membership & Subscriptions", style: TextStyle(color: Colors.white, fontSize: 16)),
-                          )
-                      ),
-                      Align(
-                          alignment : Alignment.topLeft,
-                          child: TextButton(
-                            onPressed: (){
-                              if(trustedbadge == "1") {
-                                 if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
-                                   Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
-                                 }
-                                 else{
-                                   Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentScreen()));
-                                 }
                               }
-                              else{
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentScreen()));
-                              }
-                            },
-                            child: Text("Payment", style: TextStyle(color: Colors.white, fontSize: 16)),
-                          )
+                            }
+                            else{
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => SelectMemberShipScreen(pageswitch: "Home")));
+                            }
+                          }
+
+                        },
+                        child: const Align(
+                            alignment : Alignment.topLeft,
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text("Membership & Subscriptions", style: TextStyle(color: Colors.white, fontSize: 16)),
+                            )
+                        ),
                       ),
-                      Align(
-                          alignment : Alignment.topLeft,
-                          child: TextButton(
-                            onPressed: (){
-                              if(trustedbadge == "1"){
-                                 if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
-                                   Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
-                                 }
-                                 else{
-                                   Navigator.push(context, MaterialPageRoute(builder: (context) => GenerateTicketScreen()));
-                                 }
+                      InkWell(
+                        onTap:() async{
+                           SharedPreferences prefs = await SharedPreferences.getInstance();
+                           if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
+                             Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                           }
+                           else{
+                             if(trustedbadge == "1") {
+                               if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
+                                 Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                               }
+                               else{
+                                 Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentScreen()));
+                               }
+                             }
+                             else{
+                               Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentScreen()));
+                             }
+                           }
+                        },
+                        child: const Align(
+                            alignment : Alignment.topLeft,
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text("Payment", style: TextStyle(color: Colors.white, fontSize: 16)),
+                            )
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () async{
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                          if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                          }
+                          else{
+                            if(trustedbadge == "1"){
+                              if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
                               }
                               else{
                                 Navigator.push(context, MaterialPageRoute(builder: (context) => GenerateTicketScreen()));
                               }
-                            },
-                            child: Text("Generate Ticket", style: TextStyle(color: Colors.white, fontSize: 16)),
-                          )
+                            }
+                            else{
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => GenerateTicketScreen()));
+                            }
+                          }
+                        },
+                        child: const Align(
+                            alignment : Alignment.topLeft,
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text("Generate Ticket", style: TextStyle(color: Colors.white, fontSize: 16)),
+                            )
+                        ),
                       ),
-                      Align(
-                          alignment : Alignment.topLeft,
-                          child: TextButton(
-                            onPressed: (){
-                              if(trustedbadge == "1"){
-                                if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
-                                }
-                                else{
-                                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => MyticketScreen()));
-                                }
+                      InkWell(
+                        onTap: () async{
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                          if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                          }
+                          else{
+                            if(trustedbadge == "1"){
+                              if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
                               }
                               else{
                                 Navigator.of(context).push(MaterialPageRoute(builder: (context) => MyticketScreen()));
                               }
-                            },
-                            child: Text("My Ticket", style: TextStyle(color: Colors.white, fontSize: 16)),
-                          )
+                            }
+                            else{
+                              Navigator.of(context).push(MaterialPageRoute(builder: (context) => MyticketScreen()));
+                            }
+                          }
+                        },
+                        child: const Align(
+                            alignment : Alignment.topLeft,
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text("My Ticket", style: TextStyle(color: Colors.white, fontSize: 16)),
+                            )
+                        ),
                       ),
                     ],
                   ),
@@ -190,39 +238,145 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                     collapsedIconColor: Colors.white,
                     title: Text("MY LISTING", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
                     children: <Widget>[
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: TextButton(
-                          onPressed: (){},
-                          child: Text("Listing Ads", style: TextStyle(color: Colors.white, fontSize: 16)),
+                      InkWell(
+                        onTap: () async{
+                            SharedPreferences prefs = await SharedPreferences.getInstance();
+                            if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
+                               Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                            }
+                            else{
+                              if(trustedbadge == "1"){
+                                if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                                }
+                                else{
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => AddlistingScreen()));
+                                }
+                              }
+                              else{
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => AddlistingScreen()));
+                              }
+                            }
+                        },
+                        child: const Align(
+                          alignment: Alignment.topLeft,
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text("Listing Ads", style: TextStyle(color: Colors.white, fontSize: 16)),
+                          ),
                         ),
                       ),
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: TextButton(
-                          onPressed: (){},
-                          child: Text("All Listing", style: TextStyle(color: Colors.white, fontSize: 16)),
+                      InkWell(
+                        onTap: () async{
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                          if(prefs.getString('userid') == null || prefs.getString('userid') == "") {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                           }
+                           else{
+                            if(trustedbadge == "1"){
+                              if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                              }
+                              else{
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => AlllistingScreen()));
+                              }
+                            }
+                            else{
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => AlllistingScreen()));
+                            }
+                          }
+                        },
+                        child: const Align(
+                          alignment: Alignment.topLeft,
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text("All Listing", style: TextStyle(color: Colors.white, fontSize: 16)),
+                          ),
                         ),
                       ),
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: TextButton(
-                          onPressed: (){},
-                          child: Text("Active Listing", style: TextStyle(color: Colors.white, fontSize: 16)),
+                      InkWell(
+                        onTap: () async{
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                          if(prefs.getString('userid') == null || prefs.getString('userid') == "") {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                          }
+                          else{
+                            if(trustedbadge == "1"){
+                              if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                              }
+                              else{
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => ActivelistingScreen()));
+                              }
+                            }
+                            else{
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => ActivelistingScreen()));
+                            }
+                          }
+                        },
+                        child: const Align(
+                          alignment: Alignment.topLeft,
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text("Active Listing", style: TextStyle(color: Colors.white, fontSize: 16)),
+                          ),
                         ),
                       ),
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: TextButton(
-                          onPressed: (){},
-                          child: Text("Inactive Listing", style: TextStyle(color: Colors.white, fontSize: 16)),
+                      InkWell(
+                        onTap: () async{
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                          if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                           }
+                           else{
+                            if(trustedbadge == "1"){
+                              if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                              }
+                              else{
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => InactivelsitingScreen()));
+                              }
+                            }
+                            else{
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => InactivelsitingScreen()));
+                            }
+                          }
+                        },
+                        child: const Align(
+                          alignment: Alignment.topLeft,
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text("Inactive Listing", style: TextStyle(color: Colors.white, fontSize: 16)),
+                          ),
                         ),
                       ),
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: TextButton(
-                          onPressed: (){},
-                          child: Text("Promoted Listing", style: TextStyle(color: Colors.white, fontSize: 16)),
+                      InkWell(
+                        onTap: () async{
+                             SharedPreferences prefs = await SharedPreferences.getInstance();
+                             if(prefs.getString('userid') == null || prefs.getString('userid') == "") {
+                                 Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                             }
+                             else{
+                               if(trustedbadge == "1"){
+                                 if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
+                                   Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                                 }
+                                 else{
+                                   Navigator.push(context, MaterialPageRoute(builder: (context) => PromotedlistScreen()));
+                                 }
+                               }
+                               else{
+                                 Navigator.push(context, MaterialPageRoute(builder: (context) => PromotedlistScreen()));
+                               }
+                             }
+
+                        },
+                        child: const Align(
+                          alignment: Alignment.topLeft,
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text("Promoted Listing", style: TextStyle(color: Colors.white, fontSize: 16)),
+                          ),
                         ),
                       ),
                     ],
@@ -233,43 +387,98 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                     iconColor: Colors.white,
                     title: Text("MY INBOX", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
                     children: <Widget>[
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: TextButton(
-                            onPressed: (){},
-                            child: Text("Chat", style: TextStyle(color: Colors.white, fontSize: 16)),
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: TextButton(
-                          onPressed: (){},
-                          child: Text("Messages", style: TextStyle(color: Colors.white, fontSize: 16)),
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: TextButton(
-                          onPressed: (){
+                      InkWell(
+                        onTap: () async{
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                          if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                          }
+                          else{
                             if(trustedbadge == "1"){
                               if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
                                 Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
                               }
                               else{
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => OfferMadeScreen()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen()));
                               }
                             }
                             else{
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => OfferMadeScreen()));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen()));
                             }
-                            },
-                          child:  Text("Offers Made", style: TextStyle(color: Colors.white, fontSize: 16)),
+                          }
+                        },
+                        child: const Align(
+                          alignment: Alignment.topLeft,
+                          child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text("Chat", style: TextStyle(color: Colors.white, fontSize: 16)),
+                          ),
                         ),
                       ),
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: TextButton(
-                          onPressed: (){
+                      InkWell(
+                        onTap: () async{
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                          if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                          }
+                          else{
+                            if(trustedbadge == "1"){
+                              if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                              }
+                              else{
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => MessageScreen()));
+                              }
+                            }
+                            else{
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => MessageScreen()));
+                            }
+                          }
+                        },
+                        child: const Align(
+                          alignment: Alignment.topLeft,
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text("Messages", style: TextStyle(color: Colors.white, fontSize: 16)),
+                          ),
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () async{
+                           SharedPreferences prefs = await SharedPreferences.getInstance();
+                           if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                           }
+                           else{
+                             if(trustedbadge == "1"){
+                               if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
+                                 Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                               }
+                               else{
+                                 Navigator.push(context, MaterialPageRoute(builder: (context) => OfferMadeScreen()));
+                               }
+                             }
+                             else{
+                               Navigator.push(context, MaterialPageRoute(builder: (context) => OfferMadeScreen()));
+                             }
+                           }
+
+                        },
+                        child: const Align(
+                          alignment: Alignment.topLeft,
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child:  Text("Offers Made", style: TextStyle(color: Colors.white, fontSize: 16)),
+                          ),
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () async{
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                          if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                          }
+                          else{
                             if(trustedbadge == "1"){
                               if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
                                 Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
@@ -281,9 +490,15 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                             else{
                               Navigator.push(context, MaterialPageRoute(builder: (context) => OfferRecievedScreen()));
                             }
+                          }
 
-                            },
-                          child: Text("Offers Recieved", style: TextStyle(color: Colors.white, fontSize: 16)),
+                        },
+                        child: const Align(
+                          alignment: Alignment.topLeft,
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text("Offers Recieved", style: TextStyle(color: Colors.white, fontSize: 16)),
+                          ),
                         ),
                       ),
                     ],
@@ -294,64 +509,116 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                     iconColor: Colors.white,
                     title: Text("MY ORDERS", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
                     children: <Widget>[
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: TextButton(
-                          onPressed: (){
+                      InkWell(
+                        onTap: () async{
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                             if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
+                               Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                             }
+                             else{
+                               if(trustedbadge == "1") {
+                                 if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
+                                   Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                                 }
+                                 else{
+                                   Navigator.push(context, MaterialPageRoute(builder: (context) => MyOrdersScreen()));
+                                 }
+                               }
+                               else{
+                                 Navigator.push(context, MaterialPageRoute(builder: (context) => MyOrdersScreen()));
+                               }
+                             }
+
+                        },
+                        child: const Align(
+                          alignment: Alignment.topLeft,
+                          child: Padding(
+                             padding: EdgeInsets.all(8.0),
+                            child: Text("My Orders", style: TextStyle(color: Colors.white, fontSize: 16)),
+                          ),
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () async{
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                          if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                          }
+                          else{
                             if(trustedbadge == "1") {
                               if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
                                 Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
                               }
                               else{
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => MyOrdersScreen()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => ActiveOrderScreen()));
                               }
-                            }
-                            else{
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => MyOrdersScreen()));
-                            }
-                          },
-                          child: Text("My Orders", style: TextStyle(color: Colors.white, fontSize: 16)),
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: TextButton(onPressed: () {
-                          if(trustedbadge == "1") {
-                            if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
                             }
                             else{
                               Navigator.push(context, MaterialPageRoute(builder: (context) => ActiveOrderScreen()));
                             }
                           }
-                          else{
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => ActiveOrderScreen()));
-                          }
 
-                        }, child: Text("Active Orders", style: TextStyle(color: Colors.white, fontSize: 16))),
+                        },
+                        child: const Align(
+                          alignment: Alignment.topLeft,
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0), child: Text("Active Orders", style: TextStyle(color: Colors.white, fontSize: 16))),
+                        ),
                       ),
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: TextButton(onPressed: (){
-                          if(trustedbadge == "1"){
-                            if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                      InkWell(
+                        onTap:() async{
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                          if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                          }
+                          else{
+                            if(trustedbadge == "1"){
+                              if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                              }
+                              else{
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => CompletedOrderScreen()));
+                              }
                             }
                             else{
                               Navigator.push(context, MaterialPageRoute(builder: (context) => CompletedOrderScreen()));
                             }
                           }
+                        },
+                        child: const Align(
+                          alignment: Alignment.topLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text("Completed Orders", style: TextStyle(color: Colors.white, fontSize: 16)),
+                          ),
+                        ),
+                      ),
+                      InkWell(onTap: () async{
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                          if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                          }
                           else{
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => CompletedOrderScreen()));
+                            if(trustedbadge == "1"){
+                              if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                              }
+                              else{
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => OrderRecievedScreen()));
+                              }
+                            }
+                            else{
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => OrderRecievedScreen()));
+                            }
                           }
 
-                        }, child: Text("Completed Orders", style: TextStyle(color: Colors.white, fontSize: 16))),
-                      ),
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: TextButton(
-                            onPressed: (){},
-                            child: Text("Orders Recieved", style: TextStyle(color: Colors.white, fontSize: 16)),
+                        },
+                        child: const Align(
+                          alignment: Alignment.topLeft,
+                          child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text("Orders Recieved", style: TextStyle(color: Colors.white, fontSize: 16)),
+                          ),
                         ),
                       ),
 
@@ -363,10 +630,13 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                     collapsedIconColor: Colors.white,
                     title: Text("MANAGE PROFILE", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
                     children: <Widget>[
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: TextButton(
-                          onPressed: (){
+                      InkWell(
+                        onTap: () async{
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                          if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                          }
+                          else{
                             if(trustedbadge == "1"){
                               if(trustedbadgeapproval == null || trustedbadgeapproval == "null" || trustedbadgeapproval == "" || trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
                                 Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
@@ -378,18 +648,33 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                             else{
                               Navigator.push(context, MaterialPageRoute(builder: (context) => UserDetailScreen()));
                             }
+                          }
 
-                          },
-                          child: Text("Basic Detail", style: TextStyle(color: Colors.white, fontSize: 16)),
+                        },
+                        child: const Align(
+                          alignment: Alignment.topLeft,
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text("Basic Detail", style: TextStyle(color: Colors.white, fontSize: 16)),
+                          ),
                         ),
                       ),
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: TextButton(
-                          onPressed: (){
+                      InkWell(
+                        onTap: () async{
+                           SharedPreferences prefs = await SharedPreferences.getInstance();
+                           if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
+                               Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                           }
+                          else{
                             Navigator.push(context, MaterialPageRoute(builder: (context) => ChangePasswordScreen()));
+                          }
                           },
-                          child: Text("Security", style: TextStyle(color: Colors.white, fontSize: 16)),
+                        child: const Align(
+                          alignment: Alignment.topLeft,
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text("Security", style: TextStyle(color: Colors.white, fontSize: 16)),
+                          ),
                         ),
                       ),
                     ],
@@ -427,6 +712,18 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
             height: 80,
             width: 80,
             imageUrl: urlImage,
+            imageBuilder: (context, imageProvider) => Container(
+              decoration: BoxDecoration(
+                //border: Border.all(color: Colors.white, width: 2),
+                //borderRadius: BorderRadius.circular(8.0),
+                image: DecorationImage(
+                    image: imageProvider,
+                    fit: BoxFit.cover,
+
+                    colorFilter: ColorFilter.mode(Colors.white, BlendMode.colorBurn)
+                ),
+              ),
+            ),
             errorWidget: (context, url, error) => Image.asset('assets/images/profile_placeholder.png', color: Colors.white),
           ),
         ),
@@ -463,9 +760,6 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
         ));
         break;
       case 1:
-        /*Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => HomeScreen(),
-        ));*/
         break;
       case 2:
         Navigator.of(context).push(MaterialPageRoute(
@@ -514,12 +808,15 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
     );
     if (response.statusCode == 200) {
       var data = json.decode(response.body)['Response'];
-      setState(() {
-         usertype = data['user_type'].toString();
-         trustedbadge = data['trusted_badge'].toString();
-         trustedbadgeapproval = data['trusted_badge_approval'].toString();
-      });
-
+      if(data != null){
+        if(mounted == true){
+          setState(() {
+            usertype = data['user_type'].toString();
+            trustedbadge = data['trusted_badge'].toString();
+            trustedbadgeapproval = data['trusted_badge_approval'].toString();
+          });
+        }
+      }
     } else {
       throw Exception('Failed to get data due to ${response.body}');
     }

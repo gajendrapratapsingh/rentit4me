@@ -48,9 +48,7 @@ class LogoutConfirmationDialog extends StatelessWidget {
               //prefs.setString('loginsuccess', "false");
               //prefs.setString('cartcount', "0");
               //prefs.setBool('logged_in', false);
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginScreen()),
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()),
               );
             }, child: Text('Yes'), color: Colors.red, textColor: Colors.white)
           ],

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:rentit4me/network/api.dart';
 import 'package:rentit4me/themes/constant.dart';
+import 'package:rentit4me/views/home_screen.dart';
+import 'package:rentit4me/views/myticket_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GenerateTicketScreen extends StatefulWidget {
@@ -43,17 +45,16 @@ class _GenerateTicketScreenState extends State<GenerateTicketScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 2.0,
-        leading: Padding(
-          padding: EdgeInsets.only(left: 10),
-          child: Image.asset('assets/images/logo.png'),
-        ),
+        leading: InkWell(
+            onTap: () {
+              Navigator.of(context).pop();
+            },
+            child: const Icon(
+              Icons.arrow_back,
+              color: kPrimaryColor,
+            )),
         title: Text("Ticket", style: TextStyle(color: kPrimaryColor)),
         centerTitle: true,
-        /*actions: [
-          IconButton(onPressed:(){}, icon: Icon(Icons.edit, color: kPrimaryColor)),
-          IconButton(onPressed:(){}, icon: Icon(Icons.account_circle, color: kPrimaryColor)),
-          IconButton(onPressed:(){}, icon: Icon(Icons.menu, color: kPrimaryColor))
-        ],*/
       ),
       body: ModalProgressHUD(
         inAsyncCall: _loading,
@@ -159,10 +160,10 @@ class _GenerateTicketScreenState extends State<GenerateTicketScreen> {
                                    value: initialpriority,
                                    icon: const Icon(Icons.arrow_drop_down_sharp),
                                    items: prioritylist.map((String items) {
-                                     return DropdownMenuItem(
-                                       value: items,
-                                       child: Text(items),
-                                     );
+                                       return DropdownMenuItem(
+                                           value: items.toString(),
+                                           child: Text(items)
+                                       );
                                    }).toList(),
                                    onChanged: (String changevalue) {
                                      setState(() {
@@ -209,7 +210,16 @@ class _GenerateTicketScreenState extends State<GenerateTicketScreen> {
                  SizedBox(height: 10),
                  InkWell(
                    onTap: () {
-                     _generateticket();
+                     if(title.trim().length == 0 || title.trim().isEmpty || title == "Title"){
+                        showToast("Please enter your title");
+                     }
+                     else if(message == "Message"){
+                       showToast("Please enter your message");
+                     }
+                     else{
+                       _generateticket();
+                     }
+
                    },
                    child: Card(
                      elevation: 8.0,
@@ -261,9 +271,10 @@ class _GenerateTicketScreenState extends State<GenerateTicketScreen> {
          _loading = false;
        });
        showToast(jsonDecode(response.body)['ErrorMessage'].toString());
+       Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  MyticketScreen()));
        //prefs.setString('userid', jsonDecode(response.body)['Response']['id'].toString());
        //prefs.setBool('logged_in', true);
-       //Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  SelectMemberShipScreen()));
+
      }
   }
 }
