@@ -39,7 +39,10 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    initConnectivity();
+    //initConnectivity();
+    _checkLoggedIn().then((value) => _getprofileData().then((value) => _loadWidget()));
+    //_getprofileData().then((value) => _checkLoggedIn());
+    //_loadWidget();
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -112,9 +115,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Widget homeOrLog() {
-    if(_loggedIn){
-        //return OrderPlaceScreen();
-        //return DeliveryStatusScreen();
+    if(_loggedIn) {
         if(_checkvalue == 1){
           return Dashboard();
         }
@@ -124,7 +125,6 @@ class _SplashScreenState extends State<SplashScreen> {
         else{
           return SelectMemberShipScreen();
         }
-        //return PersonalDetailScreen();
       } else {
         return Dashboard();
       }
@@ -163,21 +163,18 @@ class _SplashScreenState extends State<SplashScreen> {
             setState((){
               _checkvalue = 1;
             });
-            //Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  Dashboard()));
           }
           else{
             setState((){
               _checkvalue = 2;
             });
-            //Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  MakePaymentScreen()));
           }
         }
-        else{
-          setState((){
-            _checkvalue = 3;
-          });
-          //Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  SelectMemberShipScreen()));
-        }
+      }
+      else{
+        setState((){
+          _checkvalue = 3;
+        });
       }
 
     } else {

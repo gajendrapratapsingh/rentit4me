@@ -372,7 +372,10 @@ class _OfferMadeProductDetailScreenState extends State<OfferMadeProductDetailScr
                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                            children: [
                              const Text("Address", style: TextStyle(color: Colors.black, fontSize: 14)),
-                             Text(address, style: TextStyle(color: Colors.black, fontSize: 14))
+                             SizedBox(
+                                 width: size.width * 0.60,
+                                 child: Text(address, textAlign: TextAlign.end, maxLines: 2, style: TextStyle(color: Colors.black, fontSize: 14))
+                             )
                            ],
                          ),
                          SizedBox(height: 5),
@@ -436,10 +439,11 @@ class _OfferMadeProductDetailScreenState extends State<OfferMadeProductDetailScr
          totalsecurity = data['Offer Details']['total_security'].toString();
          finalamount = data['Offer Details']['final_amount'].toString();
          startdate = data['Offer Details']['start_date'].toString();
-         enddate = data['Offer Details']['end_date'].toString().split(" ")[0].toString();
+         enddate = data['Offer Details']['end_date'].toString();
          status = data['Offer Details']['offer_status'].toString();
          renttypeid = data['Offer Details']['rent_type_id'].toString();
-         createdAt = data['Offer Details']['created_at'].toString().split("T")[0].toString();
+         //createdAt = data['Offer Details']['created_at'].toString().split("T")[0].toString();
+         createdAt = data['Offer Details']['created_at'].toString();
 
          //Rentee Detail
          name = data['Advertiser Information']['name'].toString();

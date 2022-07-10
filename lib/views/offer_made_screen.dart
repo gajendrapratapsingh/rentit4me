@@ -85,8 +85,12 @@ class _OfferMadeScreenState extends State<OfferMadeScreen> {
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
-    print("Failed");
-    print(response);
+    ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("You have cancelled the payment process.", style: TextStyle(color: Colors.white)),
+          backgroundColor: Colors.red,
+        )
+    );
     setState((){
       post_id = null;
       userid = null;
@@ -379,45 +383,65 @@ class _OfferMadeScreenState extends State<OfferMadeScreen> {
                          child: Card(
                          elevation: 4.0,
                          child: Padding(
-                           padding: const EdgeInsets.only(top : 8.0, bottom: 8.0),
-                           child: ListTile(
-                           title: Text("Rentee : "+offermadelist[index]['name'].toString()),
-                           subtitle: Column(
+                           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                           child: Column(
                              crossAxisAlignment: CrossAxisAlignment.start,
                              children: [
-                              InkWell(
-                                 onTap: (){
-                                   Navigator.push(context, MaterialPageRoute(builder: (context) => OfferMadeProductDetailScreen(postadid: offermadelist[index]['post_ad_id'].toString(), offerid: offermadelist[index]['offer_request_id'].toString())));
-                                 },
-                                 child: Text("Product Name : "+offermadelist[index]['title'].toString()),
-                              ),
-                              SizedBox(height: 5),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text("Qty: "+offermadelist[index]['quantity'].toString()),
-                                  Text("Period: "+offermadelist[index]['period'].toString()),
-                                  Text("Rent type: "+offermadelist[index]['rent_type_name'].toString()),
-                              ])
-                           ]),
-                           trailing: offermadelist[index]["offer_status"].toString() == "1" &&  offermadelist[index]["pay_status"].toString() == "0" ? InkWell(onTap: (){
-                               setState((){
-                                     post_id = offermadelist[index]["post_ad_id"].toString();
-                                     userid = offermadelist[index]["user_id"].toString();
-                                     request_id = offermadelist[index]["offer_request_id"].toString();
-                                     amount = offermadelist[index]["final_amount"].toString().split('.')[0];
-                                   });
-                                   startPayment(offermadelist[index]["final_amount"].toString());
-                           }, child: Container(
-                                     width: 50,
-                                     height: 30,
-                                     alignment: Alignment.center,
-                                     padding: EdgeInsets.all(4.0),
-                                     decoration: BoxDecoration(
-                                     borderRadius: BorderRadius.all(Radius.circular(4.0)),
-                                     border: Border.all(color: Colors.blue)
-                                  ),  child: Text("Pay", style: TextStyle(color: Colors.blue)))) : _getaction(offermadelist[index]["offer_status"].toString(), offermadelist[index]["pay_status"].toString(), index, offermadelist)
-                     ),
+                               Padding(
+                                   padding: const EdgeInsets.only(left : 8.0),
+                                   child: Text("Rentee : "+offermadelist[index]['name'].toString(), style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500))),
+                               Row(
+                                 mainAxisAlignment: MainAxisAlignment.start,
+                                 children: [
+                                   TextButton(onPressed: (){
+                                     Navigator.push(context, MaterialPageRoute(builder: (context) => OfferMadeProductDetailScreen(postadid: offermadelist[index]['post_ad_id'].toString(), offerid: offermadelist[index]['offer_request_id'].toString())));
+                                   }, child: SizedBox(
+                                       width: size.width * 0.65,
+                                       child: Text("Product Name : "+offermadelist[index]['title'].toString())
+                                   )),
+                                   SizedBox(width: 5.0),
+                                   offermadelist[index]["offer_status"].toString() == "1" &&  offermadelist[index]["pay_status"].toString() == "0" ? InkWell(onTap: (){
+                            setState((){
+                              post_id = offermadelist[index]["post_ad_id"].toString();
+                              userid = offermadelist[index]["user_id"].toString();
+                              request_id = offermadelist[index]["offer_request_id"].toString();
+                              amount = offermadelist[index]["final_amount"].toString().split('.')[0];
+                            });
+                            startPayment(offermadelist[index]["final_amount"].toString());
+                          }, child: Container(
+                              width: 50,
+                              height: 30,
+                              alignment: Alignment.center,
+                              padding: EdgeInsets.all(4.0),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(Radius.circular(4.0)),
+                                  border: Border.all(color: Colors.blue)),  child: Text("Pay", style: TextStyle(color: Colors.blue)))) : _getaction(offermadelist[index]["offer_status"].toString(), offermadelist[index]["pay_status"].toString(), index, offermadelist)
+                                 ],
+                               ),
+                               SizedBox(height: 10.0),
+                               Padding(
+                                 padding: const EdgeInsets.all(8.0),
+                                 child: Row(
+                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                   children: [
+                                     Text("Quantity: "+offermadelist[index]['quantity'].toString()),
+                                     Text("Period: "+offermadelist[index]['period'].toString()),
+                                   ],
+                                 ),
+                               ),
+                               SizedBox(height: 5.0),
+                               Padding(
+                                 padding: const EdgeInsets.all(8.0),
+                                 child: Row(
+                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                   children: [
+                                     Text("Rent type: "+offermadelist[index]['rent_type_name'].toString()),
+                                     Text("Status: "+_getStatus(offermadelist[index]['offer_status'].toString())),
+                                   ],
+                                 ),
+                               )
+                             ],
+                           ),
                          ),
                    ),
                       );
@@ -456,7 +480,20 @@ class _OfferMadeScreenState extends State<OfferMadeScreen> {
       return Text("Pay", style: TextStyle(color: Colors.grey));
     }
     else{
-      return Text("NA", style: TextStyle(color: Colors.grey));
+      return InkWell(
+        onTap: (){},
+        child: Container(
+          width: 50,
+          height: 30,
+          alignment: Alignment.center,
+          padding: EdgeInsets.all(4.0),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(4.0)),
+              border: Border.all(color: Colors.grey)
+          ),
+          child: Text("NA", style: TextStyle(color: Colors.grey)),
+        ),
+      );
     }
   }
 
@@ -1081,5 +1118,29 @@ class _OfferMadeScreenState extends State<OfferMadeScreen> {
       setState(() {
         dialogstartDate = DateFormat('yyyy/MM/dd').format(picked);
       });
+  }
+
+  String _getStatus(String statusvalue) {
+    if(statusvalue == "13"){
+      return "Complete";
+    }
+    else if(statusvalue == "1"){
+      return "Accepted";
+    }
+    else if(statusvalue == "3"){
+      return "Pending";
+    }
+    else if(statusvalue == "6"){
+      return "Active";
+    }
+    else if(statusvalue == "4"){
+      return "Inactive";
+    }
+    else if(statusvalue == "2"){
+      return "Rejected";
+    }
+    else{
+      return "Approved";
+    }
   }
 }

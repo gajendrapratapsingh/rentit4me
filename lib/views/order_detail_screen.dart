@@ -63,6 +63,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   double getproductrating = 0;
   String feedbackhint = 'Give your feedback (optional)';
 
+  bool renteecheck = false;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -73,6 +75,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -136,9 +139,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                           SizedBox(height: 10),
                           Text("Security Deposit: INR "+securitydeposit, style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w400)),
                           SizedBox(height: 10),
-                          Text("Product Rating", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
-                          SizedBox(height: 5.0),
-                          RatingBar.builder(
+                          renteecheck == true ?  SizedBox() : const Text("Product Rating", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
+                          renteecheck == true ?  SizedBox() : SizedBox(height: 5.0),
+                          renteecheck == true ?  SizedBox() : RatingBar.builder(
                             initialRating: getproductrating == 0 ? 0 : getproductrating,
                             minRating: 1,
                             itemSize: 24,
@@ -155,10 +158,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                 productrating = rating.toString();
                             },
                           ),
-                          SizedBox(height: 5.0),
-                          Text("User Rating", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
-                          SizedBox(height: 5.0),
-                          RatingBar.builder(
+                          renteecheck == true ?  SizedBox() : SizedBox(height: 5.0),
+                          renteecheck == true ?  SizedBox() : const Text("User Rating", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
+                          renteecheck == true ?  SizedBox() : SizedBox(height: 5.0),
+                          renteecheck == true ?  SizedBox() : RatingBar.builder(
                             initialRating: getuserrating == 0 ? 0 : getuserrating,
                             minRating: 1,
                             itemSize: 24,
@@ -175,8 +178,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                userrating = rating.toString();
                             }
                           ),
-                          SizedBox(height: 20),
-                          Container(
+                          renteecheck == true ?  SizedBox() : SizedBox(height: 20),
+                          renteecheck == true ?  SizedBox() : Container(
                             height: 45,
                             width: double.infinity,
                             decoration: BoxDecoration(
@@ -196,8 +199,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 10),
-                          InkWell(
+                          renteecheck == true ?  SizedBox() : SizedBox(height: 10),
+                          renteecheck == true ?  SizedBox() : InkWell(
                             onTap: (){
                                if(productrating == null || productrating == ""){
                                   showToast("Please check product rating");
@@ -456,7 +459,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text("Address", style: TextStyle(color: Colors.black, fontSize: 14)),
-                              Text(address, style: TextStyle(color: Colors.black, fontSize: 14))
+                              SizedBox(
+                                  width: size.width * 0.60,
+                                  child: Text(address, textAlign: TextAlign.end, maxLines: 2, style: TextStyle(color: Colors.black, fontSize: 14))
+                              )
                             ],
                           ),
                           SizedBox(height: 5),
@@ -487,8 +493,6 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     setState((){
       _loading = false;
     });
-    print(orderid);
-    print(response.body);
     if (response.statusCode == 200) {
       var data = json.decode(response.body)['Response'];
       setState(() {
@@ -526,7 +530,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         enddate = data['Order Details']['end_date'].toString().split(" ")[0].toString();
         //status = data['Order Details']['offer_status'].toString();
         renttypeid = data['Order Details']['rent_type_id'].toString();
-        createdAt = data['Order Details']['created_at'].toString().split("T")[0].toString();
+        //createdAt = data['Order Details']['created_at'].toString().split("T")[0].toString();
+        createdAt = data['Order Details']['created_at'].toString();
 
         //Renter Detail
         name = data['Additional Information']['name'].toString();
@@ -537,6 +542,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         getuserrating = double.parse(data['Rating']['user_rating'].toString());
         getproductrating = double.parse(data['Rating']['post_ad_rating'].toString());
         feedbackhint = data['Rating']['feedback'];
+
+        if(prefs.getString('userid').toString() == data['Order Details']['user_id'].toString()){
+           renteecheck = true;
+        }
 
 
       });

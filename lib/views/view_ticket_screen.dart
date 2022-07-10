@@ -3,12 +3,13 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:http/http.dart' as http;
 import 'package:rentit4me/network/api.dart';
 import 'package:rentit4me/themes/constant.dart';
-import 'package:rentit4me/themes/constant.dart';
+import 'package:image_downloader/image_downloader.dart';
 import 'package:rentit4me/views/home_screen.dart';
 import 'package:rentit4me/views/myticket_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -207,7 +208,23 @@ class _ViewTicketScreenState extends State<ViewTicketScreen> {
                                                     children: [
                                                       Text(getcommentdatalist[index]['comment'].toString(), style: TextStyle(color: Colors.black, fontSize: 16)),
                                                       SizedBox(width: 5.0),
-                                                      getcommentdatalist[index]['attachment'] == null ? SizedBox() : Text(getcommentdatalist[index]['attachment'].toString(), style: TextStyle(color: Colors.deepOrangeAccent))
+                                                      getcommentdatalist[index]['attachment'] == null ? SizedBox() : InkWell(
+                                                          onTap : () async{
+                                                            try {
+                                                              var imageId = await ImageDownloader.downloadImage("https://raw.githubusercontent.com/wiki/ko2ic/image_downloader/images/bigsize.jpg");
+                                                              if (imageId == null) {
+                                                                print("hello 1");
+                                                                return;
+                                                              }
+                                                              // Below is a method of obtaining saved image information.
+                                                              var fileName = await ImageDownloader.findName(imageId);
+                                                              print("hello 2");
+                                                              showToast(fileName.toString());
+                                                            } on PlatformException catch (error) {
+                                                              print(error);
+                                                            }
+                                                          },
+                                                          child: Text(getcommentdatalist[index]['attachment'].toString(), style: TextStyle(color: Colors.deepOrangeAccent)))
                                                     ],
                                                   )
                                                 ],

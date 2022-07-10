@@ -320,48 +320,57 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                         child: Card(
                           elevation: 4.0,
                           child: Padding(
-                            padding:
-                                const EdgeInsets.only(top: 5.0, bottom: 5.0),
-                            child: ListTile(
-                              title: InkWell(
-                                onTap: (){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => OrderDetailScreen(orderid: myorderslist[index]['id'].toString())));
-                                },
-                                child: Text("Order Id : " + myorderslist[index]['order_id'].toString()),
-                              ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text("Product : " + myorderslist[index]['title'].toString()),
-                                  SizedBox(height: 5),
-                                  Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        myorderslist[index]['quantity'] == null ? SizedBox() : Text("Qty: " + myorderslist[index]['quantity'].toString()),
-                                        Text("Period: " + myorderslist[index]['period'].toString()),
-                                        Text("Rent type: " + myorderslist[index]['rent_type_name'].toString()),
-                                      ])
-                                ],
-                              ),
-                              trailing: myorderslist[index]["offer_status"].toString() == "1"
-                                  ? InkWell(
-                                      onTap: () {},
-                                      child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                    padding: const EdgeInsets.only(left : 8.0),
+                                    child: Text("Order Id : " + myorderslist[index]['order_id'].toString(), style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500))),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    TextButton(onPressed: (){
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => OrderDetailScreen(orderid: myorderslist[index]['id'].toString())));
+                                    }, child: SizedBox(
+                                        width: size.width * 0.60,
+                                        child: Text("Product Name : "+myorderslist[index]['title'].toString())
+                                    )),
+                                    SizedBox(width: 4.0),
+                                    myorderslist[index]["status"].toString() == "delivered" ? InkWell(onTap: (){
+                                      _confirmation(context, myorderslist[index]['id'].toString());
+                                    }, child: Container(
+                                        width: 80,
+                                        alignment: Alignment.center,
                                         padding: EdgeInsets.all(4.0),
                                         decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(4.0)),
-                                            border:
-                                                Border.all(color: Colors.blue)),
-                                        child: Text("Action",
-                                            style:
-                                                TextStyle(color: Colors.blue)),
-                                      ),
-                                    )
-                                  : _getaction(myorderslist[index]
-                                          ["offer_status"]
-                                      .toString()),
+                                            borderRadius: BorderRadius.all(Radius.circular(4.0)),
+                                            border: Border.all(color: Colors.blue)),  child: Text("Recieved", textAlign: TextAlign.center, style: TextStyle(color: Colors.blue)))) : _getaction(myorderslist[index]["status"].toString())
+                                  ],
+                                ),
+                                SizedBox(height: 10.0),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text("Quantity: "+myorderslist[index]['quantity'].toString()),
+                                      Text("Period: "+myorderslist[index]['period'].toString()),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: 5.0),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text("Rent type: "+myorderslist[index]['rent_type_name'].toString()),
+                                      Text("Status: "+myorderslist[index]['status'].toString()),
+                                    ],
+                                  ),
+                                )
+                              ],
                             ),
                           ),
                         ),
@@ -377,45 +386,6 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     );
   }
 
-  DataCell _getPeriod(String period, String type) {
-    if (type == "hourly") {
-      if (period == "1") {
-        return DataCell(Text(period + " " + "Hour"));
-      } else {
-        return DataCell(Text(period + " " + "Hours"));
-      }
-    } else if (type == "yearly") {
-      if (period == "1") {
-        return DataCell(Text(period + " " + "Year"));
-      } else {
-        return DataCell(Text(period + " " + "Years"));
-      }
-    } else if (type == "monthly") {
-      if (period == "1") {
-        return DataCell(Text(period + " " + "Month"));
-      } else {
-        return DataCell(Text(period + " " + "Months"));
-      }
-    } else {
-      if (period == "1") {
-        return DataCell(Text(period + " " + "Day"));
-      } else {
-        return DataCell(Text(period + " " + "Days"));
-      }
-    }
-  }
-
-  DataCell _getstatus(String statusvalue) {
-    if (statusvalue == "3") {
-      return DataCell(Text("Pending"));
-    } else if (statusvalue == "13") {
-      return DataCell(Text("Completed"));
-    } else if (statusvalue == "2") {
-      return DataCell(Text("Rejected"));
-    } else {
-      return DataCell(Text("Accepted"));
-    }
-  }
 
   Future<void> _myorderslist() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -423,17 +393,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         _progress = true;
         myorderslist.clear();
       });
-      print(jsonEncode({
-        "id": prefs.getString('userid'),
-        "search": searchvalue,
-        "from_date": startdate,
-        "to_date": enddate
-      }));
       final body = {
         "id": prefs.getString('userid'),
-        //"search": searchvalue,
-        //"from_date": startdate,
-        //"to_date": enddate
       };
       var response = await http.post(Uri.parse(BASE_URL + myorders),
           body: jsonEncode(body),
@@ -471,11 +432,6 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       _progress = true;
       myorderslist.clear();
     });
-    print(jsonEncode({
-      "id": prefs.getString('userid'),
-      "from_date": startdate,
-      "to_date": enddate
-    }));
     final body = {
       "id": prefs.getString('userid'),
       "from_date": startdate,
@@ -557,18 +513,18 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
 
 
   Widget _getaction(String statusvalue) {
-    if (statusvalue == "3") {
-      return Container(
-        padding: EdgeInsets.all(4.0),
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(4.0)),
-            border: Border.all(color: Colors.blue)),
-        child: Text("Edit", style: TextStyle(color: Colors.blue)),
+    if (statusvalue == "pending" || statusvalue == "active" || statusvalue == "cancelled") {
+      return InkWell(
+        onTap: (){},
+        child: Container(
+          width: 80,
+          padding: EdgeInsets.all(4.0),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(4.0)),
+              border: Border.all(color: Colors.grey)),
+          child: Text("NA", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey)),
+        ),
       );
-    } else if (statusvalue == "13") {
-      return Text("NA", style: TextStyle(color: Colors.grey));
-    } else {
-      return Text("NA", style: TextStyle(color: Colors.grey));
     }
   }
 
@@ -644,5 +600,70 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       setState(() {
         enddate = DateFormat('yyyy-MM-dd').format(picked);
       });
+  }
+
+  Future<void> _confirmation(BuildContext context, String orderid) {
+    return showDialog(
+      builder: (context) => AlertDialog(
+        actionsPadding: EdgeInsets.all(0),
+        insetPadding: EdgeInsets.all(0),
+        title: const Text('Confirmation!!'),
+        content: const Text("Are you sure, product recieved?", style: TextStyle(color: Colors.black54),
+        ),
+        actions: <Widget>[
+          FlatButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('CANCEL', style: TextStyle(color: kPrimaryColor)),
+          ),
+          FlatButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _submitrespond(orderid, "active");
+              //Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => SignUp()), (route) => false);
+            },
+            child: const Text('YES', style: TextStyle(color: kPrimaryColor),
+            ),
+          ),
+        ],
+      ),
+      context: context,
+    );
+  }
+
+  Future<void> _submitrespond(String orderid, String respond) async{
+    setState((){
+      _progress = true;
+    });
+    final body = {
+      "order_id": orderid,
+      "status": respond,
+    };
+    var response = await http.post(Uri.parse(BASE_URL + orderrespond),
+        body: jsonEncode(body),
+        headers: {
+          "Accept": "application/json",
+          'Content-Type': 'application/json'
+        }
+    );
+    setState((){
+      _progress = false;
+    });
+    if(response.statusCode == 200) {
+      if(jsonDecode(response.body)['ErrorCode'].toString() == "0"){
+        showToast(jsonDecode(response.body)['ErrorMessage'].toString());
+        _myorderslist();
+      }
+      else {
+        showToast(jsonDecode(response.body)['ErrorMessage'].toString());
+      }
+    } else {
+      setState((){
+        _progress = false;
+      });
+      print(response.body);
+      throw Exception('Failed to get data due to ${response.body}');
+    }
   }
 }
