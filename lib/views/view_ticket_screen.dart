@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -7,9 +8,11 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:http/http.dart' as http;
+import 'package:permission_handler/permission_handler.dart';
 import 'package:rentit4me/network/api.dart';
 import 'package:rentit4me/themes/constant.dart';
-import 'package:image_downloader/image_downloader.dart';
+import 'package:dio/dio.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:rentit4me/views/home_screen.dart';
 import 'package:rentit4me/views/myticket_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -209,20 +212,8 @@ class _ViewTicketScreenState extends State<ViewTicketScreen> {
                                                       Text(getcommentdatalist[index]['comment'].toString(), style: TextStyle(color: Colors.black, fontSize: 16)),
                                                       SizedBox(width: 5.0),
                                                       getcommentdatalist[index]['attachment'] == null ? SizedBox() : InkWell(
-                                                          onTap : () async{
-                                                            try {
-                                                              var imageId = await ImageDownloader.downloadImage("https://raw.githubusercontent.com/wiki/ko2ic/image_downloader/images/bigsize.jpg");
-                                                              if (imageId == null) {
-                                                                print("hello 1");
-                                                                return;
-                                                              }
-                                                              // Below is a method of obtaining saved image information.
-                                                              var fileName = await ImageDownloader.findName(imageId);
-                                                              print("hello 2");
-                                                              showToast(fileName.toString());
-                                                            } on PlatformException catch (error) {
-                                                              print(error);
-                                                            }
+                                                          onTap :(){
+                                                             _save("https://dev.techstreet.in/rentit4me/public/assets/consumer/attachment/"+getcommentdatalist[index]['attachment'].toString());
                                                           },
                                                           child: Text(getcommentdatalist[index]['attachment'].toString(), style: TextStyle(color: Colors.deepOrangeAccent)))
                                                     ],
@@ -557,6 +548,34 @@ class _ViewTicketScreenState extends State<ViewTicketScreen> {
                     ],
                   )
                 ])));
+  }
+
+  _save(String url) async {
+    var status = await Permission.storage.request();
+    if(status.isGranted) {
+      setState((){
+         _loading = true;
+      });
+      var response = await Dio().get(url,
+          options: Options(responseType: ResponseType.bytes));
+          final result = await ImageGallerySaver.saveImage(
+          Uint8List.fromList(response.data),
+          quality: 60,
+          name: "image");
+          print(result);
+          if(result['isSuccess']){
+            showToast('Image downloaded successfully!');
+            setState((){
+              _loading = false;
+            });
+          }
+          else{
+            showToast('Downloading failed!');
+            setState((){
+              _loading = false;
+            });
+          }
+    }
   }
 
 }
