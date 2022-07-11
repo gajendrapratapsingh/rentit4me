@@ -18,7 +18,7 @@ class OfferRecievedScreen extends StatefulWidget {
 
 class _OfferRecievedScreenState extends State<OfferRecievedScreen> {
 
-  String searchvalue = "Search";
+  String searchvalue = "Search for product";
   List<dynamic> offerrecievedlist = [];
 
   List<String> responselist = ['Accept', 'Reject'];
@@ -174,7 +174,7 @@ class _OfferRecievedScreenState extends State<OfferRecievedScreen> {
                     SizedBox(height: 10),
                     InkWell(
                       onTap: () {
-                        if(searchvalue == "Search" || searchvalue.trim().length == 0 || searchvalue.trim().isEmpty){
+                        if(searchvalue == "Search for product" || searchvalue.trim().length == 0 || searchvalue.trim().isEmpty){
                            _offerrecievedlistByDate();
                         }
                         else{

@@ -708,23 +708,28 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
         ),
         ClipRRect(
           borderRadius: BorderRadius.circular(40),
-          child: urlImage == "" || urlImage == null || urlImage == "null" ? Container(height: 80, width: 80, child: Image.asset('assets/images/profile_placeholder.png', fit: BoxFit.fill, color: Colors.white)) : CachedNetworkImage(
+          child: urlImage == "" || urlImage == null || urlImage == "null" ? Container(height: 80, width: 80, child: Image.asset('assets/images/profile_placeholder.png', fit: BoxFit.fill, color: Colors.white)) : Container(
             height: 80,
             width: 80,
-            imageUrl: urlImage,
-            imageBuilder: (context, imageProvider) => Container(
-              decoration: BoxDecoration(
-                //border: Border.all(color: Colors.white, width: 2),
-                //borderRadius: BorderRadius.circular(8.0),
-                image: DecorationImage(
-                    image: imageProvider,
-                    fit: BoxFit.cover,
-
-                    colorFilter: ColorFilter.mode(Colors.white, BlendMode.colorBurn)
+            decoration: BoxDecoration(
+                border: Border.all(color: Colors.white, width: 1),
+                shape: BoxShape.circle
+            ),
+            child: CachedNetworkImage(
+              imageUrl: urlImage,
+              imageBuilder: (context, imageProvider) => Container(
+                decoration: BoxDecoration(
+                  //border: Border.all(color: Colors.white, width: 2),
+                  //borderRadius: BorderRadius.circular(8.0),
+                  image: DecorationImage(
+                      image: imageProvider,
+                      fit: BoxFit.cover,
+                      colorFilter: ColorFilter.mode(Colors.white, BlendMode.colorBurn)
+                  ),
                 ),
               ),
+              errorWidget: (context, url, error) => Image.asset('assets/images/profile_placeholder.png', color: Colors.white),
             ),
-            errorWidget: (context, url, error) => Image.asset('assets/images/profile_placeholder.png', color: Colors.white),
           ),
         ),
         SizedBox(height: 15.0),

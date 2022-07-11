@@ -20,7 +20,7 @@ class _MessageScreenState extends State<MessageScreen> {
 
   List<dynamic> messageslist = [];
 
-  String searchvalue = "Search";
+  String searchvalue = "Search for message";
 
   String startdate = "From Date";
   String enddate = "To Date";
@@ -156,7 +156,7 @@ class _MessageScreenState extends State<MessageScreen> {
                       SizedBox(height: 10),
                       InkWell(
                         onTap: () {
-                          if(searchvalue == "Search" || searchvalue.length == 0 || searchvalue.isEmpty){
+                          if(searchvalue == "Search for message" || searchvalue.length == 0 || searchvalue.isEmpty){
                             _messageslistByDate();
                           }
                           else{

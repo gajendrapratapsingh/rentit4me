@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:rentit4me/network/api.dart';
 import 'package:rentit4me/themes/constant.dart';
+import 'package:rentit4me/views/order_detail_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ActiveOrderScreen extends StatefulWidget {
@@ -16,7 +17,7 @@ class ActiveOrderScreen extends StatefulWidget {
 
 class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
 
-  String searchvalue = "Search";
+  String searchvalue = "Enter order id";
   List<dynamic> myactiveorderslist = [];
 
   bool _progress = false;
@@ -43,7 +44,7 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
             onTap: () {
               Navigator.of(context).pop();
             },
-            child: Icon(
+            child: const Icon(
               Icons.arrow_back,
               color: kPrimaryColor,
             )),
@@ -156,7 +157,7 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
                         SizedBox(height: 10),
                         InkWell(
                           onTap: () {
-                            if(searchvalue == "Search" || searchvalue.length == 0 || searchvalue.isEmpty){
+                            if(searchvalue == "Enter order id" || searchvalue.length == 0 || searchvalue.isEmpty){
                                _myactiveorderslistByDate();
                             }
                             else{
@@ -292,40 +293,62 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
                                 ]))));
                          },
                          child: Card(
-                            elevation: 4.0,
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
-                              child: ListTile(
-                                 title: Text("Order Id : "+myactiveorderslist[index]['order_id'].toString()),
-                                 subtitle: Column(
-                                   crossAxisAlignment: CrossAxisAlignment.start,
+                           elevation: 4.0,
+                           child: Padding(
+                             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                             child: Column(
+                               crossAxisAlignment: CrossAxisAlignment.start,
+                               children: [
+                                 Padding(
+                                     padding: const EdgeInsets.only(left : 8.0),
+                                     child: Text("Order Id : " +myactiveorderslist[index]['order_id'].toString(), style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500))),
+                                 Row(
+                                   mainAxisAlignment: MainAxisAlignment.start,
                                    children: [
-                                      Text("Product : "+myactiveorderslist[index]['title'].toString()),
-                                      SizedBox(height: 5),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text("Qty: "+myactiveorderslist[index]['quantity'].toString()),
-                                          Text("Period: "+myactiveorderslist[index]['period'].toString()),
-                                          Text("Rent type: "+myactiveorderslist[index]['rent_type_name'].toString()),
-                                      ])
-                                   ],
-                                 ),
-                                 trailing: myactiveorderslist[index]["offer_status"].toString() == "1" ? InkWell(
-                                      onTap: (){
-                                          
-                                      }, 
-                                      child: Container(
+                                     TextButton(onPressed: (){
+                                       Navigator.push(context, MaterialPageRoute(builder: (context) => OrderDetailScreen(orderid: myactiveorderslist[index]['id'].toString())));
+                                     }, child: SizedBox(
+                                         width: size.width * 0.60,
+                                         child: Text("Product Name : "+myactiveorderslist[index]['title'].toString())
+                                     )),
+                                     SizedBox(width: 4.0),
+                                        InkWell(onTap: (){
+                                        //_confirmation(context, myorderslist[index]['id'].toString());
+                                     }, child: Container(
+                                         width: 80,
+                                         alignment: Alignment.center,
                                          padding: EdgeInsets.all(4.0),
                                          decoration: BoxDecoration(
-                                           borderRadius: BorderRadius.all(Radius.circular(4.0)),
-                                           border: Border.all(color: Colors.blue)
-                                        ),
-                                        child: Text("Action", style: TextStyle(color: Colors.blue)),
-                                      ), 
-                                 ) : _getaction(myactiveorderslist[index]["offer_status"].toString()),
-                              ),
-                            ),
+                                             borderRadius: BorderRadius.all(Radius.circular(4.0)),
+                                             border: Border.all(color: Colors.grey)),  child: Text("NA", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey))))
+                                   ],
+                                 ),
+                                 SizedBox(height: 10.0),
+                                 Padding(
+                                   padding: const EdgeInsets.all(8.0),
+                                   child: Row(
+                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                     children: [
+                                       Text("Quantity: "+myactiveorderslist[index]['quantity'].toString()),
+                                       myactiveorderslist[index]['period'].toString() == "" || myactiveorderslist[index]['period'] == null ? SizedBox() : Text("Period: "+myactiveorderslist[index]['period'].toString()+" "+_getrenttype(myactiveorderslist[index]['period'].toString(), myactiveorderslist[index]['rent_type_name'].toString()), style: TextStyle(color: Colors.black, fontSize: 14)),
+                                       //Text("Period: "+myorderslist[index]['period'].toString()),
+                                     ],
+                                   ),
+                                 ),
+                                 SizedBox(height: 5.0),
+                                 Padding(
+                                   padding: const EdgeInsets.all(8.0),
+                                   child: Row(
+                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                     children: [
+                                       Text("Rent type: "+myactiveorderslist[index]['rent_type_name'].toString()),
+                                       Text("Status: "+myactiveorderslist[index]['status'].toString()),
+                                     ],
+                                   ),
+                                 )
+                               ],
+                             ),
+                           ),
                          ),
                        );
                     },
@@ -552,6 +575,33 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
       setState(() {
         enddate = DateFormat('yyyy-MM-dd').format(picked);
       });
+  }
+
+  String _getrenttype(String period, String renttypevalue){
+    if(renttypevalue == "hourly" &&  period == "1"){
+      return "Hour";
+    }
+    if(renttypevalue == "hourly" &&  period != "1"){
+      return "Hours";
+    }
+    else if(renttypevalue == "days" && period == "1"){
+      return "Day";
+    }
+    else if(renttypevalue == "days" && period != "1"){
+      return "Days";
+    }
+    else if(renttypevalue == "monthly" && period == "1"){
+      return "Month";
+    }
+    else if(renttypevalue == "monthly" && period != "1"){
+      return "Months";
+    }
+    else if(renttypevalue == "yearly" && period == "1"){
+      return "Year";
+    }
+    else if(renttypevalue == "yearly" && period != "1"){
+      return "Years";
+    }
   }
 
 }

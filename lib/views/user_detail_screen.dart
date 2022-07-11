@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -57,9 +58,9 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
 
   List<int> commprefs = [];
 
-  String countryhint = "Select Country";
-  String statehint = "Select State";
-  String cityhint = "Select City";
+  String selectedCountry = "Select Country";
+  String selectedState = "Select State";
+  String selectedCity = "Select City";
 
   bool profilepicbool = false;
 
@@ -496,116 +497,120 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                        children: [
                          const Align(alignment: Alignment.center, child: Text("Setting", style: TextStyle(color: kPrimaryColor, fontSize: 21, fontWeight: FontWeight.w700))),
                          const SizedBox(height: 10),
-                         const Text("Country*", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
-                         const SizedBox(height: 8.0),
-                         Container(
-                             decoration: BoxDecoration(
-                                 border: Border.all(
-                                     width: 1,
-                                     color: Colors.deepOrangeAccent
+                         Text("Country*", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
+                         SizedBox(height: 8.0),
+                         Padding(
+                           padding: const EdgeInsets.fromLTRB(0, 2, 0, 2),
+                           child: DropdownSearch(
+                             selectedItem: selectedCountry,
+                             mode: Mode.DIALOG,
+                             showSelectedItem: true,
+                             autoFocusSearchBox: true,
+                             showSearchBox: true,
+                             hint: 'Select Country',
+                             dropdownSearchDecoration:  InputDecoration(
+                                 enabledBorder: OutlineInputBorder(
+                                     borderRadius: BorderRadius.circular(12),
+                                     borderSide: BorderSide(color: Colors.deepOrangeAccent,width: 1)
+
                                  ),
-                                 borderRadius: BorderRadius.all(Radius.circular(12))
-                             ),
-                             child: Padding(
-                               padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-                               child: DropdownButtonHideUnderline(
-                                 child: DropdownButton<String>(
-                                   hint: Text(countryhint, style: TextStyle(color: Colors.black)),
-                                   value: initialcountryname,
-                                   elevation: 16,
-                                   isExpanded: true,
-                                   style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
-                                   onChanged: (String data) {
+                                 contentPadding: EdgeInsets.only(left: 10)),
+                             items: countrylistData.map((e) {
+                               return e['name'].toString();
+                             }).toList(),
+                             onChanged: (value) {
+                               if(value!="Select Country")
+                               {
+                                 countrylistData.forEach((element) {
+                                   if(element['name'].toString()==value){
                                      setState(() {
-                                         initialcountryname = data.toString();
-                                         initialstatename = null;
-                                         initialcityname = null;
-                                         country_id = data.toString();
-                                         _getStateData(data);
-                                    });
-                                   },
-                                   items: countrylistData.map((items) {
-                                     return DropdownMenuItem<String>(
-                                       value: items['id'].toString(),
-                                       child: Text(items['name']),
-                                     );
-                                   }).toList(),
-                                 ),
-                               ),
-                             )
-                         ),
-                         const SizedBox(height: 10),
-                         const Text("State", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
-                         const SizedBox(height: 8.0),
-                         Container(
-                             decoration: BoxDecoration(
-                                 border: Border.all(
-                                     width: 1,
-                                     color: Colors.deepOrangeAccent
-                                 ),
-                                 borderRadius: BorderRadius.all(Radius.circular(12))
-                             ),
-                             child: Padding(
-                               padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-                               child: DropdownButtonHideUnderline(
-                                 child: DropdownButton<String>(
-                                   elevation: 16,
-                                   isExpanded: true,
-                                   hint: Text(statehint, style: TextStyle(color: Colors.black, fontSize: 16)),
-                                   items: statelistData.map((items) {
-                                     return DropdownMenuItem<String>(
-                                       value: items['id'].toString(),
-                                       child: Text(items['name']),
-                                     );
-                                   }).toList(),
-                                   onChanged: (String data) {
-                                     setState(() {
-                                       initialstatename = data.toString();
+                                       initialcountryname = value.toString();
+                                       initialstatename = null;
                                        initialcityname = null;
-                                       state_id = data.toString();
-                                       _getCityData(state_id);
+                                       country_id = element['id'].toString();
+                                       _getStateData(element['id'].toString());
                                      });
-                                   },
-                                   value: initialstatename,
-                                 ),
-                               ),
-                             )
+                                   }
+                                 });
+                               }else{
+                                 showToast("Select Country");
+                               }
+                             },
+                           ),
                          ),
-                         const SizedBox(height: 10),
-                         const Text("City*", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
-                         const SizedBox(height: 8.0),
-                         Container(
-                             decoration: BoxDecoration(
-                                 border: Border.all(
-                                     width: 1,
-                                     color: Colors.deepOrangeAccent
-                                 ),
-                                 borderRadius: BorderRadius.all(Radius.circular(12))
-                             ),
-                             child: Padding(
-                               padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-                               child: DropdownButtonHideUnderline(
-                                 child: DropdownButton<String>(
-                                   hint: Text(cityhint, style: TextStyle(color: Colors.black)),
-                                   value: initialcityname,
-                                   elevation: 16,
-                                   isExpanded: true,
-                                   style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
-                                   onChanged: (String data) {
-                                     setState(() {
-                                       initialcityname = data.toString();
-                                       city_id = data.toString();
-                                     });
-                                   },
-                                   items: citylistData.map((items) {
-                                     return DropdownMenuItem<String>(
-                                       value: items['id'].toString(),
-                                       child: Text(items['name']),
-                                     );
-                                   }).toList(),
-                                 ),
-                               ),
-                             )
+                         SizedBox(height: 10),
+                         Text("State*", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
+                         SizedBox(height: 8.0),
+                         DropdownSearch(
+                           selectedItem: selectedState,
+                           mode: Mode.DIALOG,
+                           showSelectedItem: true,
+                           autoFocusSearchBox: true,
+                           showSearchBox: true,
+                           hint: 'Select State',
+                           dropdownSearchDecoration: InputDecoration(
+                               enabledBorder: OutlineInputBorder(
+                                   borderRadius: BorderRadius.circular(12),
+                                   borderSide: BorderSide(color: Colors.deepOrangeAccent,width: 1)),
+                               contentPadding: EdgeInsets.only(left: 10)),
+                           items: statelistData.map((e) {
+                             return e['name'].toString();
+                           }).toList(),
+                           onChanged: (value) {
+                             if(value!="Select State")
+                             {
+                               statelistData.forEach((element) {
+                                 if(element['name'].toString()==value){
+                                   setState(() {
+                                     initialstatename = value.toString();
+                                     initialstatename = null;
+                                     initialcityname = null;
+                                     state_id = element['id'].toString();
+                                     _getCityData(element['id'].toString());
+                                   });
+                                 }
+                               });
+                             }else{
+                               showToast("Select State");
+                             }
+                           },
+                         ),
+                         SizedBox(height: 10),
+                         Text("City*", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
+                         SizedBox(height: 8.0),
+                         DropdownSearch(
+                           selectedItem: selectedCity,
+                           mode: Mode.DIALOG,
+                           showSelectedItem: true,
+                           autoFocusSearchBox: true,
+                           showSearchBox: true,
+                           hint: 'Select City',
+                           dropdownSearchDecoration: InputDecoration(
+                               enabledBorder: OutlineInputBorder(
+                                   borderRadius: BorderRadius.circular(12),
+                                   borderSide: BorderSide(color: Colors.deepOrangeAccent,width: 1)),
+                               contentPadding: EdgeInsets.only(left: 10)),
+                           items: citylistData.map((e) {
+                             return e['name'].toString();
+                           }).toList(),
+                           onChanged: (value) {
+                             if(value!="Select City")
+                             {
+                               citylistData.forEach((element) {
+                                 if(element['name'].toString()==value){
+                                   setState(() {
+                                     initialcityname = value.toString();
+                                     //initialstatename = null;
+                                     //initialcityname = null;
+                                     city_id = element['id'].toString();
+                                     //_getStateData(element['id'].toString());
+                                   });
+                                 }
+                               });
+                             }else{
+                               showToast("Select City");
+                             }
+                           },
                          ),
                          const SizedBox(height: 10),
                          const Text("Address", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
@@ -847,15 +852,15 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
          state_id = data['User']['state'].toString();
          city_id = data['User']['city'].toString();
 
-         countryhint = data['User']['country_name'].toString();
-         statehint = data['User']['state_name'].toString();
-         cityhint = data['User']['city_name'].toString();
+         selectedCountry = data['User']['country_name'].toString();
+         selectedState = data['User']['state_name'].toString();
+         selectedCity = data['User']['city_name'].toString();
 
 
-        List selectedList=  data['User']['preferences'].toString().split(",");
-selectedList.forEach((element) {
-  commprefs.add(int.parse(element));
-});
+         List selectedList=  data['User']['preferences'].toString().split(",");
+         selectedList.forEach((element) {
+             commprefs.add(int.parse(element));
+         });
         if(selectedList.contains("1")){
           _emailcheck=true;
         }
@@ -892,7 +897,6 @@ selectedList.forEach((element) {
       throw Exception('Failed to get data due to ${response.body}');
     }
   }
-
   Future _getStateData(String id) async{
     setState((){
       statelistData.clear();
@@ -921,7 +925,6 @@ selectedList.forEach((element) {
       throw Exception('Failed to get data due to ${response.body}');
     }
   }
-
   Future _getCityData(String id) async{
     setState((){
        citylistData.clear();

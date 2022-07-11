@@ -16,7 +16,7 @@ class PaymentScreen extends StatefulWidget {
 
 class _PaymentScreenState extends State<PaymentScreen> {
 
-  String searchvalue = "Search";
+  String searchvalue = "Enter txn id";
   List<dynamic> paymentlist = [];
 
   bool _loading = false;
@@ -157,7 +157,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         SizedBox(height: 10),
                         InkWell(
                           onTap: () {
-                             if(searchvalue == "Search" || searchvalue.trim().isEmpty || searchvalue.trim().length == 0){
+                             if(searchvalue == "Enter txn id" || searchvalue.trim().isEmpty || searchvalue.trim().length == 0){
                                 _paymentlistByDate();
                              }
                              else{

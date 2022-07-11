@@ -131,7 +131,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                             ),
                           ),
                           SizedBox(height: 10),
-                          Text(productname, style: TextStyle(color: kPrimaryColor, fontSize: 14, fontWeight: FontWeight.w700)),
+                          productname == null ? SizedBox() : Text(productname, style: TextStyle(color: kPrimaryColor, fontSize: 14, fontWeight: FontWeight.w700)),
                           SizedBox(height: 10),
                           Text(description, style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w400)),
                           SizedBox(height: 10),
@@ -389,7 +389,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text("Quantity", style: TextStyle(color: Colors.black, fontSize: 14)),
-                              productqty == null ? Text("N/A", style: TextStyle(color: Colors.black, fontSize: 14)) : Text(productqty.toString(), style: TextStyle(color: Colors.black, fontSize: 14))
+                              productqty == null  || productqty == "null" ? Text("N/A", style: TextStyle(color: Colors.black, fontSize: 14)) : Text(productqty.toString(), style: TextStyle(color: Colors.black, fontSize: 14))
                             ],
                           ),
                           SizedBox(height: 10),
@@ -527,7 +527,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         totalsecurity = data['Order Details']['total_security'].toString();
         finalamount = data['Order Details']['final_amount'].toString();
         startdate = data['Order Details']['start_date'].toString();
-        enddate = data['Order Details']['end_date'].toString().split(" ")[0].toString();
+        enddate = data['Order Details']['end_date'].toString();
         //status = data['Order Details']['offer_status'].toString();
         renttypeid = data['Order Details']['rent_type_id'].toString();
         //createdAt = data['Order Details']['created_at'].toString().split("T")[0].toString();

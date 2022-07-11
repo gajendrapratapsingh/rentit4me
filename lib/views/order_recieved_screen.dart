@@ -17,7 +17,7 @@ class OrderRecievedScreen extends StatefulWidget {
 
 class _OrderRecievedScreenState extends State<OrderRecievedScreen> {
 
-  String searchvalue = "Search";
+  String searchvalue = "Enter order id";
   List<dynamic> myactiveorderslist = [];
 
   bool _progress = false;
@@ -160,7 +160,7 @@ class _OrderRecievedScreenState extends State<OrderRecievedScreen> {
                         SizedBox(height: 10),
                         InkWell(
                           onTap: () {
-                             if(searchvalue == "Search" || searchvalue.length == 0 || searchvalue.isEmpty){
+                             if(searchvalue == "Enter order id" || searchvalue.length == 0 || searchvalue.isEmpty){
                                 _myrecievedorderslistByDate();
                              }
                              else{

@@ -156,42 +156,6 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
                             },
                           ),
                         ),
-                        // Container(
-                        //     decoration: BoxDecoration(
-                        //         border: Border.all(
-                        //             width: 1,
-                        //             color: Colors.deepOrangeAccent
-                        //         ),
-                        //         borderRadius: BorderRadius.all(Radius.circular(12))
-                        //     ),
-                        //     child: Padding(
-                        //       padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-                        //       child: DropdownButtonHideUnderline(
-                        //         child: DropdownButton<String>(
-                        //           hint: Text("Select Country", style: TextStyle(color: Colors.black)),
-                        //           value: initialcountryname,
-                        //           elevation: 16,
-                        //           isExpanded: true,
-                        //           style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
-                        //           onChanged: (String data) {
-                        //             setState(() {
-                        //               initialcountryname = data.toString();
-                        //               initialstatename = null;
-                        //               initialcityname = null;
-                        //               country_id = data.toString();
-                        //               _getStateData(data);
-                        //             });
-                        //           },
-                        //           items: countrylistData.map((items) {
-                        //             return DropdownMenuItem<String>(
-                        //               value: items['id'].toString(),
-                        //               child: Text(items['name']),
-                        //             );
-                        //           }).toList(),
-                        //         ),
-                        //       ),
-                        //     )
-                        // ),
                         SizedBox(height: 10),
                         Text("State*", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
                         SizedBox(height: 8.0),
@@ -229,76 +193,9 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
                             }
                           },
                         ),
-                        // Container(
-                        //     decoration: BoxDecoration(
-                        //         border: Border.all(
-                        //             width: 1,
-                        //             color: Colors.deepOrangeAccent
-                        //         ),
-                        //         borderRadius: BorderRadius.all(Radius.circular(12))
-                        //     ),
-                        //     child: Padding(
-                        //       padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-                        //       child: DropdownButtonHideUnderline(
-                        //         child: DropdownButton<String>(
-                        //           elevation: 16,
-                        //           isExpanded: true,
-                        //           hint: Text("Select State", style: TextStyle(color: Colors.black, fontSize: 16)),
-                        //           items: statelistData.map((items) {
-                        //             return DropdownMenuItem<String>(
-                        //               value: items['id'].toString(),
-                        //               child: Text(items['name']),
-                        //             );
-                        //           }).toList(),
-                        //           onChanged: (String data) {
-                        //             setState(() {
-                        //               initialstatename = data.toString();
-                        //               initialcityname = null;
-                        //               state_id = data.toString();
-                        //               _getCityData(state_id);
-                        //             });
-                        //           },
-                        //           value: initialstatename,
-                        //         ),
-                        //       ),
-                        //     )
-                        // ),
                         SizedBox(height: 10),
                         Text("City*", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
                         SizedBox(height: 8.0),
-                        // Container(
-                        //     decoration: BoxDecoration(
-                        //         border: Border.all(
-                        //             width: 1,
-                        //             color: Colors.deepOrangeAccent
-                        //         ),
-                        //         borderRadius: BorderRadius.all(Radius.circular(12))
-                        //     ),
-                        //     child: Padding(
-                        //       padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-                        //       child: DropdownButtonHideUnderline(
-                        //         child: DropdownButton<String>(
-                        //           hint: Text("Select City", style: TextStyle(color: Colors.black)),
-                        //           value: initialcityname,
-                        //           elevation: 16,
-                        //           isExpanded: true,
-                        //           style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
-                        //           onChanged: (String data) {
-                        //             setState(() {
-                        //               initialcityname = data.toString();
-                        //               city_id = data.toString();
-                        //             });
-                        //           },
-                        //           items: citylistData.map((items) {
-                        //             return DropdownMenuItem<String>(
-                        //               value: items['id'].toString(),
-                        //               child: Text(items['name']),
-                        //             );
-                        //           }).toList(),
-                        //         ),
-                        //       ),
-                        //     )
-                        // ),
                         DropdownSearch(
                           selectedItem: selectedCity,
                           mode: Mode.DIALOG,
@@ -329,7 +226,7 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
                                 }
                               });
                             }else{
-                              showToast("Select Country");
+                              showToast("Select City");
                             }
                           },
                         ),

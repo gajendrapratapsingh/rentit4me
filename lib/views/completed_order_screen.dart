@@ -16,7 +16,7 @@ class CompletedOrderScreen extends StatefulWidget {
 
 class _CompletedOrderScreenState extends State<CompletedOrderScreen> {
 
-  String searchvalue = "Search";
+  String searchvalue = "Enter order id";
   List<dynamic> completedorderslist = [];
 
   bool _loading = false;
@@ -157,7 +157,7 @@ class _CompletedOrderScreenState extends State<CompletedOrderScreen> {
                         SizedBox(height: 10),
                         InkWell(
                           onTap: () {
-                             if(searchvalue == "Search" || searchvalue.length == 0 || searchvalue.isEmpty){
+                             if(searchvalue == "Enter order id" || searchvalue.length == 0 || searchvalue.isEmpty){
                                 _completedorderslistByDate();
                              }
                              else{

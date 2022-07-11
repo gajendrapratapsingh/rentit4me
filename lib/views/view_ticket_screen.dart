@@ -50,7 +50,6 @@ class _ViewTicketScreenState extends State<ViewTicketScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    print("Ticket init id "+ticketid);
     _getViewTicket(ticketid);
     _getcomments(ticketid);
   }
@@ -165,10 +164,10 @@ class _ViewTicketScreenState extends State<ViewTicketScreen> {
                               SizedBox(height: 10.0),
                               Align(
                                 alignment: Alignment.topLeft,
-                                child: getcommentdatalist.length == 0 || getcommentdatalist.isEmpty ? Text("Discussion (0)", style: TextStyle(color: Colors.black, fontSize: 16)) : Text("Discussion ${getcommentdatalist.length.toString()}", style: TextStyle(color: Colors.black, fontSize: 16)),
+                                child: getcommentdatalist.length == 0 || getcommentdatalist.isEmpty ? Text("Discussion (0)", style: TextStyle(color: Colors.black, fontSize: 16)) : Text("Discussion (${getcommentdatalist.length.toString()})", style: TextStyle(color: Colors.black, fontSize: 16)),
                               ),
                               getcommentdatalist.length == 0 || getcommentdatalist.isEmpty ? SizedBox() :  SizedBox(height: 10.0),
-                              getcommentdatalist.length == 0 || getcommentdatalist.isEmpty ? SizedBox() : Container(
+                              getcommentdatalist.length == 0 || getcommentdatalist.isEmpty ? SizedBox() : getcommentdatalist.length != 1 ? Container(
                                 height: 150,
                                 width: double.infinity,
                                 child: ListView.separated(
@@ -176,53 +175,131 @@ class _ViewTicketScreenState extends State<ViewTicketScreen> {
                                   itemCount: getcommentdatalist.length,
                                   separatorBuilder: (BuildContext context, int index) => const Divider(),
                                   itemBuilder: (BuildContext context, int index) {
-                                    return Container(
-                                      height: 60,
-                                      width: double.infinity,
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: [
-                                          ClipRRect(
-                                            borderRadius: BorderRadius.circular(30),
-                                            child: getcommentdatalist[index]['attachment'] == null ? Container(height: 80, width: 80, child: Image.asset('assets/images/no_image.jpg', fit: BoxFit.fill, color: Colors.white)) : CachedNetworkImage(
-                                              height: 80,
-                                              width: 80,
-                                              imageUrl: "https://dev.techstreet.in/rentit4me/public/assets/consumer/attachment/"+getcommentdatalist[index]['attachment'].toString(),
-                                              imageBuilder: (context, imageProvider) => Container(
-                                                decoration: BoxDecoration(
-                                                  image: DecorationImage(
-                                                      image: imageProvider,
-                                                      fit: BoxFit.cover,
-                                                      colorFilter: ColorFilter.mode(Colors.white, BlendMode.colorBurn)
+                                    return InkWell(
+                                      onTap:(){
+                                        _save("https://dev.techstreet.in/rentit4me/public/assets/consumer/attachment/"+getcommentdatalist[index]['attachment'].toString());
+                                      },
+                                      child: Container(
+                                        height: 60,
+                                        width: double.infinity,
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius: BorderRadius.circular(10),
+                                              child: getcommentdatalist[index]['attachment'] == null ? Container(height: 80, width: 80, child: Image.asset('assets/images/no_image.jpg', fit: BoxFit.fill, color: Colors.white)) : CachedNetworkImage(
+                                                height: 80,
+                                                width: 80,
+                                                imageUrl: "https://dev.techstreet.in/rentit4me/public/assets/consumer/attachment/"+getcommentdatalist[index]['attachment'].toString(),
+                                                imageBuilder: (context, imageProvider) => Container(
+                                                  decoration: BoxDecoration(
+                                                    image: DecorationImage(
+                                                        image: imageProvider,
+                                                        fit: BoxFit.fill,
+                                                        colorFilter: ColorFilter.mode(Colors.white, BlendMode.colorBurn)
+                                                    ),
                                                   ),
                                                 ),
+                                                errorWidget: (context, url, error) => Image.asset('assets/images/profile_placeholder.png', color: Colors.white),
                                               ),
-                                              errorWidget: (context, url, error) => Image.asset('assets/images/profile_placeholder.png', color: Colors.white),
                                             ),
-                                          ),
-                                          SizedBox(width: 5.0),
-                                          Expanded(
-                                              child: Column(
-                                                crossAxisAlignment : CrossAxisAlignment.start,
-                                                children: [
-                                                  name == null ? SizedBox() : Text(name, style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500)),
-                                                  SizedBox(height: 5.0),
-                                                  Row(
-                                                    children: [
-                                                      Text(getcommentdatalist[index]['comment'].toString(), style: TextStyle(color: Colors.black, fontSize: 16)),
-                                                      SizedBox(width: 5.0),
-                                                      getcommentdatalist[index]['attachment'] == null ? SizedBox() : InkWell(
-                                                          onTap :(){
-                                                             _save("https://dev.techstreet.in/rentit4me/public/assets/consumer/attachment/"+getcommentdatalist[index]['attachment'].toString());
-                                                          },
-                                                          child: Text(getcommentdatalist[index]['attachment'].toString(), style: TextStyle(color: Colors.deepOrangeAccent)))
-                                                    ],
-                                                  )
-                                                ],
-                                              )
-                                          ),
-                                          Text(getcommentdatalist[index]['created_at'].toString().split('T')[0].toString(), style: TextStyle(color: Colors.black, fontSize: 14))
-                                        ],
+                                            SizedBox(width: 5.0),
+                                            Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment : CrossAxisAlignment.start,
+                                                  children: [
+                                                    Row(
+                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                      children: [
+                                                        name == null ? SizedBox() : Text(name, style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500)),
+                                                        Text(getcommentdatalist[index]['created_at'].toString().split('T')[0].toString(), style: TextStyle(color: Colors.black, fontSize: 14))
+                                                      ],
+                                                    ),
+                                                    SizedBox(height: 4.0),
+                                                    Row(
+                                                      children: [
+                                                        Text(getcommentdatalist[index]['comment'].toString(), style: TextStyle(color: Colors.black, fontSize: 16)),
+                                                      ],
+                                                    ),
+                                                    getcommentdatalist[index]['attachment'] == null ? SizedBox() : InkWell(
+                                                        onTap :(){
+                                                          _save("https://dev.techstreet.in/rentit4me/public/assets/consumer/attachment/"+getcommentdatalist[index]['attachment'].toString());
+                                                        },
+                                                        child: Text(getcommentdatalist[index]['attachment'].toString(), style: TextStyle(color: Colors.deepOrangeAccent)))
+                                                  ],
+                                                )
+                                            ),
+
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ) : Container(
+                                width: double.infinity,
+                                child: ListView.separated(
+                                  shrinkWrap: true,
+                                  itemCount: getcommentdatalist.length,
+                                  separatorBuilder: (BuildContext context, int index) => const Divider(),
+                                  itemBuilder: (BuildContext context, int index) {
+                                    return InkWell(
+                                      onTap:(){
+                                        _save("https://dev.techstreet.in/rentit4me/public/assets/consumer/attachment/"+getcommentdatalist[index]['attachment'].toString());
+                                      },
+                                      child: Container(
+                                        height: 60,
+                                        width: double.infinity,
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius: BorderRadius.circular(10),
+                                              child: getcommentdatalist[index]['attachment'] == null ? Container(height: 80, width: 80, child: Image.asset('assets/images/no_image.jpg', fit: BoxFit.fill, color: Colors.white)) : CachedNetworkImage(
+                                                height: 80,
+                                                width: 80,
+                                                imageUrl: "https://dev.techstreet.in/rentit4me/public/assets/consumer/attachment/"+getcommentdatalist[index]['attachment'].toString(),
+                                                imageBuilder: (context, imageProvider) => Container(
+                                                  decoration: BoxDecoration(
+                                                    image: DecorationImage(
+                                                        image: imageProvider,
+                                                        fit: BoxFit.fill,
+                                                        colorFilter: ColorFilter.mode(Colors.white, BlendMode.colorBurn)
+                                                    ),
+                                                  ),
+                                                ),
+                                                errorWidget: (context, url, error) => Image.asset('assets/images/profile_placeholder.png', color: Colors.white),
+                                              ),
+                                            ),
+                                            SizedBox(width: 5.0),
+                                            Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment : CrossAxisAlignment.start,
+                                                  children: [
+                                                    Row(
+                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                      children: [
+                                                        name == null ? SizedBox() : Text(name, style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500)),
+                                                        Text(getcommentdatalist[index]['created_at'].toString().split('T')[0].toString(), style: TextStyle(color: Colors.black, fontSize: 14))
+                                                      ],
+                                                    ),
+                                                    SizedBox(height: 4.0),
+                                                    Row(
+                                                      children: [
+                                                        Text(getcommentdatalist[index]['comment'].toString(), style: TextStyle(color: Colors.black, fontSize: 16)),
+                                                      ],
+                                                    ),
+                                                    getcommentdatalist[index]['attachment'] == null ? SizedBox() : InkWell(
+                                                        onTap :(){
+                                                          _save("https://dev.techstreet.in/rentit4me/public/assets/consumer/attachment/"+getcommentdatalist[index]['attachment'].toString());
+                                                        },
+                                                        child: Text(getcommentdatalist[index]['attachment'].toString(), style: TextStyle(color: Colors.deepOrangeAccent)))
+                                                  ],
+                                                )
+                                            ),
+
+                                          ],
+                                        ),
                                       ),
                                     );
                                   },
@@ -328,7 +405,9 @@ class _ViewTicketScreenState extends State<ViewTicketScreen> {
   }
 
   Future _getViewTicket(String id) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState((){
+      _loading = true;
+    });
     final body = {"ticket_id": id};
     var response = await http.post(Uri.parse(BASE_URL + viewticket),
         body: jsonEncode(body),
@@ -336,8 +415,7 @@ class _ViewTicketScreenState extends State<ViewTicketScreen> {
           "Accept": "application/json",
           'Content-Type': 'application/json'
     });
-    print(response.body);
-    if (response.statusCode == 200) {
+    if(response.statusCode == 200) {
       var data = json.decode(response.body)['Response'];
       setState((){
             tktid = data['ticket_id'].toString();
@@ -361,8 +439,10 @@ class _ViewTicketScreenState extends State<ViewTicketScreen> {
         headers: {
           "Accept": "application/json",
           'Content-Type': 'application/json'
-        });
-    print(response.body);
+    });
+    setState((){
+      _loading = false;
+    });
     if (response.statusCode == 200) {
       var data = json.decode(response.body)['Response'];
       setState((){
@@ -426,10 +506,9 @@ class _ViewTicketScreenState extends State<ViewTicketScreen> {
             _loading = false;
           });
           var jsonData = jsonDecode(responseString);
-          print(jsonData);
           if (jsonData['ErrorCode'].toString() == "0") {
             showToast(jsonData['ErrorMessage'].toString());
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  HomeScreen()));
+            _getViewTicket(ticketid);
           } else {
             showToast(jsonData['ErrorMessage'].toString());
           }
@@ -459,10 +538,10 @@ class _ViewTicketScreenState extends State<ViewTicketScreen> {
           'Content-Type' : 'application/json'
         }
     );
-    print(response.body);
     if(response.statusCode == 200) {
        showToast(json.decode(response.body)['ErrorMessage'].toString());
-       Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  MyticketScreen()));
+       _getViewTicket(ticketid);
+       //Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  MyticketScreen()));
     } else {
       setState(() {
         _loading = false;
@@ -552,7 +631,7 @@ class _ViewTicketScreenState extends State<ViewTicketScreen> {
 
   _save(String url) async {
     var status = await Permission.storage.request();
-    if(status.isGranted) {
+    if(await Permission.storage.request().isGranted) {
       setState((){
          _loading = true;
       });
@@ -562,7 +641,6 @@ class _ViewTicketScreenState extends State<ViewTicketScreen> {
           Uint8List.fromList(response.data),
           quality: 60,
           name: "image");
-          print(result);
           if(result['isSuccess']){
             showToast('Image downloaded successfully!');
             setState((){

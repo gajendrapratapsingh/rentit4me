@@ -19,7 +19,7 @@ class OfferMadeScreen extends StatefulWidget {
 
 class _OfferMadeScreenState extends State<OfferMadeScreen> {
 
-  String searchvalue = "Search";
+  String searchvalue = "Search for product";
   List<dynamic> offermadelist = [];
 
   Razorpay _razorpay;
@@ -246,7 +246,7 @@ class _OfferMadeScreenState extends State<OfferMadeScreen> {
                       SizedBox(height: 10),
                       InkWell(
                         onTap: () {
-                            if(searchvalue == "Search" || searchvalue.trim().length == 0 || searchvalue.trim().isEmpty){
+                            if(searchvalue == "Search for product" || searchvalue.trim().length == 0 || searchvalue.trim().isEmpty){
                               _offermadelistByDate();
                             }
                             else{
@@ -425,7 +425,7 @@ class _OfferMadeScreenState extends State<OfferMadeScreen> {
                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                    children: [
                                      Text("Quantity: "+offermadelist[index]['quantity'].toString()),
-                                     Text("Period: "+offermadelist[index]['period'].toString()),
+                                     offermadelist[index]['period'].toString() == "" || offermadelist[index]['period'] == null ? SizedBox() : Text("Period: "+offermadelist[index]['period'].toString()+" "+_getrenttype(offermadelist[index]['period'].toString(), offermadelist[index]['rent_type_name'].toString()), style: TextStyle(color: Colors.black, fontSize: 14)),
                                    ],
                                  ),
                                ),
@@ -1141,6 +1141,33 @@ class _OfferMadeScreenState extends State<OfferMadeScreen> {
     }
     else{
       return "Approved";
+    }
+  }
+
+  String _getrenttype(String period, String renttypevalue){
+    if(renttypevalue == "hourly" &&  period == "1"){
+      return "Hour";
+    }
+    if(renttypevalue == "hourly" &&  period != "1"){
+      return "Hours";
+    }
+    else if(renttypevalue == "days" && period == "1"){
+      return "Day";
+    }
+    else if(renttypevalue == "days" && period != "1"){
+      return "Days";
+    }
+    else if(renttypevalue == "monthly" && period == "1"){
+      return "Month";
+    }
+    else if(renttypevalue == "monthly" && period != "1"){
+      return "Months";
+    }
+    else if(renttypevalue == "yearly" && period == "1"){
+      return "Year";
+    }
+    else if(renttypevalue == "yearly" && period != "1"){
+      return "Years";
     }
   }
 }

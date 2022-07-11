@@ -19,7 +19,7 @@ class MyticketScreen extends StatefulWidget {
 
 class _MyticketScreenState extends State<MyticketScreen> {
 
-  String searchvalue = "Search";
+  String searchvalue = "Enter Subject";
   List<dynamic> allticketlist = [];
   bool _progress = false;
 
@@ -159,7 +159,7 @@ class _MyticketScreenState extends State<MyticketScreen> {
                         SizedBox(height: 10),
                         InkWell(
                           onTap: () {
-                             if(searchvalue == "Search" || searchvalue.trim().length == 0 || searchvalue.trim().isEmpty){
+                             if(searchvalue == "Enter Subject" || searchvalue.trim().length == 0 || searchvalue.trim().isEmpty){
                                _allticketlistByDate();
                              }
                              else{

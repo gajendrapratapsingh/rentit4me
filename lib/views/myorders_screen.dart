@@ -16,7 +16,7 @@ class MyOrdersScreen extends StatefulWidget {
 }
 
 class _MyOrdersScreenState extends State<MyOrdersScreen> {
-  String searchvalue = "Search";
+  String searchvalue = "Enter order id";
   List<dynamic> myorderslist = [];
 
   bool _progress = false;
@@ -109,8 +109,6 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                //Text("From Date", style: TextStyle(color: kPrimaryColor, fontSize: 14, fontWeight: FontWeight.w500)),
-                                //SizedBox(height: 10),
                                 Container(
                                     width: size.width * 0.42,
                                     decoration: BoxDecoration(
@@ -138,8 +136,6 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                //Text("To Date", style: TextStyle(color: kPrimaryColor, fontSize: 14, fontWeight: FontWeight.w500)),
-                                //SizedBox(height: 10),
                                 Container(
                                     width: size.width * 0.42,
                                     decoration: BoxDecoration(
@@ -169,7 +165,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                         SizedBox(height: 10),
                         InkWell(
                           onTap: () {
-                            if(searchvalue == "Search" || searchvalue.length == 0 || searchvalue.isEmpty){
+                            if(searchvalue == "Enter order id" || searchvalue.length == 0 || searchvalue.isEmpty){
                                _myorderslistByDate();
                             }
                             else {
@@ -355,7 +351,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text("Quantity: "+myorderslist[index]['quantity'].toString()),
-                                      Text("Period: "+myorderslist[index]['period'].toString()),
+                                      myorderslist[index]['period'].toString() == "" || myorderslist[index]['period'] == null ? SizedBox() : Text("Period: "+myorderslist[index]['period'].toString()+" "+_getrenttype(myorderslist[index]['period'].toString(), myorderslist[index]['rent_type_name'].toString()), style: TextStyle(color: Colors.black, fontSize: 14)),
+                                      //Text("Period: "+myorderslist[index]['period'].toString()),
                                     ],
                                   ),
                                 ),
@@ -511,7 +508,6 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
 
   }
 
-
   Widget _getaction(String statusvalue) {
     if (statusvalue == "pending" || statusvalue == "active" || statusvalue == "cancelled") {
       return InkWell(
@@ -664,6 +660,33 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       });
       print(response.body);
       throw Exception('Failed to get data due to ${response.body}');
+    }
+  }
+
+  String _getrenttype(String period, String renttypevalue){
+    if(renttypevalue == "hourly" &&  period == "1"){
+      return "Hour";
+    }
+    if(renttypevalue == "hourly" &&  period != "1"){
+      return "Hours";
+    }
+    else if(renttypevalue == "days" && period == "1"){
+      return "Day";
+    }
+    else if(renttypevalue == "days" && period != "1"){
+      return "Days";
+    }
+    else if(renttypevalue == "monthly" && period == "1"){
+      return "Month";
+    }
+    else if(renttypevalue == "monthly" && period != "1"){
+      return "Months";
+    }
+    else if(renttypevalue == "yearly" && period == "1"){
+      return "Year";
+    }
+    else if(renttypevalue == "yearly" && period != "1"){
+      return "Years";
     }
   }
 }

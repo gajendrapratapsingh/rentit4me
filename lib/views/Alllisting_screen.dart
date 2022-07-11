@@ -16,7 +16,7 @@ class AlllistingScreen extends StatefulWidget {
 }
 
 class _AlllistingScreenState extends State<AlllistingScreen> {
-  String searchvalue = "Search";
+  String searchvalue = "Enter Title";
   List<dynamic> alllist = [];
 
   bool _loading = false;
@@ -158,7 +158,7 @@ class _AlllistingScreenState extends State<AlllistingScreen> {
                       SizedBox(height: 10),
                       InkWell(
                         onTap: () {
-                          if(searchvalue == "Search" || searchvalue.length == 0 || searchvalue.isEmpty){
+                          if(searchvalue == "Enter Title" || searchvalue.length == 0 || searchvalue.isEmpty){
                              _alllistByDate();
                           }
                           else{
