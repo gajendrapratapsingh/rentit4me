@@ -8,6 +8,7 @@ import 'package:rentit4me/network/api.dart';
 import 'package:rentit4me/themes/constant.dart';
 import 'package:http/http.dart' as http;
 import 'package:rentit4me/views/product_detail_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserfinderDataScreen extends StatefulWidget {
   String getlocation;
@@ -45,6 +46,7 @@ class _UserfinderDataScreenState extends State<UserfinderDataScreen> {
   @override
   void initState() {
     super.initState();
+    _getlocationandcategoryData();
     if(widget.data.length > 0) {
       setState(() {
         _productdata.clear();
@@ -57,19 +59,17 @@ class _UserfinderDataScreenState extends State<UserfinderDataScreen> {
     } else {
       _getData(getlocation, getcategory);
       controller.addListener(() {
-        if (controller.position.pixels == controller.position.maxScrollExtent &&
-            isListing) {
+        if(controller.position.pixels == controller.position.maxScrollExtent && isListing) {
           _getData(getlocation, getcategory);
         }
       });
     }
-    _getlocationandcategoryData();
   }
 
   Future<void> _setlocationorcategory(String lc, String cat) async{
     setState(() {
-      locationvalue = lc;
-      categoryvalue = cat;
+      locationvalue = lc != null || lc != "" ? lc : "";
+      categoryvalue = cat != null || cat != "" ? cat : "";
     });
   }
 
@@ -417,29 +417,31 @@ class _UserfinderDataScreenState extends State<UserfinderDataScreen> {
   }
 
   Future _getlocationandcategoryData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     setState((){
       isLoading = true;
     });
-    var response = await http.get(Uri.parse(BASE_URL + homeUrl));
-    if (response.statusCode == 200) {
+    final body = {
+      "country": prefs.getString('country'),
+      "state": prefs.getString('state'),
+      "city": prefs.getString('city'),
+    };
+    var response = await http.post(Uri.parse(BASE_URL + homeUrl),
+        body: jsonEncode(body),
+        headers: {
+          "Accept": "application/json",
+          'Content-Type': 'application/json'
+        }
+    );
+    if(response.statusCode == 200) {
       setState(() {
         isLoading = false;
         location.clear();
         category.clear();
-        jsonDecode(response.body)['Response']['cities'].forEach((element){
-          location.add(element['name'].toString());
-        });
-        jsonDecode(response.body)['Response']['categories'].forEach((element){
-          category.add(element['title'].toString());
-        });
-        _setlocationorcategory(getlocation, getcategory);
-        /*for (int j = 0; j < jsonDecode(response.body)['Response']['cities'].length; j++) {
-
-        }*/
-        // for (int i = 0; i < jsonDecode(response.body)['Response']['categories'].length; i++) {
-        //   category.add(jsonDecode(response.body)['Response']['categories'][i]['title'].toString());
-        // }
+        jsonDecode(response.body)['Response']['cities'].forEach((element){location.add(element['name'].toString());});
+        jsonDecode(response.body)['Response']['categories'].forEach((element){category.add(element['title'].toString());});
       });
+      _setlocationorcategory(getlocation, getcategory);
     }
   }
 

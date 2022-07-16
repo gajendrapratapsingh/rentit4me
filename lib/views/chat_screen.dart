@@ -100,63 +100,67 @@ class _ChatScreenState extends State<ChatScreen> {
           child: Column(
             children: [
               Expanded(
-                  child: ListView.separated(
-                    itemCount: userlist.length,
-                    padding: EdgeInsets.zero,
-                    shrinkWrap: true,
-                    separatorBuilder: (BuildContext context, int index) =>
-                    const Divider(),
-                    itemBuilder: (BuildContext context, int index) {
-                      return InkWell(
-                        onTap:() async{
-                          SharedPreferences prefs = await SharedPreferences.getInstance();
-                          userlist[index]['occupants_ids'].forEach((element){
+                  child: RefreshIndicator(
+                    onRefresh: _getchatUsers,
+                    child: ListView.separated(
+                      itemCount: userlist.length,
+                      padding: EdgeInsets.zero,
+                      shrinkWrap: true,
+                      separatorBuilder: (BuildContext context, int index) =>
+                      const Divider(),
+                      itemBuilder: (BuildContext context, int index) {
+                        return InkWell(
+                          onTap:() async{
+                            SharedPreferences prefs = await SharedPreferences.getInstance();
+                            userlist[index]['occupants_ids'].forEach((element){
                               if(element.toString() != prefs.getString('quickid')){
-                                  setState((){
-                                      query_id = element.toString();
-                                  });
+                                setState((){
+                                  query_id = element.toString();
+                                });
                               }
-                          });
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => Conversation(query_id: query_id)));
-                        },
-                        child: Container(
-                           width: double.infinity,
-                           child: Padding(
-                               padding: EdgeInsets.all(8.0),
-                               child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                     Container(
-                                       height : 45,
-                                       width: 45,
-                                       alignment: Alignment.center,
-                                       decoration: const BoxDecoration(
-                                         borderRadius: BorderRadius.all(Radius.circular(22.0)),
-                                         color: kPrimaryColor
-                                         //color: Colors.primaries[_random.nextInt(Colors.primaries.length)][_random.nextInt(9) * 100] == Colors.white ? Colors.red: Colors.primaries[_random.nextInt(Colors.primaries.length)][_random.nextInt(9) * 100],
-                                       ),
-                                       child: Text(userlist[index]['name'].toString()[0].toUpperCase(), style: TextStyle(color: Colors.white, fontSize: 18)),
-                                     ),
-                                     SizedBox(width: 8.0),
-                                     Expanded(
-                                         child: Column(
-                                           crossAxisAlignment: CrossAxisAlignment.start,
-                                           children: [
-                                              Text(userlist[index]['name'].toString(), style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500)),
-                                              SizedBox(height: 5.0),
-                                              userlist[index]['last_message'] == null ? SizedBox() : Text(userlist[index]['last_message'].toString(), style: TextStyle(color: Colors.black))
-                                           ],
-                                         )
-                                     ),
-                                     SizedBox(width: 3.0),
-                                     userlist[index]['created_at'] == null ? SizedBox() : Text(userlist[index]['created_at'].toString().split('T')[0].toString(), style: TextStyle(color: Colors.black))
-                                  ],
-                               ),
-                           ),
-                        ),
-                      );
-                    },
-                  ))
+                            });
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => Conversation(query_id: query_id)));
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    height : 45,
+                                    width: 45,
+                                    alignment: Alignment.center,
+                                    decoration: const BoxDecoration(
+                                        borderRadius: BorderRadius.all(Radius.circular(22.0)),
+                                        color: kPrimaryColor
+                                      //color: Colors.primaries[_random.nextInt(Colors.primaries.length)][_random.nextInt(9) * 100] == Colors.white ? Colors.red: Colors.primaries[_random.nextInt(Colors.primaries.length)][_random.nextInt(9) * 100],
+                                    ),
+                                    child: Text(userlist[index]['name'].toString()[0].toUpperCase(), style: TextStyle(color: Colors.white, fontSize: 18)),
+                                  ),
+                                  SizedBox(width: 8.0),
+                                  Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(userlist[index]['name'].toString(), style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500)),
+                                          SizedBox(height: 5.0),
+                                          userlist[index]['last_message'] == null ? SizedBox() : Text(userlist[index]['last_message'].toString(), style: TextStyle(color: Colors.black))
+                                        ],
+                                      )
+                                  ),
+                                  SizedBox(width: 3.0),
+                                  userlist[index]['created_at'] == null ? SizedBox() : Text(userlist[index]['created_at'].toString().split('T')[0].toString(), style: TextStyle(color: Colors.black))
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  )
+              )
             ],
           ),
         ),
@@ -176,7 +180,7 @@ class _ChatScreenState extends State<ChatScreen> {
           "Accept": "application/json",
           'Content-Type': 'application/json'
     });
-    print(response.body);
+    //print(response.body);
     setState((){
       _loading = false;
     });

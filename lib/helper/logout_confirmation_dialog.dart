@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:rentit4me/views/dashboard.dart';
 import 'package:rentit4me/views/login_screen.dart';
+import 'package:rentit4me/views/splash_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LogoutConfirmationDialog extends StatelessWidget {
@@ -45,11 +47,7 @@ class LogoutConfirmationDialog extends StatelessWidget {
             RaisedButton(onPressed: () async{
               SharedPreferences prefs = await SharedPreferences.getInstance();
               prefs.clear();
-              //prefs.setString('loginsuccess', "false");
-              //prefs.setString('cartcount', "0");
-              //prefs.setBool('logged_in', false);
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()),
-              );
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SplashScreen()));
             }, child: Text('Yes'), color: Colors.red, textColor: Colors.white)
           ],
         )

@@ -29,6 +29,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   String _connectionStatus = 'Unknown';
   final Connectivity _connectivity = Connectivity();
 
+  bool _currentobsecure = true;
+  bool _newobsecure = true;
+
+
   @override
   void initState() {
     // TODO: implement initState
@@ -82,7 +86,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             onTap: () {
               Navigator.of(context).pop();
             },
-            child: Icon(
+            child: const Icon(
               Icons.arrow_back,
               color: kPrimaryColor,
             )),
@@ -122,7 +126,16 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                                 decoration: InputDecoration(
                                   hintText: currentpassword,
                                   border: InputBorder.none,
+                                  suffixIcon: IconButton(
+                                    onPressed: (){
+                                      setState((){
+                                        _currentobsecure = !_currentobsecure;
+                                      });
+                                    },
+                                    icon: _currentobsecure == false ? Icon(Icons.visibility_off, color: kPrimaryColor) : Icon(Icons.visibility, color: kPrimaryColor),
+                                  )
                                 ),
+                                obscureText: _currentobsecure,
                                 onChanged: (value){
                                   setState((){
                                      currentpassword = value;
@@ -150,7 +163,16 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                                 decoration: InputDecoration(
                                   hintText: newpassword,
                                   border: InputBorder.none,
+                                  suffixIcon: IconButton(
+                                    onPressed: (){
+                                       setState((){
+                                         _newobsecure = !_newobsecure;
+                                       });
+                                    },
+                                    icon: _newobsecure == false ? Icon(Icons.visibility_off, color: kPrimaryColor) : Icon(Icons.visibility, color: kPrimaryColor),
+                                  )
                                 ),
+                                obscureText: _newobsecure,
                                 onChanged: (value){
                                   setState((){
                                       newpassword = value;

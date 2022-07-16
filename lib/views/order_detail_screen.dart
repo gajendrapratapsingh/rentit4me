@@ -405,7 +405,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text("Rent Prices", style: TextStyle(color: Colors.black, fontSize: 14)),
-                              Text(productprice, style: TextStyle(color: Colors.black, fontSize: 14))
+                              SizedBox(
+                                width: size.width * 0.60,
+                                child: Text(productprice, maxLines: 2, textAlign: TextAlign.end, style: TextStyle(color: Colors.black, fontSize: 14)),
+                              )
                             ],
                           ),
                           SizedBox(height: 10),

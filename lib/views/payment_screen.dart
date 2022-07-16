@@ -211,7 +211,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                     Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text("Amount(XCD)", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500)),
+                                          Text("Amount(INR)", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500)),
                                           SizedBox(height: 4.0),
                                           Text(paymentlist[index]['txn_amount'].toString())
                                         ]),

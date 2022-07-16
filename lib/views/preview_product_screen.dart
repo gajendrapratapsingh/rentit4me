@@ -34,6 +34,9 @@ class _PreviewProductScreenState extends State<PreviewProductScreen> {
   String address;
   String email;
 
+  String mobile;
+  String mobile_hidden;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -58,11 +61,11 @@ class _PreviewProductScreenState extends State<PreviewProductScreen> {
               Icons.arrow_back,
               color: kPrimaryColor,
             )),
-        title: Text("Preview", style: TextStyle(color: kPrimaryColor)),
+        title: const Text("Preview", style: TextStyle(color: kPrimaryColor)),
         centerTitle: true,
       ),
       body: _checkData == false
-          ? Center(
+          ? const Center(
         child: CircularProgressIndicator(),
       )
           : SingleChildScrollView(
@@ -90,7 +93,7 @@ class _PreviewProductScreenState extends State<PreviewProductScreen> {
                   ),
                 ),
               ),
-              SizedBox(height: 10.0),
+              const SizedBox(height: 10.0),
               Align(
                   alignment: Alignment.topLeft,
                   child: productname == "null" ||
@@ -102,7 +105,7 @@ class _PreviewProductScreenState extends State<PreviewProductScreen> {
                           color: Colors.black,
                           fontSize: 18,
                           fontWeight: FontWeight.bold))),
-              SizedBox(height: 4.0),
+              const SizedBox(height: 4.0),
               Align(
                   alignment: Alignment.topLeft,
                   child: boostpack == "null" ||
@@ -120,7 +123,7 @@ class _PreviewProductScreenState extends State<PreviewProductScreen> {
                       child: Text("Sponsored", style: TextStyle(color: Colors.black, fontSize: 16))
                   )
               ),
-              SizedBox(height: 15.0),
+              const SizedBox(height: 15.0),
               Align(
                   alignment: Alignment.topLeft,
                   child: description == "" ||
@@ -129,7 +132,7 @@ class _PreviewProductScreenState extends State<PreviewProductScreen> {
                       ? SizedBox()
                       : Text(description,
                       style: const TextStyle(color: Colors.black, fontSize: 12))),
-              SizedBox(height: 35.0),
+              const SizedBox(height: 35.0),
               Align(
                   alignment: Alignment.topLeft,
                   child: renttype == null ||
@@ -145,12 +148,12 @@ class _PreviewProductScreenState extends State<PreviewProductScreen> {
                           color: kPrimaryColor,
                           fontSize: 16,
                           fontWeight: FontWeight.w500))),
-              SizedBox(height: 15.0),
+              const SizedBox(height: 15.0),
               Align(
                   alignment: Alignment.topLeft,
                   child: Text("Security Deposit : INR $securitydeposit",
                       style: const TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500))),
-              SizedBox(height: 15.0),
+              const SizedBox(height: 15.0),
               Align(
                   alignment: Alignment.topLeft,
                   child: Text("Added By : $addedby",
@@ -158,22 +161,19 @@ class _PreviewProductScreenState extends State<PreviewProductScreen> {
                           color: kPrimaryColor,
                           fontSize: 16,
                           fontWeight: FontWeight.w500))),
-              SizedBox(height: 35.0),
-              SizedBox(height: 40),
+              const SizedBox(height: 35.0),
+              const SizedBox(height: 40),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text("Address : ", style: TextStyle(color: kPrimaryColor, fontSize: 18, fontWeight: FontWeight.bold)),
                   SizedBox(
                     width: size.width * 0.70,
-                    child: Text("$address",
-                        maxLines: 2,
-                        style: TextStyle(
-                            color: kPrimaryColor, fontSize: 18)),
+                    child: Text("$address", maxLines: 2, style: const TextStyle(color: kPrimaryColor, fontSize: 18)),
                   )
                 ],
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -184,17 +184,11 @@ class _PreviewProductScreenState extends State<PreviewProductScreen> {
                           fontWeight: FontWeight.bold)),
                   SizedBox(
                     width: size.width * 0.70,
-                    child: negotiate == "0" ? const Text("Fixed",
-                        maxLines: 2,
-                        style: TextStyle(
-                            color: kPrimaryColor, fontSize: 18)) : Text("Negotiable",
-                        maxLines: 2,
-                        style: TextStyle(
-                            color: kPrimaryColor, fontSize: 18)),
+                    child: negotiate == "0" ? const Text("Fixed", maxLines: 2, style: TextStyle(color: kPrimaryColor, fontSize: 18)) : const Text("Negotiable", maxLines: 2, style: TextStyle(color: kPrimaryColor, fontSize: 18)),
                   )
                 ],
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -206,6 +200,23 @@ class _PreviewProductScreenState extends State<PreviewProductScreen> {
                   SizedBox(
                     width: size.width * 0.70,
                     child: Text("$email",
+                        maxLines: 1,
+                        style: const TextStyle(color: kPrimaryColor, fontSize: 18)),
+                  )
+                ],
+              ),
+              mobile_hidden == "1" ? SizedBox() : SizedBox(height: 20),
+              mobile_hidden == "1" ? SizedBox() : Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text("Mobile : ",
+                      style: TextStyle(
+                          color: kPrimaryColor,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold)),
+                  SizedBox(
+                    width: size.width * 0.70,
+                    child: Text("$mobile",
                         maxLines: 1,
                         style: const TextStyle(color: kPrimaryColor, fontSize: 18)),
                   )
@@ -249,8 +260,11 @@ class _PreviewProductScreenState extends State<PreviewProductScreen> {
 
         securitydeposit = data['posted_ad']['security'].toString();
         addedby = data['Additional']['added-by']['name'].toString();
-        email = data['Additional']['added-by']['email'].toString();
-        address = data['Additional']['added-by']['address'].toString();
+        address = data['Additional']['added-by']['address'].toString()+", "+data['Additional']['added-by']['city_name'].toString()+", "+data['Additional']['added-by']['state_name'].toString()+", "+data['Additional']['added-by']['pincode'].toString()+", "+data['Additional']['added-by']['country_name'].toString();
+
+        email = data['posted_ad']['email'].toString();
+        mobile = data['posted_ad']['mobile'].toString();
+        mobile_hidden = data['posted_ad']['mobile_hidden'].toString();
 
         _checkData = true;
       });

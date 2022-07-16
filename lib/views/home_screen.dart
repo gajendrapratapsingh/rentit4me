@@ -134,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     });
 
-    
+    _getlocationbyUserlocation();
   }
 
     @override
@@ -207,7 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     DialogHelper.logout(context);
                   }
                 },
-                icon: !sharedpref ? Icon(Icons.login, color: kPrimaryColor) : Icon(Icons.logout, color: kPrimaryColor)),
+                icon: !sharedpref ? Image.asset('assets/images/enter.png', color: kPrimaryColor, scale: 1.2) : Image.asset('assets/images/power.png', color: kPrimaryColor, scale: 1.2)),
           ],
         ),
         body: SingleChildScrollView(
@@ -325,30 +325,26 @@ class _HomeScreenState extends State<HomeScreen> {
                           )),
                     ),
                     SizedBox(
-                      height: 160,
+                      height: MediaQuery.of(context).size.height * 0.22,
                       width: double.infinity,
-                      child: SizedBox(
-                        height: 200.0,
-                        width: double.infinity,
-                        child: images.length == 0 || images.isEmpty
-                            ? Center(child: CircularProgressIndicator())
-                            : Carousel(
-                                dotSpacing: 15.0,
-                                dotSize: 6.0,
-                                dotIncreasedColor: kPrimaryColor,
-                                dotBgColor: Colors.transparent,
-                                indicatorBgPadding: 10.0,
-                                dotPosition: DotPosition.bottomCenter,
-                                images: images
-                                    .map((item) => Container(
-                                          child: CachedNetworkImage(
-                                            imageUrl: item,
-                                            fit: BoxFit.fill,
-                                          ),
-                                        ))
-                                    .toList(),
-                              ),
-                      ),
+                      child: images.length == 0 || images.isEmpty
+                          ? Center(child: CircularProgressIndicator())
+                          : Carousel(
+                              dotSpacing: 15.0,
+                              dotSize: 6.0,
+                              dotIncreasedColor: kPrimaryColor,
+                              dotBgColor: Colors.transparent,
+                              indicatorBgPadding: 10.0,
+                              dotPosition: DotPosition.bottomCenter,
+                              images: images
+                                  .map((item) => Container(
+                                        child: CachedNetworkImage(
+                                          imageUrl: item,
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ))
+                                  .toList(),
+                            ),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
@@ -467,7 +463,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         alignment: Alignment.topLeft,
                         child: Text("Rent From Our Wide Range Of Categories",
                             style: TextStyle(
-                                color: Colors.deepOrangeAccent, fontSize: 12)),
+                                color: Colors.deepOrangeAccent, fontSize: 14)),
                       ),
                     ),
                     Padding(
@@ -557,30 +553,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
-                    // SizedBox(
-                    //   height: 160,
-                    //   width: double.infinity,
-                    //   child: SizedBox(
-                    //     height: 200.0,
-                    //     width: double.infinity,
-                    //     child: Carousel(
-                    //       dotSpacing: 15.0,
-                    //       dotSize: 6.0,
-                    //       dotIncreasedColor: kPrimaryColor,
-                    //       dotBgColor: Colors.transparent,
-                    //       indicatorBgPadding: 10.0,
-                    //       dotPosition: DotPosition.bottomCenter,
-                    //       images: images
-                    //           .map((item) => Container(
-                    //                 child: Image.network(
-                    //                   item,
-                    //                   fit: BoxFit.fill,
-                    //                 ),
-                    //               ))
-                    //           .toList(),
-                    //     ),
-                    //   ),
-                    // ),
                     Container(
                        width: double.infinity,
                        color: kContainerColor,
@@ -588,7 +560,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                              Container(
-                               height: 200,
+                               height: MediaQuery.of(context).size.height * 0.15,
                                width: MediaQuery.of(context).size.width,
                                child: Padding(
                                  padding: const EdgeInsets.only(left: 10.0, top: 10.0, right: 10.0, bottom: 10.0),
@@ -605,7 +577,7 @@ class _HomeScreenState extends State<HomeScreen> {
                              Column(
                                children: [
                                  Container(
-                                   height: 200,
+                                   height: MediaQuery.of(context).size.height * 0.15,
                                    width: MediaQuery.of(context).size.width,
                                    child: Padding(
                                      padding: const EdgeInsets.only(left: 5.0, top: 10.0, right: 10.0, bottom: 10.0),
@@ -629,8 +601,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                            child: ClipRRect(
                                              borderRadius: BorderRadius.all(Radius.circular(8.0)),
                                              child: Image.network(
-
-                                              todaydealsimage3,
+                                               todaydealsimage3,
                                                scale: 2,
                                              ),
 
@@ -659,7 +630,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ],
                        ),
                     ),
-                    const Padding(
+                    likedadproductlist.isEmpty || likedadproductlist.length == 0 ? SizedBox() : const Padding(
                       padding: EdgeInsets.only(left: 15, top: 10),
                       child: Align(
                         alignment: Alignment.topLeft,
@@ -670,7 +641,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 fontWeight: FontWeight.w700)),
                       ),
                     ),
-                    Padding(
+                    likedadproductlist.isEmpty || likedadproductlist.length == 0 ? SizedBox() : Padding(
                         padding: EdgeInsets.only(left: 15, top: 10, right: 15),
                         child: likedadproductlist.length == 0 ? SizedBox(height: 0) : GridView.builder(
                             shrinkWrap: true,
@@ -749,7 +720,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               );
                             }),
                     ),
-                    const Padding(
+                    mytopcategories.length == 0 || mytopcategories.isEmpty ? SizedBox() : const Padding(
                       padding: EdgeInsets.only(left: 15, top: 10),
                       child: Align(
                         alignment: Alignment.topLeft,
@@ -760,7 +731,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 fontWeight: FontWeight.w700)),
                       ),
                     ),
-                    Padding(
+                    mytopcategories.length == 0 || mytopcategories.isEmpty ? SizedBox() :  Padding(
                       padding: EdgeInsets.only(left: 15, top: 10, right: 15),
                       child: mytopcategories.length == 0 || mytopcategories.isEmpty
                           ? Center(child: CircularProgressIndicator())
@@ -913,18 +884,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     SizedBox(height: 10),
-                    const Padding(
+                    myfeaturedcategories.length == 0 || myfeaturedcategories.isEmpty ? SizedBox() : const Padding(
                       padding: EdgeInsets.only(left: 15, top: 10),
                       child: Align(
                         alignment: Alignment.topLeft,
                         child: Text("Featured Categories",
                             style: TextStyle(
                                 color: Colors.deepOrangeAccent,
-                                fontSize: 12,
+                                fontSize: 14,
                                 fontWeight: FontWeight.w700)),
                       ),
                     ),
-                    Padding(padding: const EdgeInsets.only(left: 15, top: 10, right: 15, bottom: 10),
+                    myfeaturedcategories.length == 0 || myfeaturedcategories.isEmpty ? SizedBox() : Padding(padding: const EdgeInsets.only(left: 15, top: 10, right: 15, bottom: 10),
                       child: myfeaturedcategories.length == 0 || myfeaturedcategories.isEmpty
                           ? Center(child: CircularProgressIndicator())
                           : GridView.builder(
@@ -1023,9 +994,20 @@ class _HomeScreenState extends State<HomeScreen> {
            sharedpref = true;
          });
        }
-      var response = await http.get(Uri.parse(BASE_URL + homeUrl));
-      if (response.statusCode == 200) {
-        setState(() {
+       final body = {
+         "country": prefs.getString('country'),
+         "state": prefs.getString('state'),
+         "city": prefs.getString('city'),
+       };
+       var response = await http.post(Uri.parse(BASE_URL + homeUrl),
+           body: jsonEncode(body),
+           headers: {
+             "Accept": "application/json",
+             'Content-Type': 'application/json'
+           }
+       );
+       if(response.statusCode == 200) {
+         setState(() {
           images.clear();
           location.clear();
           category.clear();
@@ -1100,5 +1082,14 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       throw Exception('Failed to get data due to ${response.body}');
     }
+  }
+
+  _getlocationbyUserlocation() async{
+     SharedPreferences prefs = await SharedPreferences.getInstance();
+     if(prefs.getString('city') != null || prefs.getString('city') != ""){
+        setState((){
+           locationvalue = prefs.getString('city');
+        });
+     }
   }
 }

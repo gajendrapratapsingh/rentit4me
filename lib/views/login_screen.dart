@@ -4,11 +4,12 @@ import 'dart:io';
 import 'package:connectivity/connectivity.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:rentit4me/network/api.dart';
 import 'package:rentit4me/themes/constant.dart';
 import 'package:http/http.dart' as http;
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:rentit4me/views/dashboard.dart';
 import 'package:rentit4me/views/home_screen.dart';
 import 'package:rentit4me/views/make_payment_screen.dart';
@@ -35,6 +36,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final Connectivity _connectivity = Connectivity();
 
   String fcmToken;
+
+  bool _pwdvisible = true;
 
   @override
   void initState() {
@@ -75,8 +78,8 @@ class _LoginScreenState extends State<LoginScreen> {
         });
         if (_connectionStatus.toString() ==
             ConnectivityResult.none.toString()) {
-          _scaffoldKey.currentState.showSnackBar(SnackBar(
-              content: const Text("Please check your internet connection.",
+          _scaffoldKey.currentState.showSnackBar(const SnackBar(
+              content: Text("Please check your internet connection.",
                   style: TextStyle(color: Colors.white)),
               backgroundColor: Colors.red));
         }
@@ -117,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
           centerTitle: true,
           actions: [
             IconButton(onPressed: (){
-              Navigator.of(context).push(MaterialPageRoute(builder: (context) => HomeScreen()));
+              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeScreen()));
             }, icon: Icon(Icons.home, color: kPrimaryColor))
           ],
         ),
@@ -192,13 +195,21 @@ class _LoginScreenState extends State<LoginScreen> {
                                       child: Padding(
                                         padding: EdgeInsets.only(left: 10, bottom: 7.0),
                                         child: TextFormField(
-                                          decoration: const InputDecoration(
+                                          obscureText: _pwdvisible,
+                                          decoration: InputDecoration(
                                             hintText: "Password",
-                                            hintStyle: TextStyle(
+                                            hintStyle: const TextStyle(
                                                 color: kPrimaryColor,
                                                 fontWeight: FontWeight.w500,
                                                 fontSize: 14),
                                             border: InputBorder.none,
+                                            suffixIcon: IconButton (
+                                                onPressed:(){
+                                                  setState((){
+                                                    _pwdvisible = !_pwdvisible;
+                                                  });
+                                                },
+                                                icon: _pwdvisible == false ? Icon(Icons.visibility_off, color: kPrimaryColor) : Icon(Icons.visibility, color: kPrimaryColor))
                                           ),
                                           onChanged: (String value) {
                                             passwordController.text =
@@ -218,7 +229,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     showToast("Please enter valid password");
                                     return;
                                   } else {
-                                    _login(emailController.text.toString().trim(), passwordController.text.toString().trim());
+                                    _login(emailController.text.toString().trim(), passwordController.text.toString().trim(), "app");
                                   }
                                 },
                                 child: Container(
@@ -249,61 +260,80 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             Padding(
                               padding: EdgeInsets.fromLTRB(15, 10, 15, 0),
-                              child: Container(
-                                height: 45,
-                                width: size.width * 0.75,
-                                alignment: Alignment.center,
-                                decoration: const BoxDecoration(
-                                    color: kPrimaryColor,
-                                    borderRadius:
-                                    BorderRadius.all(Radius.circular(21))),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.only(left: 15),
-                                      child: Image.asset(
-                                        'assets/images/facebook.png',
-                                        scale: 20,
-                                        color: Colors.white,
+                              child: InkWell(
+                                onTap: () async{
+                                  print("FaceBook");
+                                  try {
+                                    final result = await FacebookAuth.i.login(permissions: ['public_profile', 'email']);
+                                    if (result.status == LoginStatus.success) {
+                                      final userData = await FacebookAuth.i.getUserData();
+                                      print(userData);
+                                    }
+                                  } catch (error) {
+                                    print(error);
+                                  }
+                                },
+                                child: Container(
+                                  height: 45,
+                                  width: size.width * 0.75,
+                                  alignment: Alignment.center,
+                                  decoration: const BoxDecoration(
+                                      color: kPrimaryColor,
+                                      borderRadius:
+                                      BorderRadius.all(Radius.circular(21))),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 15),
+                                        child: Image.asset(
+                                          'assets/images/facebook.png',
+                                          scale: 20,
+                                          color: Colors.white,
+                                        ),
                                       ),
-                                    ),
-                                    const Padding(
-                                      padding: EdgeInsets.only(left: 5.0),
-                                      child: Text("Login with Facebook",
-                                          style: TextStyle(
-                                              fontSize: 14, color: Colors.white)),
-                                    )
-                                  ],
+                                      const Padding(
+                                        padding: EdgeInsets.only(left: 5.0),
+                                        child: Text("Login with Facebook",
+                                            style: TextStyle(
+                                                fontSize: 14, color: Colors.white)),
+                                      )
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
                             Padding(
                               padding: EdgeInsets.fromLTRB(15, 10, 15, 0),
-                              child: Container(
-                                height: 45,
-                                width: size.width * 0.75,
-                                alignment: Alignment.center,
-                                decoration: const BoxDecoration(
-                                    color: Colors.red,
-                                    borderRadius:
-                                    BorderRadius.all(Radius.circular(21))),
-                                child: Row(
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.only(left: 15),
-                                      child: Image.asset(
-                                          'assets/images/google.png',
-                                          scale: 20,
-                                          color: Colors.white),
-                                    ),
-                                    const Padding(
-                                      padding: EdgeInsets.only(left: 5.0),
-                                      child: Text("Login with Google",
-                                          style: TextStyle(
-                                              fontSize: 14, color: Colors.white)),
-                                    )
-                                  ],
+                              child: InkWell(
+                                onTap: (){
+                                   googleLogin();
+                                },
+                                child: Container(
+                                  height: 45,
+                                  width: size.width * 0.75,
+                                  alignment: Alignment.center,
+                                  decoration: const BoxDecoration(
+                                      color: Colors.red,
+                                      borderRadius:
+                                      BorderRadius.all(Radius.circular(21))),
+                                  child: Row(
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 15),
+                                        child: Image.asset(
+                                            'assets/images/google.png',
+                                            scale: 20,
+                                            color: Colors.white),
+                                      ),
+                                      const Padding(
+                                        padding: EdgeInsets.only(left: 5.0),
+                                        child: Text("Login with Google",
+                                            style: TextStyle(
+                                                fontSize: 14, color: Colors.white)),
+                                      )
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -401,7 +431,16 @@ class _LoginScreenState extends State<LoginScreen> {
         ));
   }
 
-  Future _login(String email, String password) async {
+  googleLogin() async{
+     GoogleSignIn googleSignIn = GoogleSignIn();
+     try{
+        var result = await googleSignIn.signIn();
+        print(result);
+     }
+     catch(error){}
+  }
+
+  Future _login(String email, String password, String logintype) async {
     setState(() {
       _loading = true;
     });
@@ -409,6 +448,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final body = {
       "email": email,
       "password": password,
+      "login_type" : logintype
     };
     var response = await http.post(Uri.parse(BASE_URL + login),
         body: jsonEncode(body),

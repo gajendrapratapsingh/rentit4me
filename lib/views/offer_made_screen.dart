@@ -499,6 +499,7 @@ class _OfferMadeScreenState extends State<OfferMadeScreen> {
 
   Future<void> _offermadelist() async{
      SharedPreferences prefs = await SharedPreferences.getInstance();
+     print(prefs.getString('userid'));
      setState((){
        _loading = true;
      });
@@ -1145,22 +1146,22 @@ class _OfferMadeScreenState extends State<OfferMadeScreen> {
   }
 
   String _getrenttype(String period, String renttypevalue){
-    if(renttypevalue == "hourly" &&  period == "1"){
+    if(renttypevalue == "hourly" || renttypevalue == "Hourly" &&  period == "1"){
       return "Hour";
     }
-    if(renttypevalue == "hourly" &&  period != "1"){
+    if(renttypevalue == "hourly" || renttypevalue == "Hourly" &&  period != "1"){
       return "Hours";
     }
-    else if(renttypevalue == "days" && period == "1"){
+    else if(renttypevalue == "days" || renttypevalue == "Days" && period == "1"){
       return "Day";
     }
-    else if(renttypevalue == "days" && period != "1"){
+    else if(renttypevalue == "days" || renttypevalue == "Days" && period != "1"){
       return "Days";
     }
-    else if(renttypevalue == "monthly" && period == "1"){
+    else if(renttypevalue == "monthly" || renttypevalue == "Monthly" && period == "1"){
       return "Month";
     }
-    else if(renttypevalue == "monthly" && period != "1"){
+    else if(renttypevalue == "monthly" || renttypevalue == "Monthly" && period != "1"){
       return "Months";
     }
     else if(renttypevalue == "yearly" && period == "1"){

@@ -2418,8 +2418,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       setState(() {
         userid = prefs.getString('userid');
 
-        productimage = "${data['Images'][0]['upload_base_path'].toString() +
-            data['Images'][0]['file_name'].toString()}";
+        productimage = "${data['Images'][0]['upload_base_path'].toString() + data['Images'][0]['file_name'].toString()}";
         productname = data['posted_ad']['title'].toString();
         final document = parse(data['posted_ad']['description'].toString());
         description = parse(document.body.text).documentElement.text.toString();

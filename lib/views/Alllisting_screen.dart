@@ -198,7 +198,7 @@ class _AlllistingScreenState extends State<AlllistingScreen> {
                   List a=alllist[index]['prices'];
                   a.forEach((element) {
                     if(element['price'] != null){
-                      temp.add("XCD "+element['price'].toString()+" ("+element['rent_type_name'].toString()+")");
+                      temp.add("INR "+element['price'].toString()+" ("+element['rent_type_name'].toString()+")");
                     }
                   });
                   return InkWell(
@@ -250,16 +250,11 @@ class _AlllistingScreenState extends State<AlllistingScreen> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.start,
                                     children: [
-                                    Text("Negotiable", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-                                    SizedBox(height: 4.0),
-                                    alllist[index]['negotiate'].toString() ==
-                                            "1"
-                                        ? Text("Yes",
-                                            style:
-                                                TextStyle(color: Colors.black))
-                                        : Text("No",
-                                            style:
-                                                TextStyle(color: Colors.black))
+                                    const Text("Negotiable", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                                    const SizedBox(height: 4.0),
+                                    alllist[index]['negotiate'].toString() == "1"
+                                        ? const Text("Yes", style: TextStyle(color: Colors.black))
+                                        : const Text("No", style: TextStyle(color: Colors.black))
                                   ]),
                                   Column(
                                     crossAxisAlignment:
@@ -267,21 +262,14 @@ class _AlllistingScreenState extends State<AlllistingScreen> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.start,
                                     children: [
-                                      Text("Offer", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-                                      SizedBox(height: 4.0),
-                                      alllist[index]['offers'].length == "0"
-                                        ? Text("Not yet",
-                                            style:
-                                                TextStyle(color: Colors.black))
-                                        : Text(
-                                            alllist[index]['offers']
-                                                .length
-                                                .toString(),
-                                            style:
-                                                TextStyle(color: Colors.black))
+                                      const Text("Offer", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                                      const SizedBox(height: 4.0),
+                                        alllist[index]['offers'].length == 0
+                                        ? const Text("Not yet", style: TextStyle(color: Colors.black))
+                                        : Text(alllist[index]['offers'].length.toString(), style: TextStyle(color: Colors.black))
                                   ]),
                                 ]),
-                            SizedBox(height: 5.0),
+                            const SizedBox(height: 5.0),
                             Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,

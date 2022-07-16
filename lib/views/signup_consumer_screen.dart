@@ -452,7 +452,9 @@ class _SignupConsumerScreenState extends State<SignupConsumerScreen> {
       "mobile" : mobile,
       "user_type" : "3",
       "password" : password,
-      "token" : fcmToken
+      "token" : fcmToken,
+      "latitude" : prefs.getString('latitude'),
+      "longitude" : prefs.getString('longitude'),
     }));
     final body = {
       "name": name,
@@ -463,7 +465,9 @@ class _SignupConsumerScreenState extends State<SignupConsumerScreen> {
       "user_type" : "3",
       "password" : password,
       "password_confirmation" : confirmpwd,
-      "token" : fcmToken
+      "token" : fcmToken,
+      "latitude" : prefs.getString('latitude'),
+      "longitude" : prefs.getString('longitude'),
     };
     var response = await http.post(Uri.parse(BASE_URL + register),
         body: jsonEncode(body),

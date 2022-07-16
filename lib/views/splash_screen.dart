@@ -15,6 +15,7 @@ import 'package:rentit4me/views/personal_detail_screen.dart';
 import 'dart:convert';
 import 'package:rentit4me/views/select_membership_screen.dart';
 import 'package:rentit4me/views/signup_consumer_screen.dart';
+import 'package:rentit4me/views/user_location_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -36,13 +37,24 @@ class _SplashScreenState extends State<SplashScreen> {
   String _connectionStatus = 'Unknown';
   final Connectivity _connectivity = Connectivity();
 
+  String _latitutevalue;
+  String _longitutevalue;
+
   @override
   void initState() {
     super.initState();
     //initConnectivity();
-    _checkLoggedIn().then((value) => _getprofileData().then((value) => _loadWidget()));
-    //_getprofileData().then((value) => _checkLoggedIn());
-    //_loadWidget();
+    _checklocation();
+  }
+
+  _checklocation() async{
+     SharedPreferences prefs = await SharedPreferences.getInstance();
+     if(prefs.getString('latitude') == null || prefs.getString('latitude') == ""){
+       Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => UserlocationScreen()));
+     }
+     else{
+       _checkLoggedIn().then((value) => _getprofileData().then((value) => _loadWidget()));
+     }
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -93,6 +105,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future _checkLoggedIn() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    //_latitutevalue = prefs.getString('latitude');
+    //_longitutevalue = prefs.getString('longitude');
     var _isLoggedIn = prefs.getBool('logged_in');
     if (_isLoggedIn == true) {
       setState(() {
@@ -127,8 +141,7 @@ class _SplashScreenState extends State<SplashScreen> {
         }
       } else {
         return Dashboard();
-      }
-
+    }
   }
 
   @override

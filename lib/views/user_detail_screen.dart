@@ -53,8 +53,11 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
 
   bool _emailcheck = false;
   bool _smscheck = false;
-  int _hidemobile = 0;
+  int _hidemobile;
   bool _hidemob = false;
+
+  bool _checknotifi = false;
+  int _checknotifivalue;
 
   List<int> commprefs = [];
 
@@ -75,6 +78,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -211,23 +215,31 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                          ),
                          SizedBox(height: 10.0),
                          Row(
+                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                            children: [
-                              Text("Hide Mobile", style: TextStyle(color: kPrimaryColor, fontWeight: FontWeight.bold)),
-                              SizedBox(width: 10),
-                              Checkbox(value: _hidemob, onChanged:(value){
-                                if(value){
-                                  setState(() {
-                                    _hidemob = value;
-                                    _hidemobile = 1;
-                                  });
-                                }
-                                else{
-                                  setState((){
-                                    _hidemob = value;
-                                    _hidemobile = 0;
-                                  });
-                                }
-                              })
+                             Container(
+                               width: size.width * 0.40,
+                               child: Row(
+                                 children: [
+                                   const Text("Hide Mobile", style: TextStyle(color: kPrimaryColor, fontWeight: FontWeight.bold)),
+                                   const SizedBox(width: 5),
+                                   Checkbox(value: _hidemob, onChanged:(value){
+                                     if(value){
+                                       setState(() {
+                                         _hidemob = value;
+                                         _hidemobile = 1;
+                                       });
+                                     }
+                                     else{
+                                       setState((){
+                                         _hidemob = value;
+                                         _hidemobile = 0;
+                                       });
+                                     }
+                                   })
+                                 ],
+                               ),
+                             ),
                            ],
                          )
                        ],
@@ -707,7 +719,32 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                                ],
                              ),
                            ],
-                         )
+                         ),
+                         Container(
+                           width: double.infinity,
+                           child: Row(
+                             children: [
+                               const Text("Push Notification", style: TextStyle(color: kPrimaryColor, fontWeight: FontWeight.bold)),
+                               const SizedBox(width: 5),
+                               Checkbox(value: _checknotifi, onChanged:(value){
+                                 if(value){
+                                   setState(() {
+                                     _checknotifi = value;
+                                     _checknotifivalue = 1;
+                                   });
+                                 }
+                                 else{
+                                   setState((){
+                                     _checknotifi = value;
+                                     _checknotifivalue = 0;
+                                   });
+                                 }
+                               }),
+                               const SizedBox(width: 5),
+                               const Text('Allow', style: TextStyle(color: kPrimaryColor, fontWeight: FontWeight.bold))
+                             ],
+                           ),
+                         ),
                        ],
                      ),
                    ),
@@ -846,7 +883,12 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
          linkdinurl = data['User']['linkedin_url'].toString();
          youtubeurl = data['User']['youtube_url'].toString();
          pincode = data['User']['pincode'].toString();
+
+         _hidemobile = data['User']['mobile_hidden'];
          _hidemob = data['User']['mobile_hidden'] == 1 ? true : false;
+
+         _checknotifivalue = data['User']['notifications_allowed'];
+         _checknotifi = data['User']['notifications_allowed'] == 1 ? true : false;
 
          country_id = data['User']['country'].toString();
          state_id = data['User']['state'].toString();
@@ -1056,6 +1098,8 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
     print("country id "+country_id);
     print("state id "+state_id);
     print("city id "+city_id);
+    print("notify check "+_checknotifivalue.toString());
+    print("hide mobile "+_hidemobile.toString());
 
     var requestMulti = http.MultipartRequest('POST', Uri.parse(BASE_URL+basicupdate));
     requestMulti.fields["id"] = prefs.getString('userid');
@@ -1073,6 +1117,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
     requestMulti.fields["twitter_url"] = twitter;
     requestMulti.fields["linkedin_url"] = linkedin;
     requestMulti.fields["youtube_url"] = youtube;
+    requestMulti.fields["notifications_allowed"] = _checknotifivalue.toString();
 
     if(profilepicbool){
       requestMulti.files.add(await http.MultipartFile.fromPath('avatar', picpath));

@@ -801,7 +801,6 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
       throw Exception('Failed to get data due to ${response.body}');
     }
   }
-
   Future _getStateData(String id) async{
     setState((){
        _loading = true;
@@ -830,7 +829,6 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
       throw Exception('Failed to get data due to ${response.body}');
     }
   }
-
   Future _getCityData(String id) async{
     setState((){
       _loading = true;
@@ -919,7 +917,6 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
       });
     });
   }
-
   Future _personaldetailupdatewithoutdoc(String countryid, String stateid, String cityid, String address, String commpref, String kyc, String trustbadge) async{
     print("Without doc");
     SharedPreferences prefs = await SharedPreferences.getInstance();

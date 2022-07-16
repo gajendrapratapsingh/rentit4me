@@ -5,6 +5,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:rentit4me/blocs/network_bloc/network_bloc.dart';
 import 'package:rentit4me/views/splash_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:rentit4me/views/user_location_screen.dart';
 
 
 const AndroidNotificationChannel channel = AndroidNotificationChannel(
@@ -56,6 +57,7 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.indigo,
         ),
         home: SplashScreen()
+        //home: UserlocationScreen(),
       ),
     );
   }

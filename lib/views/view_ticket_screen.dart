@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:http/http.dart' as http;
@@ -45,6 +46,8 @@ class _ViewTicketScreenState extends State<ViewTicketScreen> {
   //get data
   List<dynamic> getcommentdatalist = [];
   String name;
+
+  String usertype;
 
   @override
   void initState() {
@@ -124,31 +127,31 @@ class _ViewTicketScreenState extends State<ViewTicketScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  Text("Title", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 16)),
-                                  SizedBox(height: 5.0),
-                                  title == null ? SizedBox() : Text(title, style: TextStyle(color: Colors.black, fontSize: 16))
+                                  const Text("Title", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 16)),
+                                  const SizedBox(height: 5.0),
+                                  title == null ? const SizedBox() : Text(title, style: const TextStyle(color: Colors.black, fontSize: 16))
                                 ],
                               ),
-                              SizedBox(height: 10.0),
+                              const SizedBox(height: 10.0),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  Text("Message", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500)),
-                                  SizedBox(height: 5.0),
-                                  message == null ? SizedBox() : Text(message, style: TextStyle(color: Colors.black))
+                                  const Text("Message", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500)),
+                                  const SizedBox(height: 5.0),
+                                  message == null ? const SizedBox() : Text(message, style: const TextStyle(color: Colors.black))
                                 ],
                               ),
-                              SizedBox(height: 20.0),
+                              const SizedBox(height: 20.0),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text("Status", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500)),
-                                      SizedBox(height: 5.0),
-                                      status == null ? SizedBox() : _getStatus(status)
+                                      const Text("Status", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500)),
+                                      const SizedBox(height: 5.0),
+                                      status == null ? const SizedBox() : _getStatus(status)
                                     ],
                                   ),
                                   Column(
@@ -164,7 +167,7 @@ class _ViewTicketScreenState extends State<ViewTicketScreen> {
                               SizedBox(height: 10.0),
                               Align(
                                 alignment: Alignment.topLeft,
-                                child: getcommentdatalist.length == 0 || getcommentdatalist.isEmpty ? Text("Discussion (0)", style: TextStyle(color: Colors.black, fontSize: 16)) : Text("Discussion (${getcommentdatalist.length.toString()})", style: TextStyle(color: Colors.black, fontSize: 16)),
+                                child: getcommentdatalist.length == 0 || getcommentdatalist.isEmpty ? const Text("Discussion (0)", style: TextStyle(color: Colors.black, fontSize: 16)) : Text("Discussion (${getcommentdatalist.length.toString()})", style: TextStyle(color: Colors.black, fontSize: 16)),
                               ),
                               getcommentdatalist.length == 0 || getcommentdatalist.isEmpty ? SizedBox() :  SizedBox(height: 10.0),
                               getcommentdatalist.length == 0 || getcommentdatalist.isEmpty ? SizedBox() : getcommentdatalist.length != 1 ? Container(
@@ -177,7 +180,12 @@ class _ViewTicketScreenState extends State<ViewTicketScreen> {
                                   itemBuilder: (BuildContext context, int index) {
                                     return InkWell(
                                       onTap:(){
-                                        _save("https://dev.techstreet.in/rentit4me/public/assets/consumer/attachment/"+getcommentdatalist[index]['attachment'].toString());
+                                        if(usertype == "3"){
+                                          _save("https://dev.techstreet.in/rentit4me/public/assets/consumer/attachment/"+getcommentdatalist[index]['attachment'].toString());
+                                        }
+                                        else{
+                                          _save("https://dev.techstreet.in/rentit4me/public/assets/business/attachment/"+getcommentdatalist[index]['attachment'].toString());
+                                        }
                                       },
                                       child: Container(
                                         height: 60,
@@ -190,7 +198,7 @@ class _ViewTicketScreenState extends State<ViewTicketScreen> {
                                               child: getcommentdatalist[index]['attachment'] == null ? Container(height: 80, width: 80, child: Image.asset('assets/images/no_image.jpg', fit: BoxFit.fill, color: Colors.white)) : CachedNetworkImage(
                                                 height: 80,
                                                 width: 80,
-                                                imageUrl: "https://dev.techstreet.in/rentit4me/public/assets/consumer/attachment/"+getcommentdatalist[index]['attachment'].toString(),
+                                                imageUrl: _getAttachmentPath(usertype, getcommentdatalist[index]['attachment'].toString()),
                                                 imageBuilder: (context, imageProvider) => Container(
                                                   decoration: BoxDecoration(
                                                     image: DecorationImage(
@@ -223,7 +231,13 @@ class _ViewTicketScreenState extends State<ViewTicketScreen> {
                                                     ),
                                                     getcommentdatalist[index]['attachment'] == null ? SizedBox() : InkWell(
                                                         onTap :(){
-                                                          _save("https://dev.techstreet.in/rentit4me/public/assets/consumer/attachment/"+getcommentdatalist[index]['attachment'].toString());
+                                                          if(usertype == "3"){
+                                                            _save("https://dev.techstreet.in/rentit4me/public/assets/consumer/attachment/"+getcommentdatalist[index]['attachment'].toString());
+                                                          }
+                                                          else{
+                                                            //my code is here
+                                                          }
+
                                                         },
                                                         child: Text(getcommentdatalist[index]['attachment'].toString(), style: TextStyle(color: Colors.deepOrangeAccent)))
                                                   ],
@@ -245,7 +259,12 @@ class _ViewTicketScreenState extends State<ViewTicketScreen> {
                                   itemBuilder: (BuildContext context, int index) {
                                     return InkWell(
                                       onTap:(){
-                                        _save("https://dev.techstreet.in/rentit4me/public/assets/consumer/attachment/"+getcommentdatalist[index]['attachment'].toString());
+                                        if(usertype == "3"){
+                                          _save("https://dev.techstreet.in/rentit4me/public/assets/consumer/attachment/"+getcommentdatalist[index]['attachment'].toString());
+                                        }
+                                        else{
+                                          _save("https://dev.techstreet.in/rentit4me/public/assets/business/attachment/"+getcommentdatalist[index]['attachment'].toString());
+                                        }
                                       },
                                       child: Container(
                                         height: 60,
@@ -258,7 +277,7 @@ class _ViewTicketScreenState extends State<ViewTicketScreen> {
                                               child: getcommentdatalist[index]['attachment'] == null ? Container(height: 80, width: 80, child: Image.asset('assets/images/no_image.jpg', fit: BoxFit.fill, color: Colors.white)) : CachedNetworkImage(
                                                 height: 80,
                                                 width: 80,
-                                                imageUrl: "https://dev.techstreet.in/rentit4me/public/assets/consumer/attachment/"+getcommentdatalist[index]['attachment'].toString(),
+                                                imageUrl: _getAttachmentPath(usertype, getcommentdatalist[index]['attachment'].toString()),
                                                 imageBuilder: (context, imageProvider) => Container(
                                                   decoration: BoxDecoration(
                                                     image: DecorationImage(
@@ -291,7 +310,13 @@ class _ViewTicketScreenState extends State<ViewTicketScreen> {
                                                     ),
                                                     getcommentdatalist[index]['attachment'] == null ? SizedBox() : InkWell(
                                                         onTap :(){
-                                                          _save("https://dev.techstreet.in/rentit4me/public/assets/consumer/attachment/"+getcommentdatalist[index]['attachment'].toString());
+                                                          if(usertype == "3"){
+                                                            _save("https://dev.techstreet.in/rentit4me/public/assets/consumer/attachment/"+getcommentdatalist[index]['attachment'].toString());
+                                                          }
+                                                          else{
+                                                            //my code is here
+                                                          }
+
                                                         },
                                                         child: Text(getcommentdatalist[index]['attachment'].toString(), style: TextStyle(color: Colors.deepOrangeAccent)))
                                                   ],
@@ -424,6 +449,7 @@ class _ViewTicketScreenState extends State<ViewTicketScreen> {
             message = data['message'].toString();
             status = data['status'].toString();
             created = data['created_at'].toString().split("T")[0].toString();
+            //usertype = data['user_type'].toString();
       });
 
     } else {
@@ -443,12 +469,15 @@ class _ViewTicketScreenState extends State<ViewTicketScreen> {
     setState((){
       _loading = false;
     });
-    if (response.statusCode == 200) {
-      var data = json.decode(response.body)['Response'];
-      setState((){
-        name = prefs.getString('name');
-        getcommentdatalist.addAll(data);
-      });
+    if(response.statusCode == 200) {
+      List data = json.decode(response.body)['Response'];
+      if(data.length != 0 || data.isNotEmpty){
+        setState((){
+          name = prefs.getString('name');
+          usertype = data[0]['user_type'].toString();
+          getcommentdatalist.addAll(data);
+        });
+      }
     } else {
       throw Exception('Failed to get data due to ${response.body}');
     }
@@ -520,7 +549,6 @@ class _ViewTicketScreenState extends State<ViewTicketScreen> {
       });
     });
   }
-
   Future _postticketwithoutdoc(String ticketid, String message) async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState((){
@@ -630,30 +658,48 @@ class _ViewTicketScreenState extends State<ViewTicketScreen> {
   }
 
   _save(String url) async {
-    var status = await Permission.storage.request();
-    if(await Permission.storage.request().isGranted) {
-      setState((){
-         _loading = true;
-      });
-      var response = await Dio().get(url,
-          options: Options(responseType: ResponseType.bytes));
-          final result = await ImageGallerySaver.saveImage(
-          Uint8List.fromList(response.data),
-          quality: 60,
-          name: "image");
-          if(result['isSuccess']){
-            showToast('Image downloaded successfully!');
-            setState((){
-              _loading = false;
-            });
+         if(await Permission.storage.request().isGranted) {
+           setState((){
+              _loading = true;
+          });
+          try{
+            var response = await Dio().get(url, options: Options(responseType: ResponseType.bytes));
+            final result = await ImageGallerySaver.saveImage(
+                Uint8List.fromList(response.data),
+                quality: 60,
+                name: "image");
+            if(result['isSuccess']){
+              showToast('Image downloaded successfully!');
+              setState((){
+                _loading = false;
+              });
+            }
+            else{
+              showToast('Downloading failed!');
+              setState((){
+                _loading = false;
+              });
+            }
           }
-          else{
-            showToast('Downloading failed!');
+          catch(error){
             setState((){
               _loading = false;
             });
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Image not found!", style: TextStyle(color: Colors.white)), backgroundColor: Colors.red));
           }
     }
+  }
+
+  _getAttachmentPath(String usertype, String imagename){
+     if(usertype == "1"){
+       return "https://dev.techstreet.in/rentit4me/public/assets/admin/ticket-attachment/"+imagename;
+     }
+     else if(usertype == "3"){
+       return "https://dev.techstreet.in/rentit4me/public/assets/consumer/attachment/"+imagename;
+     }
+     else{
+       return "https://dev.techstreet.in/rentit4me/public/assets/business/attachment/"+imagename;
+     }
   }
 
 }
