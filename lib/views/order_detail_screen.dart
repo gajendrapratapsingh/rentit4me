@@ -107,41 +107,34 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(height: 5),
-                          Text("Product Detail", style: TextStyle(color: kPrimaryColor, fontSize: 18, fontWeight: FontWeight.w700)),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 5),
+                          const Text("Product Detail", style: TextStyle(color: kPrimaryColor, fontSize: 18, fontWeight: FontWeight.w700)),
+                          const SizedBox(height: 10),
                           productimage == null ? Container(
-                            height: 120,
+                            height: 180,
                             width: double.infinity,
-                            child: Image.asset('assets/images/no_image.jpg'),
+                            child: Image.asset('assets/images/no_image.jpg', fit: BoxFit.fill),
                           ) : Container(
-                            height: 120,
+                            height: 180,
                             width: double.infinity,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8.0),
-                                border: Border.all(color: kPrimaryColor, width: 1)
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8.0),
-                              child: CachedNetworkImage(
-                                imageUrl: "https://dev.techstreet.in/rentit4me/public/assets/frontend/images/listings/"+productimage,
-                                fit: BoxFit.fill,
-                                errorWidget: (context, url, error) => Image.asset('assets/images/no_image.jpg', fit: BoxFit.fill),
-                              ),
+                            child: CachedNetworkImage(
+                              imageUrl: sliderpath+productimage,
+                              fit: BoxFit.fill,
+                              errorWidget: (context, url, error) => Image.asset('assets/images/no_image.jpg', fit: BoxFit.fill),
                             ),
                           ),
-                          SizedBox(height: 10),
-                          productname == null ? SizedBox() : Text(productname, style: TextStyle(color: kPrimaryColor, fontSize: 14, fontWeight: FontWeight.w700)),
-                          SizedBox(height: 10),
-                          Text(description, style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w400)),
-                          SizedBox(height: 10),
-                          productprice == null || productprice == "" ? SizedBox() : Text(productprice, style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w400)),
-                          SizedBox(height: 10),
-                          Text("Security Deposit: INR "+securitydeposit, style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w400)),
-                          SizedBox(height: 10),
-                          renteecheck == true ?  SizedBox() : const Text("Product Rating", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
-                          renteecheck == true ?  SizedBox() : SizedBox(height: 5.0),
-                          renteecheck == true ?  SizedBox() : RatingBar.builder(
+                          const SizedBox(height: 10),
+                          productname == null ? const SizedBox() : Text(productname, style: const TextStyle(color: kPrimaryColor, fontSize: 14, fontWeight: FontWeight.w700)),
+                          const SizedBox(height: 10),
+                          description == null ? const SizedBox() : Text(description, style: const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w400)),
+                          const SizedBox(height: 10),
+                          productprice == null || productprice == "" ? const SizedBox() : Text(productprice, style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w400)),
+                          const SizedBox(height: 10),
+                          Text("Security Deposit: INR $securitydeposit", style: const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w400)),
+                          const SizedBox(height: 10),
+                          renteecheck == true ?  const SizedBox() : const Text("Product Rating", style: TextStyle(color: kPrimaryColor, fontSize: 16, fontWeight: FontWeight.w500)),
+                          renteecheck == true ?  const SizedBox() : const SizedBox(height: 5.0),
+                          renteecheck == true ?  const SizedBox() : RatingBar.builder(
                             initialRating: getproductrating == 0 ? 0 : getproductrating,
                             minRating: 1,
                             itemSize: 24,
@@ -236,21 +229,21 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(height: 5.0),
-                          Text("Order Detail", style: TextStyle(color: kPrimaryColor, fontSize: 18, fontWeight: FontWeight.w700)),
-                          SizedBox(height: 5),
-                          Divider(height: 5, color: kPrimaryColor, thickness: 2),
-                          Text("Order Info", style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w500)),
-                          Divider(height: 5, color: kPrimaryColor, thickness: 2),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 5.0),
+                          const Text("Order Detail", style: TextStyle(color: kPrimaryColor, fontSize: 18, fontWeight: FontWeight.w700)),
+                          const SizedBox(height: 5),
+                          const Divider(height: 5, color: kPrimaryColor, thickness: 2),
+                          const Text("Order Info", style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w500)),
+                          const Divider(height: 5, color: kPrimaryColor, thickness: 2),
+                          const SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text("Item", style: TextStyle(color: Colors.black, fontSize: 14)),
-                              Text(productname, style: TextStyle(color: Colors.black, fontSize: 14))
+                              productname == null ? const SizedBox() : Text(productname, style: const TextStyle(color: Colors.black, fontSize: 14))
                             ],
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -258,33 +251,33 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                               quantity == null || quantity == "" ? SizedBox() : Text(quantity, style: TextStyle(color: Colors.black, fontSize: 14))
                             ],
                           ),
-                          SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text("Rent Type", style: TextStyle(color: Colors.black, fontSize: 14)),
-                              negotiable.toString() == "1" ? Container(
-                                height: 20,
-                                width: 80,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    color: Colors.green
-                                ),
-                                child: Text("Negotiable", style: TextStyle(color: Colors.white)),
-                              ) : Container(
-                                height: 20,
-                                width: 65,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    color: Colors.green
-                                ),
-                                child: Text("Fixed", style: TextStyle(color: Colors.white)),
-                              )
-                            ],
-                          ),
-                          SizedBox(height: 10),
+                          // SizedBox(height: 10),
+                          // Row(
+                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          //   children: [
+                          //     const Text("Rent Type", style: TextStyle(color: Colors.black, fontSize: 14)),
+                          //     negotiable.toString() == "1" ? Container(
+                          //       height: 20,
+                          //       width: 80,
+                          //       alignment: Alignment.center,
+                          //       decoration: BoxDecoration(
+                          //           borderRadius: BorderRadius.circular(8.0),
+                          //           color: Colors.green
+                          //       ),
+                          //       child: Text("Negotiable", style: TextStyle(color: Colors.white)),
+                          //     ) : Container(
+                          //       height: 20,
+                          //       width: 65,
+                          //       alignment: Alignment.center,
+                          //       decoration: BoxDecoration(
+                          //           borderRadius: BorderRadius.circular(8.0),
+                          //           color: Colors.green
+                          //       ),
+                          //       child: Text("Fixed", style: TextStyle(color: Colors.white)),
+                          //     )
+                          //   ],
+                          // ),
+                          const SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -292,7 +285,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                               period == null || period == "" ? SizedBox() : Text(period+" "+_getrenttype(renttypeid), style: TextStyle(color: Colors.black, fontSize: 14))
                             ],
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -356,15 +349,15 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                               enddate == null || enddate == "" ? SizedBox() : Text(enddate, style: TextStyle(color: Colors.black, fontSize: 14))
                             ],
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text("Status", style: TextStyle(color: Colors.black, fontSize: 14)),
-                              Text(status, style: TextStyle(color: Colors.black, fontSize: 14))
+                              status == null ? const SizedBox() : Text(status, style: TextStyle(color: Colors.black, fontSize: 14))
                             ],
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -372,103 +365,103 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                               createdAt == null || createdAt == "" ? SizedBox() : Text(createdAt, style: TextStyle(color: Colors.black, fontSize: 14))
                             ],
                           ),
-                          SizedBox(height: 10),
-                          Divider(height: 5, color: kPrimaryColor, thickness: 2),
-                          Text("Product Info", style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w500)),
-                          Divider(height: 5, color: kPrimaryColor, thickness: 2),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
+                          const Divider(height: 5, color: kPrimaryColor, thickness: 2),
+                          const Text("Product Info", style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w500)),
+                          const Divider(height: 5, color: kPrimaryColor, thickness: 2),
+                          const SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text("Security (INR)", style: TextStyle(color: Colors.black, fontSize: 14)),
-                              Text(securitydeposit, style: TextStyle(color: Colors.black, fontSize: 14))
+                              securitydeposit == null ? const SizedBox() : Text(securitydeposit, style: const TextStyle(color: Colors.black, fontSize: 14))
                             ],
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text("Quantity", style: TextStyle(color: Colors.black, fontSize: 14)),
-                              productqty == null  || productqty == "null" ? Text("N/A", style: TextStyle(color: Colors.black, fontSize: 14)) : Text(productqty.toString(), style: TextStyle(color: Colors.black, fontSize: 14))
+                              productqty == null  || productqty == "null" ? const Text("N/A", style: TextStyle(color: Colors.black, fontSize: 14)) : Text(productqty.toString(), style: TextStyle(color: Colors.black, fontSize: 14))
                             ],
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text("Currency", style: TextStyle(color: Colors.black, fontSize: 14)),
-                              Text(currency, style: TextStyle(color: Colors.black, fontSize: 14))
+                              currency == null ? const SizedBox() : Text(currency, style: const TextStyle(color: Colors.black, fontSize: 14))
                             ],
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text("Rent Prices", style: TextStyle(color: Colors.black, fontSize: 14)),
                               SizedBox(
                                 width: size.width * 0.60,
-                                child: Text(productprice, maxLines: 2, textAlign: TextAlign.end, style: TextStyle(color: Colors.black, fontSize: 14)),
+                                child: productprice == null ? const SizedBox(): Text(productprice, maxLines: 2, textAlign: TextAlign.end, style: TextStyle(color: Colors.black, fontSize: 14)),
                               )
                             ],
                           ),
-                          SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text("Rent Type", style: TextStyle(color: Colors.black, fontSize: 14)),
-                              negotiable.toString() == "1" ? Container(
-                                height: 20,
-                                width: 80,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    color: Colors.green
-                                ),
-                                child: Text("Negotiable", style: TextStyle(color: Colors.white)),
-                              ) : Container(
-                                height: 20,
-                                width: 65,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    color: Colors.green
-                                ),
-                                child: Text("Fixed", style: TextStyle(color: Colors.white)),
-                              )
-                            ],
-                          ),
-                          SizedBox(height: 10),
-                          Divider(height: 5, color: kPrimaryColor, thickness: 2),
-                          Text("Renter Information", style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w500)),
-                          Divider(height: 5, color: kPrimaryColor, thickness: 2),
-                          SizedBox(height: 10),
+                          // SizedBox(height: 10),
+                          // Row(
+                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          //   children: [
+                          //     const Text("Rent Type", style: TextStyle(color: Colors.black, fontSize: 14)),
+                          //     negotiable.toString() == "1" ? Container(
+                          //       height: 20,
+                          //       width: 80,
+                          //       alignment: Alignment.center,
+                          //       decoration: BoxDecoration(
+                          //           borderRadius: BorderRadius.circular(8.0),
+                          //           color: Colors.green
+                          //       ),
+                          //       child: Text("Negotiable", style: TextStyle(color: Colors.white)),
+                          //     ) : Container(
+                          //       height: 20,
+                          //       width: 65,
+                          //       alignment: Alignment.center,
+                          //       decoration: BoxDecoration(
+                          //           borderRadius: BorderRadius.circular(8.0),
+                          //           color: Colors.green
+                          //       ),
+                          //       child: Text("Fixed", style: TextStyle(color: Colors.white)),
+                          //     )
+                          //   ],
+                          // ),
+                          const SizedBox(height: 10),
+                          const Divider(height: 5, color: kPrimaryColor, thickness: 2),
+                          const Text("Renter Information", style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w500)),
+                          const Divider(height: 5, color: kPrimaryColor, thickness: 2),
+                          const SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text("Renter Name", style: TextStyle(color: Colors.black, fontSize: 14)),
-                              Text(name, style: TextStyle(color: Colors.black, fontSize: 14))
+                              name == null ? const SizedBox() : Text(name, style: const TextStyle(color: Colors.black, fontSize: 14))
                             ],
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text("Email", style: TextStyle(color: Colors.black, fontSize: 14)),
-                              Text(email, style: TextStyle(color: Colors.black, fontSize: 14))
+                              email == null ? const SizedBox() : Text(email, style: const TextStyle(color: Colors.black, fontSize: 14))
                             ],
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text("Address", style: TextStyle(color: Colors.black, fontSize: 14)),
                               SizedBox(
                                   width: size.width * 0.60,
-                                  child: Text(address, textAlign: TextAlign.end, maxLines: 2, style: TextStyle(color: Colors.black, fontSize: 14))
+                                  child: address == null ? const SizedBox() : Text(address, textAlign: TextAlign.end, maxLines: 2, style: const TextStyle(color: Colors.black, fontSize: 14))
                               )
                             ],
                           ),
-                          SizedBox(height: 5),
+                          const SizedBox(height: 5),
                         ],
                       ),
                     ),
@@ -499,7 +492,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     if (response.statusCode == 200) {
       var data = json.decode(response.body)['Response'];
       setState(() {
-        productimage = data['Image']['file_name'].toString();
+        productimage = data['Image']['upload_base_path']+data['Image']['file_name'].toString();
         productname = data['Product Details']['title'].toString();
         final document = parse(data['Product Details']['description'].toString());
         description = parse(document.body.text).documentElement.text.toString();
@@ -513,7 +506,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         List temp = [];
         data['Product Details']['prices'].forEach((element) {
           if(element['price'] != null){
-            temp.add("INR "+element['price'].toString()+" ("+element['rent_type_name'].toString()+")");
+            temp.add("INR ${element['price']} (${element['rent_type_name']})");
           }
         });
 
@@ -539,17 +532,15 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         //Renter Detail
         name = data['Additional Information']['name'].toString();
         email = data['Additional Information']['email'].toString();
-        address = data['Additional Information']['address'].toString()+", "+data['Additional Information']['city_name'].toString()+", "+data['Additional Information']['state_name'].toString()+", "+data['Additional Information']['pincode'].toString();
+        address = "${data['Additional Information']['address']}, ${data['Additional Information']['city_name']}, ${data['Additional Information']['state_name']}, ${data['Additional Information']['pincode']}";
 
+        if(prefs.getString('userid').toString() == data['Order Details']['advertiser_id'].toString()){
+          renteecheck = true;
+        }
         
         getuserrating = double.parse(data['Rating']['user_rating'].toString());
         getproductrating = double.parse(data['Rating']['post_ad_rating'].toString());
         feedbackhint = data['Rating']['feedback'];
-
-        if(prefs.getString('userid').toString() == data['Order Details']['user_id'].toString()){
-           renteecheck = true;
-        }
-
 
       });
     } else {

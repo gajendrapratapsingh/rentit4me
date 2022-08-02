@@ -7,14 +7,14 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:699757287064:android:ce029cbb8faaeaebef22ed",
+        "mobilesdk_app_id": "1:699757287064:android:27dd136def0f6f56ef22ed",
         "android_client_info": {
           "package_name": "com.rent.renteeforme"
         }
       },
       "oauth_client": [
         {
-          "client_id": "699757287064-bk0o5acd0oief66uf77h87i0ic93kesv.apps.googleusercontent.com",
+          "client_id": "699757287064-1mmrvv268021r9knol3gds27ttgtdb5e.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -27,7 +27,7 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "699757287064-bk0o5acd0oief66uf77h87i0ic93kesv.apps.googleusercontent.com",
+              "client_id": "699757287064-1mmrvv268021r9knol3gds27ttgtdb5e.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

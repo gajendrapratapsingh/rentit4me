@@ -50,7 +50,7 @@ class _MyticketScreenState extends State<MyticketScreen> {
               Icons.arrow_back,
               color: kPrimaryColor,
             )),
-        title: Text("My Ticket", style: TextStyle(color: kPrimaryColor)),
+        title: const Text("My Ticket", style: TextStyle(color: kPrimaryColor)),
         centerTitle: true,
       ),
       body: ModalProgressHUD(
@@ -67,7 +67,7 @@ class _MyticketScreenState extends State<MyticketScreen> {
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       children: [
-                        SizedBox(height: 5),
+                        const SizedBox(height: 5),
                         Padding(
                           padding: const EdgeInsets.only(left: 0.0),
                           child: TextFormField(
@@ -75,13 +75,13 @@ class _MyticketScreenState extends State<MyticketScreen> {
                               enabled: true,
                               focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(color: Colors.deepOrangeAccent)
+                                  borderSide: const BorderSide(color: Colors.deepOrangeAccent)
                               ),
                               enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(color: Colors.deepOrangeAccent,)
+                                  borderSide: const BorderSide(color: Colors.deepOrangeAccent,)
                               ),
-                              contentPadding: EdgeInsets.only(left: 5),
+                              contentPadding: const EdgeInsets.only(left: 5),
                               hintText: searchvalue,
                               border: InputBorder.none,
                             ),
@@ -92,15 +92,13 @@ class _MyticketScreenState extends State<MyticketScreen> {
                             },
                           ),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                //Text("From Date", style: TextStyle(color: kPrimaryColor, fontSize: 14, fontWeight: FontWeight.w500)),
-                                //SizedBox(height: 10),
                                 Container(
                                     width: size.width * 0.42,
                                     decoration: BoxDecoration(
@@ -108,17 +106,17 @@ class _MyticketScreenState extends State<MyticketScreen> {
                                             width: 1,
                                             color: Colors.deepOrangeAccent
                                         ),
-                                        borderRadius: BorderRadius.all(Radius.circular(12))
+                                        borderRadius: const BorderRadius.all(Radius.circular(12))
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.only(left: 10.0),
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(startdate, style: TextStyle(color: Colors.grey)),
+                                          Text(startdate, style: const TextStyle(color: Colors.grey)),
                                           IconButton(onPressed: (){
                                             _selectStartDate(context);
-                                          }, icon: Icon(Icons.calendar_today_sharp, size: 16, color: kPrimaryColor))
+                                          }, icon: const Icon(Icons.calendar_today_sharp, size: 16, color: kPrimaryColor))
                                         ],
                                       ),
                                     )
@@ -128,8 +126,6 @@ class _MyticketScreenState extends State<MyticketScreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                //Text("To Date", style: TextStyle(color: kPrimaryColor, fontSize: 14, fontWeight: FontWeight.w500)),
-                                //SizedBox(height: 10),
                                 Container(
                                     width: size.width * 0.42,
                                     decoration: BoxDecoration(
@@ -137,17 +133,17 @@ class _MyticketScreenState extends State<MyticketScreen> {
                                             width: 1,
                                             color: Colors.deepOrangeAccent
                                         ),
-                                        borderRadius: BorderRadius.all(Radius.circular(12))
+                                        borderRadius: const BorderRadius.all(Radius.circular(12))
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.only(left: 10.0),
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(enddate, style: TextStyle(color: Colors.grey)),
+                                          enddate == null ? const SizedBox() : Text(enddate, style: const TextStyle(color: Colors.grey)),
                                           IconButton(onPressed: (){
                                             _selectEndtDate(context);
-                                          }, icon: Icon(Icons.calendar_today_sharp, size: 16, color: kPrimaryColor))
+                                          }, icon: const Icon(Icons.calendar_today_sharp, size: 16, color: kPrimaryColor))
                                         ],
                                       ),
                                     )
@@ -156,14 +152,19 @@ class _MyticketScreenState extends State<MyticketScreen> {
                             )
                           ],
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         InkWell(
                           onTap: () {
-                             if(searchvalue == "Enter Subject" || searchvalue.trim().length == 0 || searchvalue.trim().isEmpty){
-                               _allticketlistByDate();
+                             if(searchvalue == "Enter Subject" && startdate == "From Date"){
+                               showToast("Please enter your search or select date");
                              }
                              else{
-                               _allticketlistBySearch();
+                               if(searchvalue == "Enter Subject" || searchvalue.trim().length == 0 || searchvalue.trim().isEmpty){
+                                 _allticketlistByDate();
+                               }
+                               else{
+                                 _allticketlistBySearch();
+                               }
                              }
                           },
                           child: Card(
@@ -179,7 +180,7 @@ class _MyticketScreenState extends State<MyticketScreen> {
                                   color: Colors.deepOrangeAccent,
                                   borderRadius: BorderRadius.all(Radius.circular(8.0))
                               ),
-                              child: Text("Filter", style: TextStyle(color: Colors.white)),
+                              child: const Text("Filter", style: TextStyle(color: Colors.white)),
                             ),
                           ),
                         )
@@ -198,7 +199,7 @@ class _MyticketScreenState extends State<MyticketScreen> {
                        return Card(
                           elevation: 4.0,
                           child : Padding(
-                            padding: EdgeInsets.all(8.0),
+                            padding: const EdgeInsets.all(8.0),
                             child: Column(children: [
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -206,27 +207,27 @@ class _MyticketScreenState extends State<MyticketScreen> {
                                     Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text("ID", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500)),
-                                        SizedBox(height: 4.0),
+                                        const Text("ID", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500)),
+                                        const SizedBox(height: 4.0),
                                         Text(allticketlist[index]['ticket_id'].toString())
                                     ]),
                                     Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text("Subject", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500)),
-                                        SizedBox(height: 4.0),
+                                        const Text("Subject", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500)),
+                                        const SizedBox(height: 4.0),
                                         Text(allticketlist[index]['title'].toString())
                                     ])
                                 ]),
-                                SizedBox(height: 10),
+                                const SizedBox(height: 10),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                    Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text("Status", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500)),
-                                        SizedBox(height: 4.0),
+                                        const Text("Status", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500)),
+                                        const SizedBox(height: 4.0),
                                         allticketlist[index]['status'].toString() == "Open" ? Container(
                                            height: 25,
                                            width: 55,
@@ -235,7 +236,7 @@ class _MyticketScreenState extends State<MyticketScreen> {
                                             color: Colors.green,
                                             borderRadius: BorderRadius.all(Radius.circular(12.0))
                                           ),
-                                           child: Text(allticketlist[index]['status'].toString(), style: TextStyle(color: Colors.white)),
+                                           child: Text(allticketlist[index]['status'].toString(), style: const TextStyle(color: Colors.white)),
                                         ) : Container(
                                             height: 25,
                                             width: 55,
@@ -244,17 +245,17 @@ class _MyticketScreenState extends State<MyticketScreen> {
                                             color: Colors.red,
                                             borderRadius: BorderRadius.all(Radius.circular(12.0))
                                           ),
-                                          child: Text(allticketlist[index]['status'].toString(), style: TextStyle(color: Colors.white)),
+                                          child: Text(allticketlist[index]['status'].toString(), style: const TextStyle(color: Colors.white)),
                                         )
                                     ]), 
                                    Column(children: [
-                                       Text("Created At", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500)),
-                                       SizedBox(height: 4.0),
+                                       const Text("Created At", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500)),
+                                       const SizedBox(height: 4.0),
                                        Text(allticketlist[index]['created_at'].toString().split("T")[0].toString())
                                    ]),
                                    ElevatedButton(onPressed: (){
                                      Navigator.push(context, MaterialPageRoute(builder: (context) => ViewTicketScreen(ticketid: allticketlist[index]['id'].toString())));
-                                   }, child: Text("View"))
+                                   }, child: const Text("View"))
                                 ])
                             ]),
                           )

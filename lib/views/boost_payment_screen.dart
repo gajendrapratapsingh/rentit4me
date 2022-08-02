@@ -60,12 +60,12 @@ class _BoostPaymentScreenState extends State<BoostPaymentScreen> {
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
-    print("Failed");
-    print(response);
-    setState((){
-      amount = null;
-    });
-    print(amount);
+    ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("You have cancelled the payment process.", style: TextStyle(color: Colors.white)),
+          backgroundColor: Colors.red,
+        )
+    );
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {

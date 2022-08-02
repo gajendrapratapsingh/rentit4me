@@ -147,14 +147,14 @@ class _AddlistingScreenState extends State<AddlistingScreen> {
                                     color: kPrimaryColor,
                                     fontSize: 21,
                                     fontWeight: FontWeight.bold))),
-                        SizedBox(height: 15),
+                        const SizedBox(height: 15),
                         const Align(
                             alignment: Alignment.topLeft,
                             child: Text("Main Image",
                                 style: TextStyle(
                                     color: kPrimaryColor,
                                     fontWeight: FontWeight.bold))),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         Container(
                           decoration: BoxDecoration(
                             border: Border.all(color: Colors.grey, width: 1.0),
@@ -194,7 +194,12 @@ class _AddlistingScreenState extends State<AddlistingScreen> {
                             )
                           ]),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 4),
+                        const Align(
+                          alignment: Alignment.topLeft,
+                          child: Text("Main image dimension should be minimum 648X480 in size", style: TextStyle(color: Colors.black, fontSize: 10)),
+                        ),
+                        const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -356,8 +361,9 @@ class _AddlistingScreenState extends State<AddlistingScreen> {
                               borderRadius:
                                   BorderRadius.all(Radius.circular(8.0))),
                           child: Padding(
-                            padding: const EdgeInsets.only(left: 5.0),
+                            padding: const EdgeInsets.only(left: 5.0, right: 5.0, bottom: 5.0),
                             child: TextField(
+                              maxLength: 30,
                               decoration: const InputDecoration(
                                 //labelText: 'Enter Name',
                                 border: InputBorder.none,
@@ -368,28 +374,25 @@ class _AddlistingScreenState extends State<AddlistingScreen> {
                             ),
                           ),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         const Align(
                           alignment: Alignment.topLeft,
                           child: Text(
-                            "Discription",
+                            "Description",
                             style: TextStyle(
                                 color: kPrimaryColor,
                                 fontWeight: FontWeight.bold),
                           ),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         Container(
-                          decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey, width: 1),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(8.0))),
+                          decoration: BoxDecoration(border: Border.all(color: Colors.grey, width: 1), borderRadius: const BorderRadius.all(Radius.circular(8.0))),
                           child: Padding(
-                            padding: const EdgeInsets.only(left: 5.0),
+                            padding: const EdgeInsets.only(left: 5.0, right: 5.0, bottom: 5.0),
                             child: TextField(
                               textAlign: TextAlign.start,
-                              decoration:
-                                  InputDecoration(border: InputBorder.none),
+                              maxLength: 75,
+                              decoration: const InputDecoration(border: InputBorder.none),
                               onChanged: (value) {
                                   description = value;
                               },
@@ -397,11 +400,11 @@ class _AddlistingScreenState extends State<AddlistingScreen> {
                             ),
                           ),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         const Align(
                           alignment: Alignment.topLeft,
                           child: Text(
-                            "Refundable Security Deposit (XCD)",
+                            "Refundable Security Deposit (INR)",
                             style: TextStyle(
                                 color: kPrimaryColor,
                                 fontWeight: FontWeight.bold),
@@ -674,7 +677,7 @@ class _AddlistingScreenState extends State<AddlistingScreen> {
                             ? const Align(
                                 alignment: Alignment.topLeft,
                                 child: Text(
-                                  "Hourly Price(XCD)*",
+                                  "Hourly Price(INR)*",
                                   style: TextStyle(
                                       color: kPrimaryColor,
                                       fontWeight: FontWeight.bold),
@@ -714,7 +717,7 @@ class _AddlistingScreenState extends State<AddlistingScreen> {
                             ? const Align(
                                 alignment: Alignment.topLeft,
                                 child: Text(
-                                  "Days Price(XCD)*",
+                                  "Days Price(INR)*",
                                   style: TextStyle(
                                       color: kPrimaryColor,
                                       fontWeight: FontWeight.bold),
@@ -755,7 +758,7 @@ class _AddlistingScreenState extends State<AddlistingScreen> {
                             ? const Align(
                                 alignment: Alignment.topLeft,
                                 child: Text(
-                                  "Monthly Price(XCD)*",
+                                  "Monthly Price(INR)*",
                                   style: TextStyle(
                                       color: kPrimaryColor,
                                       fontWeight: FontWeight.bold),
@@ -796,7 +799,7 @@ class _AddlistingScreenState extends State<AddlistingScreen> {
                             ? const Align(
                                 alignment: Alignment.topLeft,
                                 child: Text(
-                                  "Yearly Price(XCD)*",
+                                  "Yearly Price(INR)*",
                                   style: TextStyle(
                                       color: kPrimaryColor,
                                       fontWeight: FontWeight.bold),

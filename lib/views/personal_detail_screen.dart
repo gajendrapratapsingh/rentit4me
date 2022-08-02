@@ -10,6 +10,7 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:rentit4me/network/api.dart';
 import 'package:rentit4me/themes/constant.dart';
 import 'package:rentit4me/views/business_detail_screen.dart';
+import 'package:rentit4me/views/dashboard.dart';
 import 'package:rentit4me/views/home_screen.dart';
 import 'package:rentit4me/views/make_payment_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -79,6 +80,7 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
     super.initState();
     _getcheckapproveData();
     _getcountryData();
+    //_getprofile();
   }
 
 
@@ -97,7 +99,7 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
               Icons.arrow_back,
               color: kPrimaryColor,
             )),
-        title: Text("Personal Detail", style: TextStyle(color: kPrimaryColor)),
+        title: const Text("Personal Detail", style: TextStyle(color: kPrimaryColor)),
         centerTitle: true,
       ),
       body: ModalProgressHUD(
@@ -744,6 +746,35 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
     }
   }
 
+  // Future _getprofile() async{
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   final body = {
+  //     "id": prefs.getString('userid'),
+  //   };
+  //   var response = await http.post(Uri.parse(BASE_URL + profileUrl),
+  //       body: jsonEncode(body),
+  //       headers: {
+  //         "Accept" : "application/json",
+  //         'Content-Type' : 'application/json'
+  //       }
+  //   );
+  //   if(response.statusCode == 200) {
+  //     var data = json.decode(response.body)['Response'];
+  //     setState((){
+  //       country_id = data['User']['country'].toString();
+  //       state_id = data['User']['state'].toString();
+  //       city_id = data['User']['city'].toString();
+  //
+  //       selectedCountry = data['User']['country_name'].toString();
+  //       selectedState = data['User']['state_name'].toString();
+  //       selectedCity = data['User']['city_name'].toString();
+  //     });
+  //
+  //   } else {
+  //     throw Exception('Failed to get data due to ${response.body}');
+  //   }
+  // }
+
   Future _getprofileData() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final body = {
@@ -756,18 +787,18 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
           'Content-Type' : 'application/json'
         }
     );
-    if (response.statusCode == 200) {
+    if(response.statusCode == 200) {
       var data = json.decode(response.body)['Response'];
       if(data['User']['package_id'] != null && data['User']['package_id'] != 1){
          if(data['User']['payment_status'].toString() == "1"){
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  HomeScreen()));
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  Dashboard()));
          }
          else{
             Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  MakePaymentScreen()));
          }
       }
       else{
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  HomeScreen()));
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  Dashboard()));
       }
 
     } else {
@@ -917,6 +948,7 @@ class _PersonalDetailScreenState extends State<PersonalDetailScreen> {
       });
     });
   }
+
   Future _personaldetailupdatewithoutdoc(String countryid, String stateid, String cityid, String address, String commpref, String kyc, String trustbadge) async{
     print("Without doc");
     SharedPreferences prefs = await SharedPreferences.getInstance();

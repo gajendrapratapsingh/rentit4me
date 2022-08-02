@@ -98,31 +98,29 @@ class _SelectMemberShipScreenState extends State<SelectMemberShipScreen> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return WillPopScope(
+        onWillPop: _willPopCallback,
         child: Scaffold(
           backgroundColor: Colors.white,
           appBar: AppBar(
             backgroundColor: Colors.white,
             elevation: 2.0,
             leading: InkWell(
-                onTap: () {
+                onTap:() {
                   if(pageswitch == "Home"){
-                    Navigator.of(context).pop();
+                     Navigator.of(context).pop();
                   }
                   else{
-                    SystemNavigator.pop();
+                     SystemNavigator.pop();
                   }
                 },
-                child: const Icon(
-                  Icons.arrow_back,
-                  color: kPrimaryColor,
-                )),
-            title: Text("Membership", style: TextStyle(color: kPrimaryColor)),
+                child: const Icon(Icons.arrow_back, color: kPrimaryColor)),
+            title: const Text("Membership", style: TextStyle(color: kPrimaryColor)),
             centerTitle: true,
           ),
           body: ModalProgressHUD(
             inAsyncCall: _loading,
             child: Padding(
-              padding: EdgeInsets.all(7.0),
+              padding: const EdgeInsets.all(7.0),
               child: membershipplanlist.isEmpty || membershipplanlist.length == 0 ? const Center(
                 child: CircularProgressIndicator(),
               ) : ListView.separated(
@@ -132,7 +130,7 @@ class _SelectMemberShipScreenState extends State<SelectMemberShipScreen> {
                 separatorBuilder: (BuildContext context, int index) => const Divider(height: 10, thickness: 0, color: Colors.white),
                 itemBuilder: (BuildContext context, int index) {
                   return Container(
-                    height: 260,
+                    height: size.height * 0.40,
                     width: double.infinity,
                     child: Card(
                       elevation: 8.0,
@@ -141,11 +139,11 @@ class _SelectMemberShipScreenState extends State<SelectMemberShipScreen> {
                       ),
                       child: Column(
                         children: [
-                          const SizedBox(height: 10),
-                          Text(membershipplanlist[index]['name'].toString(), style: TextStyle(color: kPrimaryColor, fontSize: 21, fontWeight: FontWeight.w500)),
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 10.0),
+                          Text(membershipplanlist[index]['name'].toString(), style: const TextStyle(color: kPrimaryColor, fontSize: 21, fontWeight: FontWeight.w500)),
+                          const SizedBox(height: 10.0),
                           Container(
-                            height: 80,
+                            height: size.height * 0.14,
                             width: double.infinity,
                             decoration: const BoxDecoration(
                                 color: Colors.deepOrangeAccent
@@ -167,7 +165,7 @@ class _SelectMemberShipScreenState extends State<SelectMemberShipScreen> {
                           const Text("Ad Limit", style: TextStyle(color: Colors.deepOrangeAccent, fontSize: 14)),
                           Text(membershipplanlist[index]['ad_limit'].toString(), style: TextStyle(color: Colors.black, fontSize: 14)),
                           const SizedBox(height: 5.0),
-                          membershipplanlist[index]['name'].toString() == "Free"  && selectedPack_id != null ? Container(
+                            membershipplanlist[index]['name'].toString() == "Free" && selectedPack_id != "null" ? Container(
                             width: size.width * 0.25,
                             height: 35,
                             alignment: AlignmentDirectional.center,
@@ -175,7 +173,7 @@ class _SelectMemberShipScreenState extends State<SelectMemberShipScreen> {
                                 color: Colors.grey.shade400,
                                 borderRadius: BorderRadius.all(Radius.circular(8.0))
                             ),
-                            child: Text("Get Plan", style: TextStyle(color: Colors.black, fontSize: 14)),
+                            child: const Text("Get Plan", style: TextStyle(color: Colors.black, fontSize: 14)),
                           ) : InkWell(
                             onTap: () {
                               if(pageswitch == "Home") {
@@ -202,7 +200,7 @@ class _SelectMemberShipScreenState extends State<SelectMemberShipScreen> {
                                   color: kPrimaryColor,
                                   borderRadius: BorderRadius.all(Radius.circular(8.0))
                               ),
-                              child: Text("Get Plan", style: TextStyle(color: Colors.white, fontSize: 14)),
+                              child: const Text("Get Plan", style: TextStyle(color: Colors.white, fontSize: 14)),
                             ),
                           )
                         ],
@@ -213,8 +211,7 @@ class _SelectMemberShipScreenState extends State<SelectMemberShipScreen> {
               ),
             ),
           ),
-        ),
-        onWillPop: _willPopCallback);
+        ));
  
   }
 
@@ -260,7 +257,7 @@ class _SelectMemberShipScreenState extends State<SelectMemberShipScreen> {
   Future _getmembershipplan() async {
     var response = await http.get(Uri.parse(BASE_URL+getmembership));
     print(response.body);
-    if (response.statusCode == 200) {
+    if(response.statusCode == 200) {
        setState(() {
            membershipplanlist.addAll(json.decode(response.body)['Response']);
        });

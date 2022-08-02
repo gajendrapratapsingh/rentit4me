@@ -154,14 +154,19 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             )
                           ],
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         InkWell(
                           onTap: () {
-                             if(searchvalue == "Enter txn id" || searchvalue.trim().isEmpty || searchvalue.trim().length == 0){
-                                _paymentlistByDate();
+                             if(searchvalue == "Enter txn id" && startdate == "From Date"){
+                               showToast("Please enter your search or select date");
                              }
                              else{
-                                _paymentlistBySearch();
+                               if(searchvalue == "Enter txn id" || searchvalue.trim().isEmpty || searchvalue.trim().length == 0){
+                                 _paymentlistByDate();
+                               }
+                               else{
+                                 _paymentlistBySearch();
+                               }
                              }
                           },
                           child: Card(
@@ -177,7 +182,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                   color: Colors.deepOrangeAccent,
                                   borderRadius: BorderRadius.all(Radius.circular(8.0))
                               ),
-                              child: Text("Filter", style: TextStyle(color: Colors.white)),
+                              child: const Text("Filter", style: TextStyle(color: Colors.white)),
                             ),
                           ),
                         )

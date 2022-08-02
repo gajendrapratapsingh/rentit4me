@@ -53,7 +53,7 @@ class _OrderRecievedScreenState extends State<OrderRecievedScreen> {
               Navigator.of(context).pop();
             },
             child: const Icon(Icons.arrow_back, color: kPrimaryColor)),
-        title: Text("Recieve Orders", style: TextStyle(color: kPrimaryColor)),
+        title: Text("Orders Received", style: TextStyle(color: kPrimaryColor)),
         centerTitle: true,
       ),
       body: ModalProgressHUD(
@@ -160,11 +160,16 @@ class _OrderRecievedScreenState extends State<OrderRecievedScreen> {
                         SizedBox(height: 10),
                         InkWell(
                           onTap: () {
-                             if(searchvalue == "Enter order id" || searchvalue.length == 0 || searchvalue.isEmpty){
-                                _myrecievedorderslistByDate();
+                             if(searchvalue == "Enter order id" && startdate == "From Date"){
+                               showToast("Please enter your search or select date");
                              }
                              else{
-                                _myrecievedorderslistBySearch();
+                               if(searchvalue == "Enter order id" || searchvalue.length == 0 || searchvalue.isEmpty){
+                                 _myrecievedorderslistByDate();
+                               }
+                               else{
+                                 _myrecievedorderslistBySearch();
+                               }
                              }
                           },
                           child: Card(
@@ -180,7 +185,7 @@ class _OrderRecievedScreenState extends State<OrderRecievedScreen> {
                                   color: Colors.deepOrangeAccent,
                                   borderRadius: BorderRadius.all(Radius.circular(8.0))
                               ),
-                              child: Text("Filter", style: TextStyle(color: Colors.white)),
+                              child: const Text("Filter", style: TextStyle(color: Colors.white)),
                             ),
                           ),
                         )
@@ -188,7 +193,7 @@ class _OrderRecievedScreenState extends State<OrderRecievedScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
                 Container(
                    height: size.height * 0.50,
                    child: ListView.separated(
@@ -202,7 +207,7 @@ class _OrderRecievedScreenState extends State<OrderRecievedScreen> {
                            showDialog(
                                 context: context,
                                 builder: (_) => AlertDialog(
-                                title: Text('Detail Information'),
+                                title: const Text('Detail Information'),
                                 content: SingleChildScrollView(child:  Column(children: [
                                     Card(
                                       color: Colors.grey[100],
@@ -298,167 +303,156 @@ class _OrderRecievedScreenState extends State<OrderRecievedScreen> {
                          child: Card(
                             elevation: 4.0,
                             child: Padding(
-                              padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
-                              child: ListTile(
-                                 title: InkWell(
-                                   onTap: (){
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => OrderDetailScreen(orderid: myactiveorderslist[index]['id'].toString())));
-                                   },
-                                   child:  Text("Order Id : " + myactiveorderslist[index]['order_id'].toString()),
-                                 ),
-                                 subtitle: Column(
-                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                   children: [
-                                      Text("Product : "+myactiveorderslist[index]['title'].toString()),
-                                      SizedBox(height: 5),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text("Qty: "+myactiveorderslist[index]['quantity'].toString()),
-                                          Text("Period: "+myactiveorderslist[index]['period'].toString()),
-                                          Text("Rent type: "+myactiveorderslist[index]['rent_type_name'].toString()),
-                                      ]),
-                                      SizedBox(height: 10.0),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                           Container(
-                                             height: 40,
-                                             width: 80,
-                                             alignment: Alignment.center,
-                                             decoration: BoxDecoration(
-                                                color: Colors.deepOrangeAccent,
-                                                borderRadius: BorderRadius.circular(8.0)
-                                             ),
-                                             child: myactiveorderslist[index]["scheduler_pickup"].toString() == "0" ? Text("Self Driver", textAlign: TextAlign.center, style: TextStyle(color: Colors.white)) : Text("Schedular Pickup", textAlign: TextAlign.center, style: TextStyle(color: Colors.white)),
-                                           ),
-                                           Container(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                 crossAxisAlignment: CrossAxisAlignment.start,
+                                 mainAxisAlignment: MainAxisAlignment.start,
+                                 children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        InkWell(
+                                          onTap: (){
+                                            Navigator.push(context, MaterialPageRoute(builder: (context) => OrderDetailScreen(orderid: myactiveorderslist[index]['id'].toString())));
+                                          },
+                                          child: Text("Order Id : ${myactiveorderslist[index]['order_id']}", style: TextStyle(color: kPrimaryColor, fontWeight: FontWeight.w500)),
+                                        ),
+                                        myactiveorderslist[index]["offer_status"].toString() == "1" ? InkWell(
+                                          onTap: (){
+
+                                          },
+                                          child: Container(
+                                            padding: EdgeInsets.all(4.0),
+                                            decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.all(Radius.circular(4.0)),
+                                                border: Border.all(color: Colors.blue)
+                                            ),
+                                            child: const Text("Action", style: TextStyle(color: Colors.blue)),
+                                          ),
+                                        ) : _getaction(myactiveorderslist[index]["offer_status"].toString()),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 5.0),
+                                    Text("Product : ${myactiveorderslist[index]['title']}"),
+                                    const SizedBox(height: 5.0),
+                                    Row(
+                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                       children: [
+                                         Text("Qty: ${myactiveorderslist[index]['quantity']}"),
+                                         Text("Duration: ${myactiveorderslist[index]['period']}"),
+                                         Text("Rent type: ${myactiveorderslist[index]['rent_type_name']}"),
+                                       ]
+                                    ),
+                                    const SizedBox(height: 10.0),
+                                    Row(
+                                      children: [
+                                        const Text("Delivery Type :", style: TextStyle(color: Colors.black, fontSize: 14)),
+                                        const SizedBox(width: 4.0),
+                                        myactiveorderslist[index]["scheduler_pickup"].toString() == "0" ? const Text("Self Deliver", textAlign: TextAlign.center, style: TextStyle(color: Colors.black)) : const Text("Schedular Pickup", textAlign: TextAlign.center, style: TextStyle(color: Colors.black)),
+                                        const SizedBox(width: 12.0),
+                                        Expanded(child: _getStatus(myactiveorderslist[index]["status"].toString()) == "Respond" ? InkWell(
+                                          onTap: (){
+                                            showDialog(
+                                                context: context,
+                                                barrierDismissible: false,
+                                                builder: (context)=> StatefulBuilder(
+                                                    builder: (context, setState){
+                                                      return AlertDialog(
+                                                        title: const Text("Response", style: TextStyle(color: Colors.deepOrangeAccent)),
+                                                        content: Container(
+                                                          child: SingleChildScrollView(
+                                                              child: Column(children: [
+                                                                DropdownButtonHideUnderline(
+                                                                  child: DropdownButton<String>(
+                                                                    hint: const Text("Select", style: TextStyle(color: Colors.black, fontSize: 18)),
+                                                                    value: response,
+                                                                    elevation: 16,
+                                                                    isExpanded: true,
+                                                                    style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
+                                                                    onChanged: (String data) {
+                                                                      setState(() {
+                                                                        if(data.toString() == "Cancel"){
+                                                                          responsevalue = "cancelled";
+                                                                          response = data.toString();
+                                                                        }
+                                                                        else if(data.toString() == "Self Delivered"){
+                                                                          responsevalue = "delivered";
+                                                                          response = data.toString();
+                                                                        }
+                                                                        else{
+                                                                          responsevalue = "scheduler pickup";
+                                                                          response = data.toString();
+                                                                        }
+                                                                      });
+                                                                    },
+                                                                    items: responselist.map<DropdownMenuItem<String>>((String value) {
+                                                                      return DropdownMenuItem<String>(
+                                                                        value: value,
+                                                                        child: Text(value),
+                                                                      );
+                                                                    }).toList(),
+                                                                  ),
+                                                                ),
+                                                                const SizedBox(height: 2),
+                                                                const Divider(height: 1, color: Colors.grey, thickness: 1),
+                                                                const SizedBox(height: 25),
+                                                                InkWell(onTap:() {
+                                                                  if(responsevalue == null || responsevalue == "" || responsevalue == "null"){
+                                                                    showToast("Please select your response");
+                                                                  }
+                                                                  else{
+                                                                    _submitrespond(myactiveorderslist[index]["id"].toString(), responsevalue);
+                                                                  }
+                                                                },
+                                                                  child: Container(
+                                                                    height: 45,
+                                                                    width: double.infinity,
+                                                                    alignment: Alignment.center,
+                                                                    decoration: const BoxDecoration(
+                                                                        color: Colors.deepOrangeAccent,
+                                                                        borderRadius: BorderRadius.all(Radius.circular(8.0))
+                                                                    ),
+                                                                    child: Text("Submit", style: TextStyle(color: Colors.white)),
+                                                                  ),
+                                                                )
+                                                              ])
+                                                          ),
+                                                        ),
+                                                      );
+                                                    }
+                                                )
+                                            );
+                                          },
+                                          child: Container(
                                             height: 40,
-                                            width: 90,
+                                            width: 80,
                                             alignment: Alignment.center,
                                             decoration: BoxDecoration(
-                                                color: Colors.deepPurpleAccent,
+                                                color: kPrimaryColor,
                                                 borderRadius: BorderRadius.circular(8.0)
                                             ),
-                                            child: Text(_getStatus(myactiveorderslist[index]["status"].toString()), textAlign: TextAlign.center, style: TextStyle(color: Colors.white)),
+                                            child: Text(_getStatus(myactiveorderslist[index]["status"].toString()), style: TextStyle(color: Colors.white)),
+                                          ),
+                                        ) : InkWell(
+                                          onTap:(){
+                                            if(_getStatus(myactiveorderslist[index]["status"].toString()) == "Recieved"){
+                                              _confirmation(context, myactiveorderslist[index]["id"].toString());
+                                            }
+                                          },
+                                          child: Container(
+                                            height: 40,
+                                            width: 80,
+                                            alignment: Alignment.center,
+                                            decoration: BoxDecoration(
+                                                color: Colors.lightGreen,
+                                                borderRadius: BorderRadius.circular(8.0)
                                             ),
-                                              _getStatus(myactiveorderslist[index]["status"].toString()) == "Respond" ? InkWell(
-                                               onTap:(){
-                                                 showDialog(
-                                                    context: context,
-                                                    barrierDismissible: false,
-                                                    builder: (context)=> StatefulBuilder(
-                                                        builder: (context, setState){
-                                                          return AlertDialog(
-                                                            title: Text("Response", style: TextStyle(color: Colors.deepOrangeAccent)),
-                                                            content: Container(
-                                                              child: SingleChildScrollView(
-                                                                  child: Column(children: [
-                                                                    DropdownButtonHideUnderline(
-                                                                      child: DropdownButton<String>(
-                                                                        hint: Text("Select", style: TextStyle(color: Colors.black, fontSize: 18)),
-                                                                        value: response,
-                                                                        elevation: 16,
-                                                                        isExpanded: true,
-                                                                        style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
-                                                                        onChanged: (String data) {
-                                                                          setState(() {
-                                                                            if(data.toString() == "Cancel"){
-                                                                              responsevalue = "cancelled";
-                                                                              response = data.toString();
-                                                                            }
-                                                                            else if(data.toString() == "Self Delivered"){
-                                                                              responsevalue = "delivered";
-                                                                              response = data.toString();
-                                                                            }
-                                                                            else{
-                                                                              responsevalue = "scheduler pickup";
-                                                                              response = data.toString();
-                                                                            }
-                                                                          });
-                                                                        },
-                                                                        items: responselist.map<DropdownMenuItem<String>>((String value) {
-                                                                          return DropdownMenuItem<String>(
-                                                                            value: value,
-                                                                            child: Text(value),
-                                                                          );
-                                                                        }).toList(),
-                                                                      ),
-                                                                    ),
-                                                                    const SizedBox(height: 2),
-                                                                    const Divider(height: 1, color: Colors.grey, thickness: 1),
-                                                                    const SizedBox(height: 25),
-                                                                    InkWell(onTap:() {
-                                                                      if(responsevalue == null || responsevalue == "" || responsevalue == "null"){
-                                                                        showToast("Please select your response");
-                                                                      }
-                                                                      else{
-                                                                         _submitrespond(myactiveorderslist[index]["id"].toString(), responsevalue);
-                                                                      }
-                                                                    },
-                                                                      child: Container(
-                                                                        height: 45,
-                                                                        width: double.infinity,
-                                                                        alignment: Alignment.center,
-                                                                        decoration: const BoxDecoration(
-                                                                            color: Colors.deepOrangeAccent,
-                                                                            borderRadius: BorderRadius.all(Radius.circular(8.0))
-                                                                        ),
-                                                                        child: Text("Submit", style: TextStyle(color: Colors.white)),
-                                                                      ),
-                                                                    )
-                                                                  ])
-                                                              ),
-                                                            ),
-                                                          );
-                                                        }
-                                                    )
-                                                );
-                                             },
-                                            child: Container(
-                                              height: 40,
-                                              width: 80,
-                                              alignment: Alignment.center,
-                                              decoration: BoxDecoration(
-                                                  color: kPrimaryColor,
-                                                  borderRadius: BorderRadius.circular(8.0)
-                                              ),
-                                              child: Text(_getStatus(myactiveorderslist[index]["status"].toString()), style: TextStyle(color: Colors.white)),
-                                            ),
-                                          ) : InkWell(
-                                            onTap:(){
-                                               if(_getStatus(myactiveorderslist[index]["status"].toString()) == "Recieved"){
-                                                   _confirmation(context, myactiveorderslist[index]["id"].toString());
-                                               }
-                                            },
-                                            child: Container(
-                                                height: 40,
-                                                width: 80,
-                                                alignment: Alignment.center,
-                                                decoration: BoxDecoration(
-                                                    color: Colors.lightGreen,
-                                                    borderRadius: BorderRadius.circular(8.0)
-                                                ),
-                                                child: Text(_getStatus(myactiveorderslist[index]["status"].toString()), style: TextStyle(color: Colors.white)),
-                                              ),
-                                          )
-                                       ],
-                                     )
-                                   ],
-                                 ),
-                                 trailing: myactiveorderslist[index]["offer_status"].toString() == "1" ? InkWell(
-                                      onTap: (){
-                                          
-                                      }, 
-                                      child: Container(
-                                         padding: EdgeInsets.all(4.0),
-                                         decoration: BoxDecoration(
-                                           borderRadius: BorderRadius.all(Radius.circular(4.0)),
-                                           border: Border.all(color: Colors.blue)
-                                        ),
-                                        child: Text("Action", style: TextStyle(color: Colors.blue)),
-                                      ), 
-                                 ) : _getaction(myactiveorderslist[index]["offer_status"].toString()),
+                                            child: Text(_getStatus(myactiveorderslist[index]["status"].toString()), style: TextStyle(color: Colors.white)),
+                                          ),
+                                        ))
+                                      ],
+                                    )
+                                 ],
                               ),
                             ),
                          ),
@@ -727,6 +721,7 @@ class _OrderRecievedScreenState extends State<OrderRecievedScreen> {
       if(jsonDecode(response.body)['ErrorCode'].toString() == "0"){
         Navigator.of(context, rootNavigator: true).pop('dialog');
         showToast(jsonDecode(response.body)['ErrorMessage'].toString());
+        _myrecievedorderslist();
       }
       else {
         Navigator.of(context, rootNavigator: true).pop('dialog');

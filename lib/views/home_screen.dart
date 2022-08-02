@@ -3,11 +3,10 @@ import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:rentit4me/helper/dialog_helper.dart';
@@ -32,19 +31,27 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   // Initial Selected Value
 
+  final TextEditingController typeAheadController = TextEditingController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   String locationvalue;
   String categoryvalue;
 
+  String selectedCity = "Location";
+
   final List<dynamic> myProducts = [];
   final List<dynamic> mytopcategories = [];
+  List mytopcategorieslistData = [];
   final List<dynamic> featuredname = [];
   final List<dynamic> mytopcategoriesname = [];
   final List<dynamic> myfeaturedcategories = [];
+  final List<dynamic> mysubfeaturedcategories = [];
 
   List<dynamic> location = [];
   List<dynamic> category = [];
+  List<dynamic> categorylistData = [];
+  List<dynamic> categoryslug = [];
+  String categoryslugname;
   List<dynamic> images = [];
 
   List<dynamic> likedadproductlist = [];
@@ -67,12 +74,9 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _counter++;
     });
-    flutterLocalNotificationsPlugin.show(
-        0,
+    flutterLocalNotificationsPlugin.show(0,
         "Testing $_counter",
-        "How you doin ?",
-        NotificationDetails(
-            android: AndroidNotificationDetails(channel.id, channel.name,
+        "How you doing?", NotificationDetails(android: AndroidNotificationDetails(channel.id, channel.name,
                 importance: Importance.high,
                 color: Colors.blue,
                 playSound: true,
@@ -90,49 +94,50 @@ class _HomeScreenState extends State<HomeScreen> {
     _getData();
     _getprofileData();
 
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      RemoteNotification notification = message.notification;
-      AndroidNotification android = message.notification?.android;
-      if (notification != null && android != null) {
-        flutterLocalNotificationsPlugin.show(
-            notification.hashCode,
-            notification.title.toString(),
-            notification.body.toString(),
-            NotificationDetails(
-              android: AndroidNotificationDetails(
-                channel.id,
-                channel.name,
-                color: Colors.blue,
-                playSound: true,
-                icon: '@mipmap/ic_launcher',
-                fullScreenIntent: true,
-              ),
-            ),
-            payload: "");
-      }
-    });
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
-      print("onMessageOpenedApp");
-      RemoteNotification notification = message.notification;
-      AndroidNotification android = message.notification?.android;
-      if (notification != null && android != null) {
-        flutterLocalNotificationsPlugin.show(
-            notification.hashCode,
-            notification.title,
-            notification.body,
-            NotificationDetails(
-              android: AndroidNotificationDetails(
-                channel.id,
-                channel.name,
-                color: Colors.blue,
-                playSound: true,
-                icon: '@mipmap/ic_launcher',
-                fullScreenIntent: true,
-              ),
-            ),
-            payload: "");
-      }
-    });
+    // FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+    //   RemoteNotification notification = message.notification;
+    //   AndroidNotification android = message.notification?.android;
+    //   if (notification != null && android != null) {
+    //     flutterLocalNotificationsPlugin.show(
+    //         notification.hashCode,
+    //         notification.title.toString(),
+    //         notification.body.toString(),
+    //         NotificationDetails(
+    //           android: AndroidNotificationDetails(
+    //             channel.id,
+    //             channel.name,
+    //             color: Colors.blue,
+    //             playSound: true,
+    //             icon: '@mipmap/ic_launcher',
+    //             fullScreenIntent: true,
+    //           ),
+    //         ),
+    //         payload: "");
+    //   }
+    // });
+
+    // FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
+    //   print("onMessageOpenedApp");
+    //   RemoteNotification notification = message.notification;
+    //   AndroidNotification android = message.notification?.android;
+    //   if (notification != null && android != null) {
+    //     flutterLocalNotificationsPlugin.show(
+    //         notification.hashCode,
+    //         notification.title,
+    //         notification.body,
+    //         NotificationDetails(
+    //           android: AndroidNotificationDetails(
+    //             channel.id,
+    //             channel.name,
+    //             color: Colors.blue,
+    //             playSound: true,
+    //             icon: '@mipmap/ic_launcher',
+    //             fullScreenIntent: true,
+    //           ),
+    //         ),
+    //         payload: "");
+    //   }
+    // });
 
     _getlocationbyUserlocation();
   }
@@ -160,20 +165,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                   content: const Text("Are you sure you want to exit.",
-                      style: TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.w500)),
+                      style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500)),
                   actionsAlignment: MainAxisAlignment.spaceAround,
                   actions: [
                     ElevatedButton(
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
-                        child: Text("Cancel")),
+                        child: const Text("Cancel")),
                     ElevatedButton(
                         onPressed: () {
                           SystemNavigator.pop();
                         },
-                        child: Text("Confirm"))
+                        child: const Text("Confirm"))
                   ],
                 ));
       },
@@ -192,7 +196,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       onPressed: () async {
                         _scaffoldKey.currentState.openDrawer();
                       },
-                      icon: Icon(Icons.menu, color: kPrimaryColor)),
+                      icon: const Icon(Icons.menu, color: kPrimaryColor)),
                   //SizedBox(width: 2),
                   //Image.asset('assets/images/logo.png', scale: 45),
                 ],
@@ -215,17 +219,16 @@ class _HomeScreenState extends State<HomeScreen> {
               ? Container(
                   height: size.height,
                   width: size.width,
-                  child: Center(child: CircularProgressIndicator()))
+                  child: const Center(child: CircularProgressIndicator()))
               : Column(
                   children: [
                     Padding(padding: EdgeInsets.all(7.0),
                       child: Container(
-                          margin: EdgeInsets.only(top: 5),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 0, horizontal: 16),
+                          margin: const EdgeInsets.only(top: 5),
+                          padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
                           decoration: BoxDecoration(
                             color: Colors.indigo.shade50,
-                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                            borderRadius: const BorderRadius.all(Radius.circular(5)),
                           ),
                           child: Row(
                             children: <Widget>[
@@ -244,57 +247,49 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               ElevatedButton(
                                 onPressed:() async {
-                                  if (searchController.text.length == 0) {
+                                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                                  if(searchController.text.length == 0) {
                                      showToast("Please enter your search");
                                   } else {
                                     showLaoding(context);
                                     FocusScope.of(context).unfocus();
-                                    SharedPreferences prefs = await SharedPreferences.getInstance();
-                                    var response = await http.post(
-                                        Uri.parse(BASE_URL + search),
+                                    var response = await http.post(Uri.parse(BASE_URL + filterUrl),
                                         body: jsonEncode({
-                                          "search": searchController.text.toString()
+                                          "search": "",
+                                          "country" : prefs.getString('country'),
+                                          "state" : prefs.getString('state'),
+                                          "city" : prefs.getString('city'),
+                                          "q" : searchController.text.toString(),
                                         }),
                                         headers: {
                                           "Accept": "application/json",
                                           'Content-Type': 'application/json'
-                                        });
+                                    });
                                     Navigator.of(context, rootNavigator: true).pop();
                                     if(jsonDecode(response.body)['ErrorCode'] == 0) {
                                        if(jsonDecode(response.body)['ErrorMessage'].toString() == "success"){
                                          List temp = [];
                                          temp.clear();
-                                         temp.addAll(jsonDecode(response.body)['Response']);
+                                         temp.addAll(jsonDecode(response.body)['Response']['leads']);
                                          setState((){
                                             searchController.text = "";
                                          });
+                                         print(response.body);
                                          await showDialog(
                                              context: context,
                                              builder: (context) => AlertDialog(
-                                               title: Text("Search Result"),
+                                               title: const Text("Search Result"),
                                                content: SizedBox(
                                                  height: MediaQuery.of(context).size.height / 3.0,
                                                  child: ListView(
-                                                   children: temp
-                                                       .map((e) => ListTile(
+                                                   children: temp.map((e) => ListTile(
                                                      dense: true,
-                                                     title: Text(e[
-                                                     'title']
-                                                         .toString()),
+                                                     title: Text(e['title'].toString()),
                                                      onTap: () {
-                                                       Navigator.push(
-                                                           context,
-                                                           MaterialPageRoute(
-                                                               builder: (context) =>
-                                                                   ProductDetailScreen(
-                                                                     productid: e['id'].toString(),
-                                                                   ))).then((value) =>
-                                                           Navigator.of(
-                                                               context)
-                                                               .pop());
+                                                       Navigator.push(context, MaterialPageRoute(builder: (context) => UserfinderDataScreen(getlocation: locationvalue, getcategory: categoryvalue, getcategoryslug: categoryslugname, data: temp)));
+                                                       //Navigator.push(context, MaterialPageRoute(builder: (context) => ProductDetailScreen(productid: e['id'].toString()))).then((value) => Navigator.of(context).pop());
                                                      },
-                                                   ))
-                                                       .toList(),
+                                                   )).toList(),
                                                  ),
                                                ),
                                              ));
@@ -314,7 +309,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     }
                                   }
                                 },
-                                child: Text("Search"),
+                                child: const Text("Search"),
                                 style: ButtonStyle(
                                     shape: MaterialStateProperty.all(
                                         RoundedRectangleBorder(
@@ -328,7 +323,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: MediaQuery.of(context).size.height * 0.22,
                       width: double.infinity,
                       child: images.length == 0 || images.isEmpty
-                          ? Center(child: CircularProgressIndicator())
+                          ? const Center(child: CircularProgressIndicator())
                           : Carousel(
                               dotSpacing: 15.0,
                               dotSize: 6.0,
@@ -336,14 +331,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               dotBgColor: Colors.transparent,
                               indicatorBgPadding: 10.0,
                               dotPosition: DotPosition.bottomCenter,
-                              images: images
-                                  .map((item) => Container(
-                                        child: CachedNetworkImage(
-                                          imageUrl: item,
-                                          fit: BoxFit.fill,
-                                        ),
-                                      ))
-                                  .toList(),
+                              images: images.map((item) => Container(child: CachedNetworkImage(imageUrl: item, fit: BoxFit.fill))).toList(),
                             ),
                     ),
                     Padding(
@@ -353,37 +341,33 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Container(
                             height: 35,
-                            width: size.width * 0.32,
-                            decoration: BoxDecoration(
-                                color: Colors.indigo.shade100,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(8))),
+                            width: size.width * 0.38,
                             alignment: Alignment.center,
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8.0),
-                              child: DropdownButton(
-                                value: locationvalue,
-                                hint: const Text("Location", style: TextStyle(color: kPrimaryColor, fontSize: 12)),
-                                isExpanded: true,
-                                underline: Container(
-                                  height: 0,
-                                  color: Colors.deepPurpleAccent,
-                                ),
-                                icon: const Visibility(visible: true, child: Icon(Icons.arrow_drop_down_sharp, size: 20, color: kPrimaryColor)),
-                                items: location.map((items) {
-                                  return DropdownMenuItem(
-                                    value: items,
-                                    child: Text(items, style: const TextStyle(color: kPrimaryColor, fontSize: 12)),
-                                  );
-                                }).toList(),
-                                // After selecting the desired option,it will
-                                // change button value to selected value
-                                onChanged: (newValue) {
-                                  setState(() {
-                                    locationvalue = newValue;
-                                  });
-                                },
+                            child: TypeAheadField(
+                              //hideOnLoading: false,
+                              textFieldConfiguration: TextFieldConfiguration(
+                                  //autofocus: false,
+                                  controller: typeAheadController,
+                                  decoration: InputDecoration(
+                                      contentPadding: const EdgeInsets.only(left: 5.0, top: 5.0),
+                                      hintText: locationvalue == null ? "Search City" : locationvalue,
+                                      border: const OutlineInputBorder()
+                                  ),
                               ),
+                              suggestionsCallback: (pattern) async {
+                                return await _getAllCity(pattern);
+                              },
+                              itemBuilder: (context, suggestion) {
+                                return ListTile(
+                                  title: Text(suggestion),
+                                );
+                              },
+                              onSuggestionSelected: (suggestion) {
+                                typeAheadController.text = suggestion;
+                                setState((){
+                                   locationvalue = suggestion;
+                                });
+                              },
                             ),
                           ),
                           Container(
@@ -401,7 +385,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                 value: categoryvalue,
                                 isExpanded: true,
                                 underline: Container(
-                                  height: 0,
                                   color: Colors.deepPurpleAccent,
                                 ),
                                 icon: const Visibility(visible: true, child: Icon(Icons.arrow_drop_down_sharp, size: 20, color: kPrimaryColor)),
@@ -418,6 +401,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                 onChanged: (newValue) {
                                   setState(() {
                                     categoryvalue = newValue;
+                                    categorylistData.forEach((element) {
+                                        if(element['title'].toString() == categoryvalue){
+                                           categoryslugname = element['slug'].toString();
+                                        }
+                                    });
                                   });
                                 },
                               ),
@@ -426,13 +414,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           InkWell(
                             onTap: () {
                                if(locationvalue == null && categoryvalue != null){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => UserfinderDataScreen(getlocation: locationvalue, getcategory: categoryvalue, data: [])));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => UserfinderDataScreen(getlocation: locationvalue, getcategory: categoryvalue, getcategoryslug: categoryslugname, data: [])));
                                }
                                else if(locationvalue != null && categoryvalue == null){
-                                 Navigator.push(context, MaterialPageRoute(builder: (context) => UserfinderDataScreen(getlocation: locationvalue, getcategory: categoryvalue, data: [])));
+                                 Navigator.push(context, MaterialPageRoute(builder: (context) => UserfinderDataScreen(getlocation: locationvalue, getcategory: categoryvalue, getcategoryslug: categoryslugname, data: [])));
                                }
                                else if(locationvalue != null && categoryvalue != null){
-                                 Navigator.push(context, MaterialPageRoute(builder: (context) => UserfinderDataScreen(getlocation: locationvalue, getcategory: categoryvalue, data: [])));
+                                 Navigator.push(context, MaterialPageRoute(builder: (context) => UserfinderDataScreen(getlocation: locationvalue, getcategory: categoryvalue, getcategoryslug: categoryslugname, data: [])));
                                }
                                else{
                                  showToast("Please select location or category");
@@ -466,9 +454,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 color: Colors.deepOrangeAccent, fontSize: 14)),
                       ),
                     ),
-                    Padding(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                    Padding(padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                       child: myProducts.length == 0 || myProducts.isEmpty
                           ? Center(child: CircularProgressIndicator())
                           : GridView.builder(
@@ -481,16 +467,33 @@ class _HomeScreenState extends State<HomeScreen> {
                                 return InkWell(
                                   onTap:() async {
                                     showLaoding(context);
-                                    var response = await http.post(Uri.parse(BASE_URL + categoryclick),
-                                        body: jsonEncode({"category": category[index].toLowerCase()
+                                    categorylistData.forEach((element) {
+                                        if(element['title'].toString() == category[index].toString()){
+                                           setState((){
+                                             categoryslugname = element['slug'].toString();
+                                           });
+                                        }
+                                    });
+                                    print(jsonEncode({
+                                      "city_name": locationvalue,
+                                      "category": categoryslugname,
+                                      "exclude": "1",
+                                      "search" : ""
+                                    }));
+                                    var response = await http.post(Uri.parse(BASE_URL + filterUrl),
+                                        body: jsonEncode({
+                                               "city_name": locationvalue,
+                                               "category": categoryslugname,
+                                               "exclude": "1",
+                                               "search" : ""
                                         }),
                                         headers: {
                                           "Accept": "application/json",
                                           'Content-Type': 'application/json'
-                                        });
+                                    });
                                     Navigator.of(context, rootNavigator: true).pop();
-                                    if (jsonDecode(response.body)['ErrorCode'] == 0) {
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => UserfinderDataScreen(getlocation: locationvalue, getcategory: categoryvalue, data: jsonDecode(response.body)['Response'])));
+                                    if(jsonDecode(response.body)['ErrorCode'] == 0) {
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => UserfinderDataScreen(getlocation: locationvalue, getcategory: category[index].toString(), getcategoryslug: categoryslugname, data: jsonDecode(response.body)['Response']['leads'])));
                                     } else {
                                       Fluttertoast.showToast(msg: "No result found", gravity: ToastGravity.CENTER);
                                     }
@@ -512,7 +515,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           padding: const EdgeInsets.all(2.0),
                                           child: Text(category[index],
                                               textAlign: TextAlign.center,
-                                              style: TextStyle(color: Colors.black, fontSize: 12)),
+                                              style: const TextStyle(color: Colors.black, fontSize: 12)),
                                         ),
                                       ),
                                       child: ClipRRect(
@@ -534,7 +537,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 );
                               }),
                     ),
-                    Padding(padding: EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+                    Padding(padding: const EdgeInsets.symmetric(vertical: 10),
                       child: Align(
                         alignment: Alignment.center,
                         child: InkWell(
@@ -560,72 +563,56 @@ class _HomeScreenState extends State<HomeScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                              Container(
-                               height: MediaQuery.of(context).size.height * 0.15,
+                               height: MediaQuery.of(context).size.height * 0.40,
                                width: MediaQuery.of(context).size.width,
                                child: Padding(
-                                 padding: const EdgeInsets.only(left: 10.0, top: 10.0, right: 10.0, bottom: 10.0),
-                                 child: ClipRRect(
-                                   borderRadius:
-                                   BorderRadius.all(Radius.circular(8.0)),
+                                 padding: const EdgeInsets.only(left: 10.0, top: 10.0, right: 10.0, bottom: 0.0),
+                                 child: ClipRRect(borderRadius: const BorderRadius.all(Radius.circular(0.0)),
                                    child: CachedNetworkImage(
                                      imageUrl: todaydealsimage1,
-                                     fit: BoxFit.fitWidth,
+                                     fit: BoxFit.fill,
                                    ),
                                  ),
                                ),
                              ),
-                             Column(
-                               children: [
-                                 Container(
-                                   height: MediaQuery.of(context).size.height * 0.15,
-                                   width: MediaQuery.of(context).size.width,
-                                   child: Padding(
-                                     padding: const EdgeInsets.only(left: 5.0, top: 10.0, right: 10.0, bottom: 10.0),
-                                     child: ClipRRect(
-                                       borderRadius:
-                                       BorderRadius.all(Radius.circular(8.0)),
-                                       child: CachedNetworkImage(
-                                         imageUrl: todaydealsimage2,
-                                         fit: BoxFit.fill,
-                                       ),
+                             Container(
+                              height: MediaQuery.of(context).size.height * 0.23,
+                              width: MediaQuery.of(context).size.width,
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 10.0, top: 10.0, right: 10.0, bottom: 5.0),
+                                child: ClipRRect(borderRadius: const BorderRadius.all(Radius.circular(0.0)),
+                                  child: CachedNetworkImage(
+                                    imageUrl: todaydealsimage2,
+                                    fit: BoxFit.fill,
+                                  ),
+                                ),
+                              ),
+                            ),
+                             Container(
+                               height: MediaQuery.of(context).size.height * 0.23,
+                               width: MediaQuery.of(context).size.width,
+                               padding: const EdgeInsets.only(left: 10.0, top: 5.0, right: 10.0, bottom: 10.0),
+                               child: Row(
+                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                 children: [
+                                    Container(
+                                      height: MediaQuery.of(context).size.height * 0.21,
+                                      width: MediaQuery.of(context).size.width * 0.45,
+                                      child: CachedNetworkImage(
+                                        imageUrl: todaydealsimage3,
+                                        fit: BoxFit.fill,
+                                      ),
+                                    ),
+                                    Container(
+                                     height: MediaQuery.of(context).size.height * 0.21,
+                                     width: MediaQuery.of(context).size.width * 0.45,
+                                     child: CachedNetworkImage(
+                                       imageUrl: todaydealsimage4,
+                                       fit: BoxFit.fill,
                                      ),
                                    ),
-                                 ),
-                                 Row(
-                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                   children: [
-                                     SizedBox(
-                                       height: 150,
-                                       child: Padding(
-                                         padding: const EdgeInsets.only(left: 0.0, top: 0.0, right: 0.0, bottom: 0.0),
-                                           child: ClipRRect(
-                                             borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                                             child: Image.network(
-                                               todaydealsimage3,
-                                               scale: 2,
-                                             ),
-
-                                         ),
-                                       ),
-                                     ),
-                                     SizedBox(
-                                       height: 150,
-                                       child: Padding(
-
-                                         padding: const EdgeInsets.only(left: 0.0, top: 0.0, right: 0.0, bottom: 0.0),
-                                        child: ClipRRect(
-                                           borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                                           child: Image.network(
-                                             todaydealsimage4,
-                                             scale: 2,
-                                           ),
-
-                                         )
-                                       ),
-                                     ),
-                                   ],
-                                 )
-                               ],
+                                 ],
+                               ),
                              )
                           ],
                        ),
@@ -641,8 +628,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 fontWeight: FontWeight.w700)),
                       ),
                     ),
-                    likedadproductlist.isEmpty || likedadproductlist.length == 0 ? SizedBox() : Padding(
-                        padding: EdgeInsets.only(left: 15, top: 10, right: 15),
+                        likedadproductlist.isEmpty || likedadproductlist.length == 0 ? SizedBox() : Padding(padding: EdgeInsets.only(left: 15, top: 10, right: 15),
                         child: likedadproductlist.length == 0 ? SizedBox(height: 0) : GridView.builder(
                             shrinkWrap: true,
                             itemCount: likedadproductlist.length,
@@ -651,75 +637,58 @@ class _HomeScreenState extends State<HomeScreen> {
                                 crossAxisCount: 2,
                                 crossAxisSpacing: 4.0,
                                 mainAxisSpacing: 4.0,
-                                childAspectRatio: 0.9),
+                                childAspectRatio: 1.0),
                             itemBuilder: (context, index) {
-                              return Card(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4.0),
-                                ),
-                                child: Column(
-                                  children: [
-                                    CachedNetworkImage(
-                                      height: 80,
-                                      width: double.infinity,
-                                      placeholder: (context, url) =>
-                                          Image.asset('assets/images/no_image.jpg'),
-                                      errorWidget: (context, url, error) =>
-                                          Image.asset('assets/images/no_image.jpg'),
-                                      fit: BoxFit.cover,
-                                      imageUrl: "https://dev.techstreet.in/rentit4me/public/assets/frontend/images/listings/" + likedadproductlist[index]['file_name'].toString(),
-                                    ),
-                                    SizedBox(height: 5.0),
-                                    Padding(
-                                      padding: EdgeInsets.only(left: 5.0, right: 15.0),
-                                      child: Align(
-                                        alignment: Alignment.topLeft,
-                                        child: Text(
-                                            likedadproductlist[index]['title'].toString(),
-                                            maxLines: 1,
-                                            style: TextStyle(
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.w700,
-                                                fontSize: 16)),
+                              return InkWell(
+                                onTap: (){
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => ProductDetailScreen(productid: likedadproductlist[index]['id'].toString())));
+                                },
+                                child: Card(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(4.0),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      CachedNetworkImage(
+                                        height: 80,
+                                        width: double.infinity,
+                                        placeholder: (context, url) =>
+                                            Image.asset('assets/images/no_image.jpg'),
+                                        errorWidget: (context, url, error) =>
+                                            Image.asset('assets/images/no_image.jpg'),
+                                        fit: BoxFit.cover,
+                                        imageUrl: sliderpath+ likedadproductlist[index]['upload_base_path'].toString() + likedadproductlist[index]['file_name'].toString(),
                                       ),
-                                    ),
-                                    SizedBox(height: 5.0),
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          left: 4.0, right: 4.0),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          SizedBox(
-                                            width: size.width * 0.23,
-                                            child: Text(
-                                                "Starting from ${likedadproductlist[index]['currency']
-                                                    .toString()} ${likedadproductlist[index]['prices'][0]['price']
-                                                    .toString()}",
-                                                style: TextStyle(
-                                                    color: kPrimaryColor,
-                                                    fontSize: 12)),
-                                          ),
-                                          IconButton(
-                                              iconSize: 28,
-                                              onPressed: () {
-                                                Navigator.push(context, MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        ProductDetailScreen(
-                                                            productid: likedadproductlist[index]['id']
-                                                                .toString())));
-                                              },
-                                              icon: Icon(Icons.add_box_rounded,
-                                                  color: kPrimaryColor))
-                                        ],
+                                      const SizedBox(height: 5.0),
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 5.0, right: 15.0),
+                                        child: Align(
+                                          alignment: Alignment.topLeft,
+                                          child: Text(
+                                              likedadproductlist[index]['title'].toString(),
+                                              maxLines: 2,
+                                              style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 14)),
+                                        ),
                                       ),
-                                    )
-                                  ],
+                                      const SizedBox(height: 5.0),
+                                        Padding(padding: const EdgeInsets.only(left: 4.0, right: 4.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            SizedBox(
+                                              width: size.width * 0.23,
+                                              child: Text("Starting from ${likedadproductlist[index]['currency'].toString()} ${likedadproductlist[index]['prices'][0]['price'].toString()}", style: const TextStyle(color: kPrimaryColor, fontSize: 12)),
+                                            ),
+                                            const Icon(Icons.add_box_rounded, color: kPrimaryColor)
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  ),
                                 ),
                               );
-                            }),
-                    ),
+                            })),
                     mytopcategories.length == 0 || mytopcategories.isEmpty ? SizedBox() : const Padding(
                       padding: EdgeInsets.only(left: 15, top: 10),
                       child: Align(
@@ -746,27 +715,37 @@ class _HomeScreenState extends State<HomeScreen> {
                               itemCount: mytopcategories.length,
                               itemBuilder: (BuildContext ctx, index) {
                                 return InkWell(
-                                  onTap: () async {
+                                  onTap:() async {
                                     showLaoding(context);
-                                    SharedPreferences prefs = await SharedPreferences.getInstance();
-                                    var response = await http.post(
-                                        Uri.parse(BASE_URL + categoryclick),
+                                    mytopcategorieslistData.forEach((element) {
+                                      if(element['title'].toString() == mytopcategoriesname[index].toString()){
+                                         setState((){
+                                           categoryslugname = element['slug'].toString();
+                                         });
+                                      }
+                                    });
+                                    print(jsonEncode({
+                                      "city_name": locationvalue,
+                                      "category": categoryslugname,
+                                      "exclude": "1",
+                                      "search" : ""
+                                    }));
+                                    var response = await http.post(Uri.parse(BASE_URL + filterUrl),
                                         body: jsonEncode({
-                                          "category": mytopcategoriesname[index]
-                                              .toLowerCase()
+                                          "city_name": locationvalue,
+                                          "category": categoryslugname,
+                                          "exclude": "1",
+                                          "search" : ""
                                         }),
                                         headers: {
                                           "Accept": "application/json",
                                           'Content-Type': 'application/json'
-                                        });
-                                    Navigator.of(context, rootNavigator: true)
-                                        .pop();
-                                    if (jsonDecode(response.body)['ErrorCode'] == 0) {
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => UserfinderDataScreen(getlocation: locationvalue, getcategory: categoryvalue, data: jsonDecode(response.body)['Response'])));
+                                    });
+                                    Navigator.of(context, rootNavigator: true).pop();
+                                    if(jsonDecode(response.body)['ErrorCode'] == 0) {
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => UserfinderDataScreen(getlocation: locationvalue, getcategory: mytopcategoriesname[index].toString(), getcategoryslug: categoryslugname, data: jsonDecode(response.body)['Response']['leads'])));
                                     } else {
-                                      Fluttertoast.showToast(
-                                          msg: "No result found",
-                                          gravity: ToastGravity.CENTER);
+                                      Fluttertoast.showToast(msg: "No result found", gravity: ToastGravity.CENTER);
                                     }
                                   },
                                   child: Card(
@@ -786,7 +765,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           padding: const EdgeInsets.all(4.0),
                                           child: Text(mytopcategoriesname[index],
                                               textAlign: TextAlign.center,
-                                              style: TextStyle(color: Colors.black, fontSize: 12)),
+                                              style: const TextStyle(color: Colors.black, fontSize: 12)),
                                         ),
                                       ),
                                       child: ClipRRect(borderRadius: const BorderRadius.all(Radius.circular(12)),
@@ -800,178 +779,251 @@ class _HomeScreenState extends State<HomeScreen> {
                                 );
                               }),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Container(
-                      height: 555,
+                      padding: const EdgeInsets.only(bottom: 5),
                       width: double.infinity,
                       color: kContainerColor,
                       child: Column(
                         children: [
-                          SizedBox(height: 10),
-                          const Text("Today's Special Deals",
-                              style: TextStyle(
-                                  color: Colors.deepOrangeAccent,
-                                  fontSize: 14)),
-                          SizedBox(height: 10),
-                          Padding(
-                            padding:
-                                const EdgeInsets.only(left: 10.0, right: 10.0),
-                            child: ClipRRect(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(8.0)),
-                              child: Container(
-                                height: 120,
-                                width: double.infinity,
-                                child: CachedNetworkImage(
-                                  imageUrl: bottomimage1,
-                                  fit: BoxFit.fill,
+                          const SizedBox(height: 10),
+                          const Text("Today's Special Deals", style: TextStyle(color: Colors.deepOrangeAccent, fontSize: 14)),
+                          const SizedBox(height: 5),
+                          Container(
+                            width: double.infinity,
+                            color: kContainerColor,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  height: MediaQuery.of(context).size.height * 0.40,
+                                  width: MediaQuery.of(context).size.width,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 10.0, top: 10.0, right: 10.0, bottom: 0.0),
+                                    child: ClipRRect(borderRadius: const BorderRadius.all(Radius.circular(0.0)),
+                                      child: CachedNetworkImage(
+                                        imageUrl: bottomimage1,
+                                        fit: BoxFit.fill,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 10),
-                          Padding(
-                            padding:
-                                const EdgeInsets.only(left: 10.0, right: 10.0),
-                            child: ClipRRect(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(8.0)),
-                              child: Container(
-                                height: 120,
-                                width: double.infinity,
-                                child: CachedNetworkImage(
-                                  imageUrl: bottomimage2,
-                                  fit: BoxFit.fill,
+                                Container(
+                                  height: MediaQuery.of(context).size.height * 0.23,
+                                  width: MediaQuery.of(context).size.width,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 10.0, top: 10.0, right: 10.0, bottom: 5.0),
+                                    child: ClipRRect(borderRadius: const BorderRadius.all(Radius.circular(0.0)),
+                                      child: CachedNetworkImage(
+                                        imageUrl: bottomimage2,
+                                        fit: BoxFit.fill,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 10),
-                          Padding(
-                            padding:
-                                const EdgeInsets.only(left: 10.0, right: 10.0),
-                            child: ClipRRect(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(8.0)),
-                              child: Container(
-                                height: 120,
-                                width: double.infinity,
-                                child: CachedNetworkImage(
-                                  imageUrl: bottomimage3,
-                                  fit: BoxFit.fill,
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 10),
-                          Padding(
-                            padding:
-                                const EdgeInsets.only(left: 10.0, right: 10.0),
-                            child: ClipRRect(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(8.0)),
-                              child: Container(
-                                height: 120,
-                                width: double.infinity,
-                                child: CachedNetworkImage(
-                                  imageUrl: bottomimage4,
-                                  fit: BoxFit.fill,
-                                ),
-                              ),
+                                Container(
+                                  height: MediaQuery.of(context).size.height * 0.23,
+                                  width: MediaQuery.of(context).size.width,
+                                  padding: const EdgeInsets.only(left: 10.0, top: 5.0, right: 10.0, bottom: 10.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        height: MediaQuery.of(context).size.height * 0.21,
+                                        width: MediaQuery.of(context).size.width * 0.45,
+                                        child: CachedNetworkImage(
+                                          imageUrl: bottomimage3,
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                      Container(
+                                        height: MediaQuery.of(context).size.height * 0.21,
+                                        width: MediaQuery.of(context).size.width * 0.45,
+                                        child: CachedNetworkImage(
+                                          imageUrl: bottomimage4,
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ],
                             ),
                           ),
                         ],
                       ),
                     ),
-                    SizedBox(height: 10),
-                    myfeaturedcategories.length == 0 || myfeaturedcategories.isEmpty ? SizedBox() : const Padding(
-                      padding: EdgeInsets.only(left: 15, top: 10),
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        child: Text("Featured Categories",
-                            style: TextStyle(
-                                color: Colors.deepOrangeAccent,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700)),
-                      ),
-                    ),
-                    myfeaturedcategories.length == 0 || myfeaturedcategories.isEmpty ? SizedBox() : Padding(padding: const EdgeInsets.only(left: 15, top: 10, right: 15, bottom: 10),
-                      child: myfeaturedcategories.length == 0 || myfeaturedcategories.isEmpty
-                          ? Center(child: CircularProgressIndicator())
-                          : GridView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                    const SizedBox(height: 10),
+                    Column(
+                      children: myfeaturedcategories.map((e) =>  e['ads'].length != 0 ? Column(
+                         children: [
+                           Padding(
+                             padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 5.0),
+                             child: Align(
+                                 alignment: Alignment.topLeft,
+                                 child: Text(e['title'].toString(), style: const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w500))
+                             ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 5.0),
+                              child: GridView.builder(
+                                  shrinkWrap: true,
+                                  physics: ClampingScrollPhysics(),
+                                  itemCount: e['ads'].length,
+                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                                       crossAxisCount: 2,
-                                      crossAxisSpacing: 8.0,
-                                      mainAxisSpacing: 8.0),
-                              itemCount: myfeaturedcategories.length,
-                              itemBuilder: (BuildContext ctx, index) {
-                                 return InkWell(
-                                  onTap: () async {
-                                    showLaoding(context);
-                                    SharedPreferences prefs = await SharedPreferences.getInstance();
-                                    var response = await http.post(Uri.parse(BASE_URL + categoryclick),
-                                        body: jsonEncode({"category": featuredname[index].toLowerCase()}),
-                                        headers: {
-                                          "Accept": "application/json",
-                                          'Content-Type': 'application/json'
-                                    });
-                                    Navigator.of(context, rootNavigator: true).pop();
-                                    if(jsonDecode(response.body)['ErrorCode'] == 0) {
-                                       Navigator.push(context, MaterialPageRoute(builder: (context) => UserfinderDataScreen(getlocation: locationvalue, getcategory: categoryvalue, data: jsonDecode(response.body)['Response'])));
-                                    } else {
-                                      showToast("No result found");
-                                    }
-                                  },
-                                  child: Card(
-                                    elevation: 8.0,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12.0),
-                                    ),
-                                    child: GridTile(
-                                      footer: Container(
-                                        decoration: const BoxDecoration(
-                                            color: Color(0xFFFCFBFD),
-                                            borderRadius: BorderRadius.only(
-                                                bottomLeft: Radius.circular(12),
-                                                bottomRight:
-                                                    Radius.circular(12))),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(4.0),
-                                          child: Text(featuredname[index],
-                                              textAlign: TextAlign.center,
-                                              style: const TextStyle(color: Colors.black)),
-                                        ),
-                                      ),
-                                      child: ClipRRect(
-                                        borderRadius: const BorderRadius.all(Radius.circular(12)),
-                                        child: Container(
-                                          child: CachedNetworkImage(fit: BoxFit.cover, imageUrl: myfeaturedcategories[index]),
-                                          decoration: BoxDecoration(
-                                              color: Colors.amber,
-                                              borderRadius: BorderRadius.circular(15)),
-                                        ),
-                                      ),
-                                    ),
+                                      crossAxisSpacing: 4.0,
+                                      mainAxisSpacing: 4.0,
+                                      childAspectRatio: 1.0
                                   ),
-                                );
-                              }),
+                                  itemBuilder: (context, gridindex){
+                                    return InkWell(
+                                      onTap: () {
+                                         Navigator.push(context, MaterialPageRoute(builder: (context) => ProductDetailScreen(productid: e['ads'][gridindex]['id'].toString())));
+                                      },
+                                      child: Card(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                          BorderRadius.circular(4.0),
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            CachedNetworkImage(
+                                              height: 80,
+                                              width: double.infinity,
+                                              errorWidget: (context, url, error) => Image.asset('assets/images/no_image.jpg'),
+                                              fit: BoxFit.cover,
+                                              imageUrl: sliderpath + e['ads'][gridindex]['images'][0]['upload_base_path'].toString() + e['ads'][gridindex]['images'][0]['file_name'].toString(),
+                                            ),
+                                            const SizedBox(height: 5.0),
+                                            Padding(
+                                              padding: const EdgeInsets.only(left: 5.0, right: 15.0),
+                                              child: Align(
+                                                alignment: Alignment.topLeft,
+                                                child: Text(e['ads'][gridindex]['title'].toString(),
+                                                    maxLines: 2,
+                                                    style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 16)),
+                                              ),
+                                            ),
+                                            e['ads'].length != 0 ? const SizedBox(height: 5.0) : SizedBox(),
+                                            Padding(
+                                              padding:
+                                              const EdgeInsets.only(
+                                                  left: 4.0,
+                                                  right: 4.0),
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  SizedBox(
+                                                    width:
+                                                    size.width * 0.28,
+                                                    child: Text(
+                                                        "Starting from ${e['ads'][gridindex]['currency'].toString()} ${e['ads'][gridindex]['prices'][0]['price'].toString()}",
+                                                        style: const TextStyle(color: kPrimaryColor, fontSize: 12)),
+                                                  ),
+                                                  const Icon(Icons.add_box_rounded, color: kPrimaryColor)
+                                                ],
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  }
+                              ),
+                            )
+                         ],
+                      ) : const SizedBox()).toList(),
+                    ),
+                    Column(
+                      children: mysubfeaturedcategories.map((e) => e['ads'].length != 0 ? Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 5.0),
+                            child: Align(
+                                alignment: Alignment.topLeft,
+                                child: Text(e['title'].toString(), style: const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w500))
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 5.0),
+                            child: GridView.builder(
+                                shrinkWrap: true,
+                                itemCount: e['ads'].length,
+                                physics: ClampingScrollPhysics(),
+                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    crossAxisSpacing: 4.0,
+                                    mainAxisSpacing: 4.0,
+                                    childAspectRatio: 1.0),
+                                itemBuilder: (context, gindex) {
+                                  return Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4.0),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        CachedNetworkImage(
+                                          height: 80,
+                                          width: double.infinity,
+                                          placeholder: (context, url) =>
+                                              Image.asset('assets/images/no_image.jpg'),
+                                          errorWidget: (context, url, error) =>
+                                              Image.asset('assets/images/no_image.jpg'),
+                                          fit: BoxFit.cover,
+                                          imageUrl: sliderpath+ e['ads'][gindex]['images'][0]['upload_base_path'].toString() + e['ads'][gindex]['images'][0]['file_name'].toString(),
+                                        ),
+                                        const SizedBox(height: 5.0),
+                                        Padding(
+                                          padding: const EdgeInsets.only(left: 5.0, right: 15.0),
+                                          child: Align(
+                                            alignment: Alignment.topLeft,
+                                            child: Text(e['ads'][gindex]['title'].toString(),
+                                                maxLines: 1,
+                                                style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 14)),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 5.0),
+                                        Padding(
+                                          padding: const EdgeInsets.only(left: 4.0, right: 4.0),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              SizedBox(
+                                                width: size.width * 0.23,
+                                                child: Text(
+                                                    "Starting from ${e['ads'][gindex]['currency']
+                                                        .toString()} ${e['ads'][gindex]['prices'][0]['price']
+                                                        .toString()}",
+                                                    style: const TextStyle(color: kPrimaryColor, fontSize: 12)),
+                                              ),
+                                              IconButton(
+                                                  iconSize: 28,
+                                                  onPressed: () {
+                                                    Navigator.push(context, MaterialPageRoute(builder: (context) => ProductDetailScreen(productid: e['id'].toString())));
+                                                  },
+                                                  icon: const Icon(Icons.add_box_rounded, color: kPrimaryColor))
+                                            ],
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  );
+                                }),
+                          )
+                        ],
+                      ) : SizedBox()).toList(),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(left : 15.0, top: 5.0, bottom: 5.0, right: 15.0),
+                      padding: const EdgeInsets.only(left : 10.0, top: 5.0, bottom: 5.0, right: 10.0),
                       child: Container(
-                         height: 120,
+                         height: 200,
                          width: double.infinity,
-                         child: ClipRRect(
-                           borderRadius: const BorderRadius.all(Radius.circular(12)),
-                           child: Container(
-                             child: CachedNetworkImage(fit: BoxFit.cover, imageUrl: bottomsingleimage),
-                             decoration: BoxDecoration(
-                                 color: Colors.amber,
-                                 borderRadius: BorderRadius.circular(15)),
-                           ),
+                         child: Container(
+                           child: CachedNetworkImage(fit: BoxFit.cover, imageUrl: bottomsingleimage),
+                           decoration: BoxDecoration(
+                               color: Colors.amber,
+                               borderRadius: BorderRadius.circular(15)),
                          ),
                       ),
                     )
@@ -1022,34 +1074,41 @@ class _HomeScreenState extends State<HomeScreen> {
             location.add(element['name'].toString());
           });
 
+          categorylistData.addAll(jsonDecode(response.body)['Response']['categories']);
+
           jsonDecode(response.body)['Response']['categories'].forEach((element){
+             categoryslug.add(element['slug'].toString());
              category.add(element['title'].toString());
              myProducts.add(imagepath + element['image'].toString());
           });
 
+          mytopcategorieslistData.addAll(jsonDecode(response.body)['Response']['top_selling_categories']);
           jsonDecode(response.body)['Response']['top_selling_categories'].forEach((element){
              mytopcategoriesname.add(element['title'].toString());
              mytopcategories.add(imagepath + element['image'].toString());
           });
 
-          jsonDecode(response.body)['Response']['featured_categories'].forEach((element){
-              featuredname.add(element['title'].toString());
-              myfeaturedcategories.add(imagepath + element['image'].toString());
-          });
+          myfeaturedcategories.addAll(jsonDecode(response.body)['Response']['featured_categories']);
+          mysubfeaturedcategories.addAll(jsonDecode(response.body)['Response']['featured_subcategories']);
+          // jsonDecode(response.body)['Response']['featured_categories'].forEach((element){
+          //     featuredname.add(element['title'].toString());
+          //     myfeaturedcategories.add(imagepath + element['image'].toString());
+          // });
 
           likedadproductlist.addAll(jsonDecode(response.body)['Response']['You_may_also_like']);
 
-          todaydealsimage1 = bannerpath + jsonDecode(response.body)['Response']['Today’s Special Deals']['mid_banner_1']['value'].toString();
-          todaydealsimage2 = bannerpath + jsonDecode(response.body)['Response']['Today’s Special Deals']['mid_banner_2']['value'].toString();
-          todaydealsimage3 = bannerpath + jsonDecode(response.body)['Response']['Today’s Special Deals']['mid_banner_3']['value'].toString();
-          todaydealsimage4 = bannerpath + jsonDecode(response.body)['Response']['Today’s Special Deals']['mid_banner_4']['value'].toString();
+          todaydealsimage1 = sliderpath + jsonDecode(response.body)['Response']['Today’s Special Deals']['mid_banner_1']['value'].toString();
+          todaydealsimage2 = sliderpath + jsonDecode(response.body)['Response']['Today’s Special Deals']['mid_banner_2']['value'].toString();
+          todaydealsimage3 = sliderpath + jsonDecode(response.body)['Response']['Today’s Special Deals']['mid_banner_3']['value'].toString();
+          todaydealsimage4 = sliderpath + jsonDecode(response.body)['Response']['Today’s Special Deals']['mid_banner_4']['value'].toString();
 
-          bottomimage1 = bannerpath + jsonDecode(response.body)['Response']['Today’s Special Deals']['bottom_banner_1']['value'].toString();
-          bottomimage2 = bannerpath + jsonDecode(response.body)['Response']['Today’s Special Deals']['bottom_banner_2']['value'].toString();
-          bottomimage3 = bannerpath + jsonDecode(response.body)['Response']['Today’s Special Deals']['bottom_banner_3']['value'].toString();
-          bottomimage4 = bannerpath + jsonDecode(response.body)['Response']['Today’s Special Deals']['bottom_banner_4']['value'].toString();
 
-          bottomsingleimage = bannerpath + jsonDecode(response.body)['Response']['Today’s Special Deals']['bottom_banner_single']['value'].toString();
+          bottomimage1 = sliderpath + jsonDecode(response.body)['Response']['Today’s Special Deals']['bottom_banner_1']['value'].toString();
+          bottomimage2 = sliderpath + jsonDecode(response.body)['Response']['Today’s Special Deals']['bottom_banner_2']['value'].toString();
+          bottomimage3 = sliderpath + jsonDecode(response.body)['Response']['Today’s Special Deals']['bottom_banner_3']['value'].toString();
+          bottomimage4 = sliderpath + jsonDecode(response.body)['Response']['Today’s Special Deals']['bottom_banner_4']['value'].toString();
+
+          bottomsingleimage = sliderpath + jsonDecode(response.body)['Response']['Today’s Special Deals']['bottom_banner_single']['value'].toString();
 
           _check = true;
       });
@@ -1066,7 +1125,7 @@ class _HomeScreenState extends State<HomeScreen> {
         headers: {
           "Accept": "application/json",
           'Content-Type': 'application/json'
-        });
+    });
     if (response.statusCode == 200) {
       var data = json.decode(response.body)['Response'];
       if(json.decode(response.body)['Response'] != null){
@@ -1084,7 +1143,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  _getlocationbyUserlocation() async{
+   _getlocationbyUserlocation() async{
      SharedPreferences prefs = await SharedPreferences.getInstance();
      if(prefs.getString('city') != null || prefs.getString('city') != ""){
         setState((){
@@ -1092,4 +1151,26 @@ class _HomeScreenState extends State<HomeScreen> {
         });
      }
   }
+
+   Future<List> _getAllCity(String pattern) async{
+     SharedPreferences prefs = await SharedPreferences.getInstance();
+     final body = {
+       "country": prefs.getString('country'),
+       "search_city" : pattern
+     };
+     var response = await http.post(Uri.parse(BASE_URL + citiesUrl),
+         body: jsonEncode(body),
+         headers: {
+           "Accept": "application/json",
+           'Content-Type': 'application/json'
+     });
+     
+     List temp=jsonDecode(response.body)['Response'];
+     
+     List temp2=[];
+     temp.forEach((element) { 
+       temp2.add(element['name']);
+     });
+     return temp2;
+   }
 }

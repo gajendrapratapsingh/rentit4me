@@ -35,8 +35,9 @@ class _SignupScreenState extends State<SignupScreen> {
   //int usertypevalue = 0;
   //bool _businessnamevisibility = false;
 
-  String selectedCode = "Country Code";
-  String countrycode;
+  String selectedCode = "India +91";
+  String countrycode = "91";
+
   String countryname;
   var countrycodelistwithname = [''];
   var countrycodelist = [''];
@@ -462,8 +463,10 @@ class _SignupScreenState extends State<SignupScreen> {
       "user_type" : "4",
       "password" : password,
       "token" : fcmToken,
-      "latitude" : prefs.getString('latitude'),
-      "longitude" : prefs.getString('longitude'),
+      //"latitude" : prefs.getString('latitude'),
+      //"longitude" : prefs.getString('longitude'),
+      "latitude" : "44.534721",
+      "longitude" : "24.307261",
     }));
     final body = {
       "name": name,
@@ -477,6 +480,8 @@ class _SignupScreenState extends State<SignupScreen> {
       "token" : fcmToken,
       "latitude" : prefs.getString('latitude'),
       "longitude" : prefs.getString('longitude'),
+      //"latitude" : "44.534721",
+      //"longitude" : "24.307261",
     };
     var response = await http.post(Uri.parse(BASE_URL + register),
         body: jsonEncode(body),

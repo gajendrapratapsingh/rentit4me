@@ -19,7 +19,7 @@ class BottomNavigation extends StatelessWidget {
       child: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
 
-        selectedItemColor: Colors.black,
+        selectedItemColor: Colors.black, currentIndex: DashboardState.currentTab,
         unselectedItemColor: Colors.grey,
         // elevation: 10,
 

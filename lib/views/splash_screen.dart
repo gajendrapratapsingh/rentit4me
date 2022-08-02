@@ -7,6 +7,7 @@ import 'package:rentit4me/blocs/network_bloc/network_state.dart';
 import 'package:rentit4me/network/api.dart';
 import 'package:rentit4me/views/dashboard.dart';
 import 'package:rentit4me/views/delivery_status_screen.dart';
+import 'package:rentit4me/views/home_screen.dart';
 import 'package:rentit4me/views/login_screen.dart';
 import 'package:rentit4me/views/make_payment_screen.dart';
 import 'package:http/http.dart' as http;
@@ -140,7 +141,7 @@ class _SplashScreenState extends State<SplashScreen> {
           return SelectMemberShipScreen();
         }
       } else {
-        return Dashboard();
+        return HomeScreen();
     }
   }
 

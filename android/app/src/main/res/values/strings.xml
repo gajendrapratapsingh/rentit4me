@@ -3,4 +3,5 @@
     <string name="app_name">Rentit4me</string>
     <string name="facebook_app_id">296367125996684</string>
     <string name="fb_login_protocol_scheme">fb296367125996684</string>
+    <string name="facebook_client_token">646c95955c5ad77770f191899693657f</string>
 </resources>

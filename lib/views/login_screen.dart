@@ -16,6 +16,7 @@ import 'package:rentit4me/views/make_payment_screen.dart';
 import 'package:rentit4me/views/select_membership_screen.dart';
 import 'package:rentit4me/views/signup_business_screen.dart';
 import 'package:rentit4me/views/signup_consumer_screen.dart';
+import 'package:rentit4me/views/signup_users_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -45,12 +46,12 @@ class _LoginScreenState extends State<LoginScreen> {
     super.initState();
     initConnectivity();
 
-    FirebaseMessaging.instance.getToken().then((value) {
-      setState(() {
-        fcmToken = value.toString();
-        print(fcmToken);
-      });
-    });
+    // FirebaseMessaging.instance.getToken().then((value) {
+    //   setState(() {
+    //     fcmToken = value.toString();
+    //     print(fcmToken);
+    //   });
+    // });
 
     //print(Navigator.of(context).)
   }
@@ -113,15 +114,15 @@ class _LoginScreenState extends State<LoginScreen> {
           backgroundColor: Colors.white,
           elevation: 2.0,
           leading: Padding(
-            padding: EdgeInsets.only(left: 10),
+            padding: const EdgeInsets.only(left: 10),
             child: Image.asset('assets/images/logo.png'),
           ),
-          title: Text("Sign in", style: TextStyle(color: kPrimaryColor)),
+          title: const Text("Sign in", style: TextStyle(color: kPrimaryColor)),
           centerTitle: true,
           actions: [
             IconButton(onPressed: (){
               Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeScreen()));
-            }, icon: Icon(Icons.home, color: kPrimaryColor))
+            }, icon: const Icon(Icons.home, color: kPrimaryColor))
           ],
         ),
         body: ModalProgressHUD(
@@ -261,17 +262,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             Padding(
                               padding: EdgeInsets.fromLTRB(15, 10, 15, 0),
                               child: InkWell(
-                                onTap: () async{
-                                  print("FaceBook");
-                                  try {
-                                    final result = await FacebookAuth.i.login(permissions: ['public_profile', 'email']);
-                                    if (result.status == LoginStatus.success) {
-                                      final userData = await FacebookAuth.i.getUserData();
-                                      print(userData);
-                                    }
-                                  } catch (error) {
-                                    print(error);
-                                  }
+                                onTap: () {
+                                  facebooklogin();
+                                  //await initiateFacebookLogin();
                                 },
                                 child: Container(
                                   height: 45,
@@ -431,13 +424,118 @@ class _LoginScreenState extends State<LoginScreen> {
         ));
   }
 
+  facebooklogin() async{
+    try {
+      final result = await FacebookAuth.i.login(permissions: ['public_profile', 'email']);
+      if (result.status == LoginStatus.success) {
+        final userData = await FacebookAuth.i.getUserData();
+        if(!userData.containsKey('email')) {
+          print(userData);
+          showDialog(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: const Text("Information!!", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                content: const Text("We are not able to receive your email from facebook, you can signup through google or manually.", style: TextStyle(fontSize: 14)),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                  },
+                  child: Container(
+                    alignment: Alignment.center,
+                    width: 90,
+                    decoration: BoxDecoration(
+                      color: kPrimaryColor,
+                      borderRadius: BorderRadius.circular(12.0)
+                    ),
+                    padding: const EdgeInsets.all(14),
+                    child: const Text("Ok", style: TextStyle(color: Colors.white, fontSize: 16)),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+        else{
+          print(userData);
+        }
+      }
+    } catch (error) {
+      print(error);
+    }
+  }
+
   googleLogin() async{
      GoogleSignIn googleSignIn = GoogleSignIn();
      try{
         var result = await googleSignIn.signIn();
-        print(result);
+        print(result.displayName);
+        _checklogin(result.email, result.displayName, "social");
      }
-     catch(error){}
+     catch(error){
+       print(error);
+     }
+  }
+
+  // void initiateFacebookLogin() async {
+  //   var facebookLoginResult = await FacebookLogin().logInWithReadPermissions(['email']);
+  //   print(facebookLoginResult.status.toString()+"______________");
+  //   print(facebookLoginResult.status);
+  //   switch (facebookLoginResult.status) {
+  //     case FacebookLoginStatus.error:
+  //       //onLoginStatusChanged(false);
+  //       print(facebookLoginResult.errorMessage);
+  //       break;
+  //     case FacebookLoginStatus.cancelledByUser:
+  //       break;
+  //     case FacebookLoginStatus.loggedIn:
+  //       var graphResponse = await http.get(Uri.parse('https://graph.facebook.com/v2.12/me?fields=name,first_name,last_name,email,picture.width(400)&access_token=${facebookLoginResult.accessToken.token}'));
+  //       var profile = json.decode(graphResponse.body);
+  //       print(profile.toString());
+  //       break;
+  //   }
+  // }
+
+  Future _checklogin(String email, String name, String logintype) async{
+    setState(() {
+      _loading = true;
+    });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final body = {
+      "email": email,
+      "login_type" : logintype
+    };
+    var response = await http.post(Uri.parse(BASE_URL + login),
+        body: jsonEncode(body),
+        headers: {
+          "Accept": "application/json",
+          'Content-Type': 'application/json'
+        });
+    print(response.body);
+    if(response.statusCode == 200) {
+      setState(() {
+        _loading = false;
+      });
+      if (jsonDecode(response.body)['ErrorCode'].toString() == "0") {
+        prefs.setBool('logged_in', true);
+        prefs.setString('userid', jsonDecode(response.body)['Response']['id'].toString());
+        prefs.setString('usertype', jsonDecode(response.body)['Response']['user_type'].toString());
+        _getprofileData();
+        //Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => HomeScreen()));
+
+      } else {
+        showToast(jsonDecode(response.body)['ErrorMessage'].toString());
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => SignupUserScreen(name: name, email: email),
+        ));
+      }
+    } else {
+      setState(() {
+        _loading = false;
+      });
+      print(response.body);
+      throw Exception('Failed to get data due to ${response.body}');
+    }
   }
 
   Future _login(String email, String password, String logintype) async {
@@ -500,7 +598,7 @@ class _LoginScreenState extends State<LoginScreen> {
           prefs.setString('userquickid', data['User']['quickblox_id'].toString());
           prefs.setString('quicklogin', data['User']['quickblox_email'].toString());
           prefs.setString('quickpassword', data['User']['quickblox_password'].toString());
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  HomeScreen()));
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  Dashboard()));
         }
         else{
           Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  MakePaymentScreen()));
@@ -513,4 +611,5 @@ class _LoginScreenState extends State<LoginScreen> {
       throw Exception('Failed to get data due to ${response.body}');
     }
   }
+  
 }

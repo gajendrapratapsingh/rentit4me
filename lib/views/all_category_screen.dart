@@ -1,11 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:rentit4me/helper/loader.dart';
 import 'package:rentit4me/network/api.dart';
 import 'package:rentit4me/themes/constant.dart';
 import 'package:rentit4me/views/user_finder_data_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AllCategoryScreen extends StatefulWidget {
   const AllCategoryScreen({Key key}) : super(key: key);
@@ -18,6 +20,8 @@ class _AllCategoryScreenState extends State<AllCategoryScreen> {
 
   List<dynamic> myProducts = [];
   List<dynamic> category = [];
+  List categorylistData = [];
+  String categoryslugname;
 
   bool _check = false;
 
@@ -44,7 +48,7 @@ class _AllCategoryScreenState extends State<AllCategoryScreen> {
               Icons.arrow_back,
               color: kPrimaryColor,
             )),
-        title: Text("All Categories", style: TextStyle(color: kPrimaryColor)),
+        title: const Text("All Categories", style: TextStyle(color: kPrimaryColor)),
         centerTitle: true,
       ),
       body: Padding(
@@ -63,19 +67,39 @@ class _AllCategoryScreenState extends State<AllCategoryScreen> {
             itemBuilder: (BuildContext ctx, index) {
               return InkWell(
                 onTap: () async {
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  print("......///"+prefs.getString('city'));
                   showLaoding(context);
-                  var response = await http.post(Uri.parse(BASE_URL + categoryclick),
-                      body: jsonEncode({"category": category[index].toLowerCase()
+                  categorylistData.forEach((element) {
+                      if(element['title'].toString() == category[index].toString()){
+                         setState((){
+                            categoryslugname = element['slug'].toString();
+                         });
+                      }
+                  });
+                  print(jsonEncode({
+                    "city_name": prefs.getString('city'),
+                    "category": categoryslugname,
+                    "exclude": "1",
+                    "search" : ""
+                  }));
+                  var response = await http.post(Uri.parse(BASE_URL + filterUrl),
+                      body: jsonEncode({
+                        "city_name": prefs.getString('city'),
+                        "category": categoryslugname,
+                        "exclude": "1",
+                        "search" : ""
                       }),
                       headers: {
                         "Accept": "application/json",
                         'Content-Type': 'application/json'
                       });
+                  print("............"+response.body);
                   Navigator.of(context, rootNavigator: true).pop();
                   if (jsonDecode(response.body)['ErrorCode'] == 0) {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => UserfinderDataScreen(data: jsonDecode(response.body)['Response'])));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => UserfinderDataScreen(getlocation: prefs.getString('city'), getcategory: category[index].toString(), getcategoryslug: categoryslugname, data: jsonDecode(response.body)['Response']['leads'])));
                   } else {
-                     showToast("No result found");
+                    Fluttertoast.showToast(msg: "No result found", gravity: ToastGravity.CENTER);
                   }
                 },
                 child: Card(
@@ -121,19 +145,37 @@ class _AllCategoryScreenState extends State<AllCategoryScreen> {
   }
 
   Future _getData() async {
-    var response = await http.get(Uri.parse(BASE_URL + homeUrl));
-    if (response.statusCode == 200) {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final body = {
+      "country": prefs.getString('country'),
+      "state": prefs.getString('state'),
+      "city": prefs.getString('city'),
+    };
+    var response = await http.post(Uri.parse(BASE_URL + homeUrl),
+        body: jsonEncode(body),
+        headers: {
+          "Accept": "application/json",
+          'Content-Type': 'application/json'
+        }
+    );
+    if(response.statusCode == 200) {
       setState(() {
         myProducts.clear();
         category.clear();
 
-        for (int i = 0; i < jsonDecode(response.body)['Response']['categories'].length; i++) {
-          category.add(jsonDecode(response.body)['Response']['categories'][i]['title'].toString());
-          myProducts.add(imagepath + jsonDecode(response.body)['Response']['categories'][i]['image'].toString());
-        }
+        categorylistData.addAll(jsonDecode(response.body)['Response']['categories']);
+        jsonDecode(response.body)['Response']['categories'].forEach((element){
+          category.add(element['title'].toString());
+          myProducts.add(imagepath + element['image'].toString());
+        });
+
+        print(category.toString());
+        print(myProducts.toString());
 
         _check = true;
       });
     }
   }
+
+
 }

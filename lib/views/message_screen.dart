@@ -153,14 +153,19 @@ class _MessageScreenState extends State<MessageScreen> {
                           )
                         ],
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       InkWell(
                         onTap: () {
-                          if(searchvalue == "Search for message" || searchvalue.length == 0 || searchvalue.isEmpty){
-                            _messageslistByDate();
+                          if(searchvalue == "Search for message" && startdate == "From Date"){
+                            showToast("Please enter your search or select date");
                           }
                           else{
-                            _messageslistBySearch();
+                            if(searchvalue == "Search for message" || searchvalue.length == 0 || searchvalue.isEmpty){
+                              _messageslistByDate();
+                            }
+                            else{
+                              _messageslistBySearch();
+                            }
                           }
                         },
                         child: Card(
@@ -176,8 +181,7 @@ class _MessageScreenState extends State<MessageScreen> {
                                 color: Colors.deepOrangeAccent,
                                 borderRadius:
                                 BorderRadius.all(Radius.circular(8.0))),
-                            child: Text("Filter",
-                                style: TextStyle(color: Colors.white)),
+                            child: const Text("Filter", style: TextStyle(color: Colors.white)),
                           ),
                         ),
                       )

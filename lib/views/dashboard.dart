@@ -22,8 +22,8 @@ class DashboardState extends State<Dashboard> {
   // list tabs here
   final List<TabItem> tabs = [
     TabItem(
-      tabName: "Dashboard",
-      icon: Icons.list,
+      tabName: "Home",
+      icon: Icons.home,
       page: HomeScreen(),
     ),
     TabItem(
@@ -60,13 +60,10 @@ class DashboardState extends State<Dashboard> {
   // and update state
   void _selectTab(int index) {
     if (index == currentTab) {
-      // pop to first route
-      // if the user taps on the active tab
       tabs[index].key.currentState?.popUntil((route) => route.isFirst);
     } else {
       // update the state
       // in order to repaint
-
       setState(() => currentTab = index);
     }
   }

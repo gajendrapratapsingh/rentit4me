@@ -6,6 +6,7 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:rentit4me/network/api.dart';
 import 'package:rentit4me/themes/constant.dart';
+import 'package:rentit4me/views/dashboard.dart';
 import 'package:rentit4me/views/home_screen.dart';
 import 'package:rentit4me/views/offer_made_product_detail_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -57,11 +58,14 @@ class _OfferMadeScreenState extends State<OfferMadeScreen> {
     return "${str[0].toUpperCase()}${str.substring(1).toLowerCase()}";
   }
 
+  List<String> allaction = ['Accept/Pay', 'Reject'];
+  String initialvalue;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _offermadelist();
+    offermadelistdata();
 
     initializeRazorpay();
   }
@@ -75,7 +79,6 @@ class _OfferMadeScreenState extends State<OfferMadeScreen> {
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
     print("success");
-    //print(response.orderId.toString());
     print(response.paymentId.toString());
     print(request_id);
     print(post_id);
@@ -97,10 +100,6 @@ class _OfferMadeScreenState extends State<OfferMadeScreen> {
       request_id = null;
       amount = null;
     });
-    print(request_id);
-    print(post_id);
-    print(userid);
-    print(amount);
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {}
@@ -139,318 +138,353 @@ class _OfferMadeScreenState extends State<OfferMadeScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 2.0,
-        title: Text("Offer Made", style: TextStyle(color: kPrimaryColor)),
+        title: const Text("Offer Made", style: TextStyle(color: kPrimaryColor)),
         centerTitle: true,
       ),
-      body: ModalProgressHUD(
-        inAsyncCall: _loading,
-        color: kPrimaryColor,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
+      body: RefreshIndicator(
+        onRefresh: offermadelistdata,
+        child: ModalProgressHUD(
+          inAsyncCall: _loading,
+          color: kPrimaryColor,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
                 Card(
-                elevation: 4.0,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      SizedBox(height: 5),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 0.0),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(color: Colors.deepOrangeAccent)
+                  elevation: 4.0,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        SizedBox(height: 5),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 0.0),
+                          child: TextFormField(
+                            decoration: InputDecoration(
+                              focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(color: Colors.deepOrangeAccent)
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(color: Colors.deepOrangeAccent,)
+                              ),
+                              contentPadding: EdgeInsets.only(left: 5),
+                              hintText: searchvalue,
+                              border: InputBorder.none,
                             ),
-                            enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(color: Colors.deepOrangeAccent,)
-                            ),
-                            contentPadding: EdgeInsets.only(left: 5),
-                            hintText: searchvalue,
-                            border: InputBorder.none,
+                            onChanged: (value){
+                              setState((){
+                                searchvalue = value;
+                              });
+                            },
                           ),
-                          onChanged: (value){
-                            setState((){
-                              searchvalue = value;
-                            });
-                          },
                         ),
-                      ),
-                      SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              //Text("From Date", style: TextStyle(color: kPrimaryColor, fontSize: 14, fontWeight: FontWeight.w500)),
-                              //SizedBox(height: 10),
-                              Container(
-                                  width: size.width * 0.42,
-                                  decoration: BoxDecoration(
-                                      border: Border.all(
-                                          width: 1,
-                                          color: Colors.deepOrangeAccent
-                                      ),
-                                      borderRadius: BorderRadius.all(Radius.circular(12))
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 10.0),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(startdate, style: TextStyle(color: Colors.grey)),
-                                        IconButton(onPressed: (){
-                                          _selectStartDate(context);
-                                        }, icon: Icon(Icons.calendar_today_sharp, size: 16, color: kPrimaryColor))
-                                      ],
+                        SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                //Text("From Date", style: TextStyle(color: kPrimaryColor, fontSize: 14, fontWeight: FontWeight.w500)),
+                                //SizedBox(height: 10),
+                                Container(
+                                    width: size.width * 0.42,
+                                    decoration: BoxDecoration(
+                                        border: Border.all(
+                                            width: 1,
+                                            color: Colors.deepOrangeAccent
+                                        ),
+                                        borderRadius: BorderRadius.all(Radius.circular(12))
                                     ),
-                                  )
-                              ),
-                            ],
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              //Text("To Date", style: TextStyle(color: kPrimaryColor, fontSize: 14, fontWeight: FontWeight.w500)),
-                              //SizedBox(height: 10),
-                              Container(
-                                  width: size.width * 0.42,
-                                  decoration: BoxDecoration(
-                                      border: Border.all(
-                                          width: 1,
-                                          color: Colors.deepOrangeAccent
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 10.0),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(startdate, style: TextStyle(color: Colors.grey)),
+                                          IconButton(onPressed: (){
+                                            _selectStartDate(context);
+                                          }, icon: Icon(Icons.calendar_today_sharp, size: 16, color: kPrimaryColor))
+                                        ],
                                       ),
-                                      borderRadius: BorderRadius.all(Radius.circular(12))
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 10.0),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(enddate, style: TextStyle(color: Colors.grey)),
-                                        IconButton(onPressed: (){
-                                          _selectEndtDate(context);
-                                        }, icon: Icon(Icons.calendar_today_sharp, size: 16, color: kPrimaryColor))
-                                      ],
+                                    )
+                                ),
+                              ],
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                //Text("To Date", style: TextStyle(color: kPrimaryColor, fontSize: 14, fontWeight: FontWeight.w500)),
+                                //SizedBox(height: 10),
+                                Container(
+                                    width: size.width * 0.42,
+                                    decoration: BoxDecoration(
+                                        border: Border.all(
+                                            width: 1,
+                                            color: Colors.deepOrangeAccent
+                                        ),
+                                        borderRadius: BorderRadius.all(Radius.circular(12))
                                     ),
-                                  )
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                      InkWell(
-                        onTap: () {
-                            if(searchvalue == "Search for product" || searchvalue.trim().length == 0 || searchvalue.trim().isEmpty){
-                              _offermadelistByDate();
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 10.0),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(enddate, style: TextStyle(color: Colors.grey)),
+                                          IconButton(onPressed: (){
+                                            _selectEndtDate(context);
+                                          }, icon: Icon(Icons.calendar_today_sharp, size: 16, color: kPrimaryColor))
+                                        ],
+                                      ),
+                                    )
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
+                        SizedBox(height: 10),
+                        InkWell(
+                          onTap: () {
+                            if(searchvalue == "Search for product" && startdate == "From Date"){
+                              showToast('Please enter your search or select date');
                             }
                             else{
-                               _offermadelistBySearch();
+                              if(searchvalue == "Search for product" || searchvalue.trim().length == 0 || searchvalue.trim().isEmpty){
+                                _offermadelistByDate();
+                              }
+                              else{
+                                _offermadelistBySearch();
+                              }
                             }
-                        },
-                        child: Card(
-                          elevation: 8.0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          child: Container(
-                            height: 40,
-                            width: double.infinity,
-                            alignment: Alignment.center,
-                            decoration: const BoxDecoration(
-                                color: Colors.deepOrangeAccent,
-                                borderRadius: BorderRadius.all(Radius.circular(8.0))
+                          },
+                          child: Card(
+                            elevation: 8.0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
                             ),
-                            child: Text("Filter", style: TextStyle(color: Colors.white)),
+                            child: Container(
+                              height: 40,
+                              width: double.infinity,
+                              alignment: Alignment.center,
+                              decoration: const BoxDecoration(
+                                  color: Colors.deepOrangeAccent,
+                                  borderRadius: BorderRadius.all(Radius.circular(8.0))
+                              ),
+                              child: const Text("Filter", style: TextStyle(color: Colors.white)),
+                            ),
                           ),
-                        ),
-                      )
-                    ],
+                        )
+                      ],
+                    ),
                   ),
                 ),
-              ),
                 Expanded(
-                child: ListView.separated(
-                itemCount: offermadelist.length,
-                padding: EdgeInsets.zero,
-                shrinkWrap: true,
-                separatorBuilder: (BuildContext context, int index) => const Divider(), 
-                itemBuilder: (BuildContext context, int index) {
-                      return InkWell(
-                         onTap: (){
+                    child: ListView.separated(
+                      itemCount: offermadelist.length,
+                      padding: EdgeInsets.zero,
+                      shrinkWrap: true,
+                      separatorBuilder: (BuildContext context, int index) => const Divider(),
+                      itemBuilder: (BuildContext context, int index) {
+                        return InkWell(
+                          onTap: (){
                             showDialog(
-                              context: context,
-                              builder: (_) => AlertDialog(
-                              title: Text('Detail Information'),
-                              content: SingleChildScrollView(child:  Column(children: [
-                                  Card(
-                                    color: Colors.grey[100],
-                                    child: ListTile(
-                                       title: Text("Rentee"),
-                                       subtitle: Text(offermadelist[index]['name'].toString()),
-                                        
+                                context: context,
+                                builder: (_) => AlertDialog(
+                                    title: const Text('Detail Information'),
+                                    content: SingleChildScrollView(child:  Column(children: [
+                                      Card(
+                                        color: Colors.grey[100],
+                                        child: ListTile(
+                                          title: const Text("Rentee"),
+                                          subtitle: Text(offermadelist[index]['name'].toString()),
+
+                                        ),
+                                      ),
+                                      Card(
+                                        color: Colors.grey[100],
+                                        child: ListTile(
+                                          title: const Text("Product Name"),
+                                          subtitle: Text(offermadelist[index]["title"].toString()),
+
+                                        ),
+                                      ),
+                                      Card(
+                                        color: Colors.grey[100],
+                                        child: ListTile(
+                                          title: const Text("Product Quantity"),
+                                          subtitle: Text(offermadelist[index]["quantity"].toString()),
+
+                                        ),
+                                      ),
+                                      Card(
+                                        color: Colors.grey[100],
+                                        child: ListTile(
+                                          title: const Text("Rent Type"),
+                                          subtitle: Text(offermadelist[index]["rent_type_name"].toString()),
+
+                                        ),
+                                      ),
+                                      Card(
+                                        color: Colors.grey[100],
+                                        child: ListTile(
+                                          title: const Text("Period"),
+                                          subtitle: Text(offermadelist[index]["period"].toString()),
+
+                                        ),
+                                      ),
+                                      Card(
+                                        color: Colors.grey[100],
+                                        child: ListTile(
+                                          title: const Text("Product Price(INR)"),
+                                          subtitle: Text(offermadelist[index]["product_price"].toString()),
+
+                                        ),
+                                      ),
+                                      Card(
+                                        color: Colors.grey[100],
+                                        child: ListTile(
+                                          title: const Text("Offer Amount(INR)"),
+                                          subtitle: Text(offermadelist[index]["renter_amount"].toString()),
+
+                                        ),
+                                      ),
+                                      Card(
+                                        color: Colors.grey[100],
+                                        child: ListTile(
+                                          title: const Text("Total Rent(INR)"),
+                                          subtitle: Text(offermadelist[index]["total_rent"].toString()),
+
+                                        ),
+                                      ),
+                                      Card(
+                                        color: Colors.grey[100],
+                                        child: ListTile(
+                                          title: const Text("Total Security(INR)"),
+                                          subtitle: Text(offermadelist[index]["total_security"].toString()),
+
+                                        ),
+                                      ),
+                                      Card(
+                                        color: Colors.grey[100],
+                                        child: ListTile(
+                                          title: const Text("Total Rent(INR)"),
+                                          subtitle: Text(offermadelist[index]["total_rent"].toString()),
+
+                                        ),
+                                      ),
+                                      Card(
+                                        color: Colors.grey[100],
+                                        child: ListTile(
+                                          title: const Text("Final Amount(INR)"),
+                                          subtitle: Text(offermadelist[index]["final_amount"].toString()),
+                                        ),
+                                      ),
+
+                                    ]))));
+
+                          },
+                          child: Card(
+                            elevation: 4.0,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                      padding: const EdgeInsets.only(left : 8.0),
+                                      child: Text("Rentee : ${offermadelist[index]['name']}", style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w500))),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      TextButton(onPressed: (){
+                                        Navigator.push(context, MaterialPageRoute(builder: (context) => OfferMadeProductDetailScreen(postadid: offermadelist[index]['post_ad_id'].toString(), offerid: offermadelist[index]['offer_request_id'].toString())));
+                                      }, child: SizedBox(
+                                          width: size.width * 0.60,
+                                          child: Text("Product Name : ${offermadelist[index]['title']}")
+                                      )),
+                                      const SizedBox(width: 4.0),
+                                      offermadelist[index]["offer_status"].toString() == "1" &&  offermadelist[index]["pay_status"].toString() == "0" ? InkWell(onTap: (){
+                                        setState((){
+                                          post_id = offermadelist[index]["post_ad_id"].toString();
+                                          userid = offermadelist[index]["user_id"].toString();
+                                          request_id = offermadelist[index]["offer_request_id"].toString();
+                                          amount = offermadelist[index]["final_amount"].toString().split('.')[0];
+                                        });
+                                        startPayment(offermadelist[index]["final_amount"].toString());
+                                      }, child: Container(
+                                        height: 35,
+                                        width: 80,
+                                        decoration: BoxDecoration(
+                                            borderRadius : BorderRadius.all(Radius.circular(8.0)),
+                                            border: Border.all(color: Colors.grey, width: 1)
+                                        ),
+                                        child: DropdownButtonHideUnderline(child: Padding(
+                                          padding: const EdgeInsets.only(left : 4.0),
+                                          child: DropdownButton(
+                                            hint: const Text("Action", style: TextStyle(color: Colors.black)),
+                                            value: initialvalue,
+                                            icon: const Icon(Icons.arrow_drop_down_rounded),
+                                            items: allaction.map((String items) {
+                                              return DropdownMenuItem(
+                                                value: items,
+                                                child: Text(items),
+                                              );
+                                            }).toList(),
+                                            isExpanded: true,
+                                            onChanged: (value) {
+                                              if(value == "Boost"){
+                                                //_postboost(alllist[index]['id'].toString());
+                                              }
+                                              else if(value == "Edit"){
+                                                //Navigator.push(context, MaterialPageRoute(builder: (context) => ProductEditScreen(productid: alllist[index]['id'].toString())));
+                                              }
+                                              else{
+                                                //Navigator.push(context, MaterialPageRoute(builder: (context) => PreviewProductScreen(productid: alllist[index]['id'].toString())));
+                                              }
+                                            },
+                                          ),
+                                        ),
+                                        ),
+                                      )
+                                      ) : _getaction(offermadelist[index]["offer_status"].toString(), offermadelist[index]["pay_status"].toString(), index, offermadelist)
+                                    ],
+                                  ),
+                                  const SizedBox(height: 10.0),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text("Quantity: ${offermadelist[index]['quantity']}"),
+                                        offermadelist[index]['period'].toString() == "" || offermadelist[index]['period'] == null ? const SizedBox() : Text("Duration: ${offermadelist[index]['period']} ${_getrenttype(offermadelist[index]['period'].toString(), offermadelist[index]['rent_type_name'].toString())}", style: const TextStyle(color: Colors.black, fontSize: 14)),
+                                      ],
                                     ),
                                   ),
-                                  Card(
-                                    color: Colors.grey[100],
-                                    child: ListTile(
-                                       title: Text("Product Name"),
-                                       subtitle: Text(offermadelist[index]["title"].toString()),
-                                        
+                                  const SizedBox(height: 5.0),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text("Rent type: ${offermadelist[index]['rent_type_name']}"),
+                                        Text("Status: ${_getStatus(offermadelist[index]['offer_status'].toString())}"),
+                                      ],
                                     ),
-                                  ),
-                                  Card(
-                                    color: Colors.grey[100],
-                                    child: ListTile(
-                                       title: Text("Product Quantity"),
-                                       subtitle: Text(offermadelist[index]["quantity"].toString()),
-                                        
-                                    ),
-                                  ),
-                                  Card(
-                                    color: Colors.grey[100],
-                                    child: ListTile(
-                                       title: Text("Rent Type"),
-                                       subtitle: Text(offermadelist[index]["rent_type_name"].toString()),
-                                        
-                                    ),
-                                  ),
-                                  Card(
-                                    color: Colors.grey[100],
-                                    child: ListTile(
-                                       title: Text("Period"),
-                                       subtitle: Text(offermadelist[index]["period"].toString()),
-                                        
-                                    ),
-                                  ),
-                                  Card(
-                                    color: Colors.grey[100],
-                                    child: ListTile(
-                                       title: Text("Product Price(XCD)"),
-                                       subtitle: Text(offermadelist[index]["product_price"].toString()),
-                                        
-                                    ),
-                                  ),
-                                  Card(
-                                    color: Colors.grey[100],
-                                    child: ListTile(
-                                       title: Text("Offer Amount(XCD)"),
-                                       subtitle: Text(offermadelist[index]["renter_amount"].toString()),
-                                        
-                                    ),
-                                  ),
-                                  Card(
-                                    color: Colors.grey[100],
-                                    child: ListTile(
-                                       title: Text("Total Rent(XCD)"),
-                                       subtitle: Text(offermadelist[index]["total_rent"].toString()),
-                                        
-                                    ),
-                                  ),
-                                  Card(
-                                    color: Colors.grey[100],
-                                    child: ListTile(
-                                       title: Text("Total Security(XCD)"),
-                                       subtitle: Text(offermadelist[index]["total_security"].toString()),
-                                        
-                                    ),
-                                  ),
-                                  Card(
-                                    color: Colors.grey[100],
-                                    child: ListTile(
-                                       title: Text("Total Rent(XCD)"),
-                                       subtitle: Text(offermadelist[index]["total_rent"].toString()),
-                                        
-                                    ),
-                                  ),
-                                  Card(
-                                    color: Colors.grey[100],
-                                    child: ListTile(
-                               title: Text("Final Amount(XCD)"),
-                                       subtitle: Text(offermadelist[index]["final_amount"].toString()),
-                                        
-                                    ),
-                                  ),
-                                
-                              ]))));
-                         
-                         },
-                         child: Card(
-                         elevation: 4.0,
-                         child: Padding(
-                           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                           child: Column(
-                             crossAxisAlignment: CrossAxisAlignment.start,
-                             children: [
-                               Padding(
-                                   padding: const EdgeInsets.only(left : 8.0),
-                                   child: Text("Rentee : "+offermadelist[index]['name'].toString(), style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500))),
-                               Row(
-                                 mainAxisAlignment: MainAxisAlignment.start,
-                                 children: [
-                                   TextButton(onPressed: (){
-                                     Navigator.push(context, MaterialPageRoute(builder: (context) => OfferMadeProductDetailScreen(postadid: offermadelist[index]['post_ad_id'].toString(), offerid: offermadelist[index]['offer_request_id'].toString())));
-                                   }, child: SizedBox(
-                                       width: size.width * 0.65,
-                                       child: Text("Product Name : "+offermadelist[index]['title'].toString())
-                                   )),
-                                   SizedBox(width: 5.0),
-                                   offermadelist[index]["offer_status"].toString() == "1" &&  offermadelist[index]["pay_status"].toString() == "0" ? InkWell(onTap: (){
-                            setState((){
-                              post_id = offermadelist[index]["post_ad_id"].toString();
-                              userid = offermadelist[index]["user_id"].toString();
-                              request_id = offermadelist[index]["offer_request_id"].toString();
-                              amount = offermadelist[index]["final_amount"].toString().split('.')[0];
-                            });
-                            startPayment(offermadelist[index]["final_amount"].toString());
-                          }, child: Container(
-                              width: 50,
-                              height: 30,
-                              alignment: Alignment.center,
-                              padding: EdgeInsets.all(4.0),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.all(Radius.circular(4.0)),
-                                  border: Border.all(color: Colors.blue)),  child: Text("Pay", style: TextStyle(color: Colors.blue)))) : _getaction(offermadelist[index]["offer_status"].toString(), offermadelist[index]["pay_status"].toString(), index, offermadelist)
-                                 ],
-                               ),
-                               SizedBox(height: 10.0),
-                               Padding(
-                                 padding: const EdgeInsets.all(8.0),
-                                 child: Row(
-                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                   children: [
-                                     Text("Quantity: "+offermadelist[index]['quantity'].toString()),
-                                     offermadelist[index]['period'].toString() == "" || offermadelist[index]['period'] == null ? SizedBox() : Text("Period: "+offermadelist[index]['period'].toString()+" "+_getrenttype(offermadelist[index]['period'].toString(), offermadelist[index]['rent_type_name'].toString()), style: TextStyle(color: Colors.black, fontSize: 14)),
-                                   ],
-                                 ),
-                               ),
-                               SizedBox(height: 5.0),
-                               Padding(
-                                 padding: const EdgeInsets.all(8.0),
-                                 child: Row(
-                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                   children: [
-                                     Text("Rent type: "+offermadelist[index]['rent_type_name'].toString()),
-                                     Text("Status: "+_getStatus(offermadelist[index]['offer_status'].toString())),
-                                   ],
-                                 ),
-                               )
-                             ],
-                           ),
-                         ),
-                   ),
-                      );
-                 },
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    )
                 )
-                )
-            ],
-          ),
-        ),),
+              ],
+            ),
+          ),),
+      ),
     );
   }
 
@@ -460,48 +494,47 @@ class _OfferMadeScreenState extends State<OfferMadeScreen> {
     if(statusvalue == "3"){
       return InkWell(
         onTap: () {
-             print(listdata[index]["post_ad_id"].toString());
             _getmakeoffer(listdata[index]["post_ad_id"].toString());
         },
         child: Container(
-           width: 50,
+           width: 80,
            height: 30,
            alignment: Alignment.center,
-           padding: EdgeInsets.all(4.0),
+           padding: const EdgeInsets.all(4.0),
            decoration: BoxDecoration(
-             borderRadius: BorderRadius.all(Radius.circular(4.0)),
+             borderRadius: const BorderRadius.all(Radius.circular(4.0)),
              border: Border.all(color: Colors.blue)
              ),
-           child: Text("Edit", style: TextStyle(color: Colors.blue)),
+           child: const Text("Edit", style: TextStyle(color: Colors.blue)),
         ),
       );
     }
     else if(statusvalue == "1" && paystatus == "0"){
-      return Text("Pay", style: TextStyle(color: Colors.grey));
+      return const Text("Pay", style: TextStyle(color: Colors.grey));
     }
     else{
       return InkWell(
         onTap: (){},
         child: Container(
-          width: 50,
+          width: 80,
           height: 30,
           alignment: Alignment.center,
-          padding: EdgeInsets.all(4.0),
+          padding: const EdgeInsets.all(4.0),
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(4.0)),
+              borderRadius: const BorderRadius.all(Radius.circular(4.0)),
               border: Border.all(color: Colors.grey)
           ),
-          child: Text("NA", style: TextStyle(color: Colors.grey)),
+          child: const Text("NA", style: TextStyle(color: Colors.grey)),
         ),
       );
     }
   }
 
-  Future<void> _offermadelist() async{
+  Future<void> offermadelistdata() async{
      SharedPreferences prefs = await SharedPreferences.getInstance();
-     print(prefs.getString('userid'));
      setState((){
        _loading = true;
+       offermadelist.clear();
      });
      final body = {
        "user_id": prefs.getString('userid'),
@@ -524,7 +557,9 @@ class _OfferMadeScreenState extends State<OfferMadeScreen> {
              });
            }
            else{
-              showToast("Records not found");
+              if(DashboardState.currentTab == 1){
+                showToast("Records not found");
+              }
            }
        }
        else {
@@ -1146,28 +1181,28 @@ class _OfferMadeScreenState extends State<OfferMadeScreen> {
   }
 
   String _getrenttype(String period, String renttypevalue){
-    if(renttypevalue == "hourly" || renttypevalue == "Hourly" &&  period == "1"){
+    if(renttypevalue.toLowerCase() == "hourly" &&  period == "1"){
       return "Hour";
     }
-    if(renttypevalue == "hourly" || renttypevalue == "Hourly" &&  period != "1"){
+    if(renttypevalue.toLowerCase() == "hourly" &&  period != "1"){
       return "Hours";
     }
-    else if(renttypevalue == "days" || renttypevalue == "Days" && period == "1"){
+    else if(renttypevalue.toLowerCase() == "days" && period == "1"){
       return "Day";
     }
-    else if(renttypevalue == "days" || renttypevalue == "Days" && period != "1"){
+    else if(renttypevalue.toLowerCase() == "days"  && period != "1"){
       return "Days";
     }
-    else if(renttypevalue == "monthly" || renttypevalue == "Monthly" && period == "1"){
+    else if(renttypevalue.toLowerCase() == "monthly" && period == "1"){
       return "Month";
     }
-    else if(renttypevalue == "monthly" || renttypevalue == "Monthly" && period != "1"){
+    else if(renttypevalue.toLowerCase() == "monthly" && period != "1"){
       return "Months";
     }
-    else if(renttypevalue == "yearly" && period == "1"){
+    else if(renttypevalue.toLowerCase() == "yearly" && period == "1"){
       return "Year";
     }
-    else if(renttypevalue == "yearly" && period != "1"){
+    else if(renttypevalue.toLowerCase() == "yearly" && period != "1"){
       return "Years";
     }
   }

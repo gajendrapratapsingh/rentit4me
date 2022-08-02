@@ -34,6 +34,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
+  google_fonts: ^2.0.0
   shared_preferences: ^2.0.15
   http: ^0.13.0
   fluttertoast: ^8.0.1-nullsafety.0
@@ -46,7 +47,6 @@ dependencies:
   url_launcher: ^6.1.4
   webview_flutter: ^3.0.4
   progress_dialog: ^1.2.4
-  google_sign_in: ^5.4.0
   syncfusion_flutter_maps: ^20.2.38
   location: ^4.4.0
   connectivity: ^0.4.4
@@ -58,22 +58,27 @@ dependencies:
   quickblox_sdk: ^0.6.7-beta
   carousel_pro: ^1.0.0
   flutter_svg: ^0.22.0
-  firebase_messaging: ^11.4.1
   flutter_local_notifications: ^9.5.3+1
   firebase_core: ^1.13.1
   intl: ^0.17.0
-  geolocator: ^9.0.0
   cached_network_image: ^2.1.0+1
   expandable: ^5.0.1
   razorpay_flutter: ^1.2.5
   flutter_bloc: ^8.0.1
+  geolocator: ^9.0.0
   geocoding: ^2.0.4
+  google_maps_flutter: ^2.1.9
   group_radio_button: ^1.2.0
   dropdown_search: ^0.5.0
   flutter_datetime_picker: ^1.5.1
   date_time_picker: ^2.1.0
+  flutter_typeahead: ^4.0.0
+  another_flushbar: ^1.10.29
+  firebase_messaging: ^12.0.1
 
+  google_sign_in: ^5.4.0
   flutter_facebook_auth: ^4.4.0+1
+
 
 dev_dependencies:
   flutter_test:

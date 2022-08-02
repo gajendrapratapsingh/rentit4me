@@ -53,7 +53,7 @@ class _GenerateTicketScreenState extends State<GenerateTicketScreen> {
               Icons.arrow_back,
               color: kPrimaryColor,
             )),
-        title: Text("Ticket", style: TextStyle(color: kPrimaryColor)),
+        title: const Text("Ticket", style: TextStyle(color: kPrimaryColor)),
         centerTitle: true,
       ),
       body: ModalProgressHUD(
@@ -78,7 +78,7 @@ class _GenerateTicketScreenState extends State<GenerateTicketScreen> {
                          const Align(
                              alignment: Alignment.topLeft,
                              child: Text("Title", style: TextStyle(color: kPrimaryColor, fontSize: 14, fontWeight: FontWeight.w500))),
-                         SizedBox(height: 10),
+                         const SizedBox(height: 10),
                          Container(
                              decoration: BoxDecoration(
                                  border: Border.all(
@@ -102,11 +102,11 @@ class _GenerateTicketScreenState extends State<GenerateTicketScreen> {
                                ),
                              )
                          ),
-                         SizedBox(height: 10),
+                         const SizedBox(height: 10),
                          const Align(
                              alignment: Alignment.topLeft,
                              child: Text("Type", style: TextStyle(color: kPrimaryColor, fontSize: 14, fontWeight: FontWeight.w500))),
-                         SizedBox(height: 10),
+                         const SizedBox(height: 10),
                          Container(
                              decoration: BoxDecoration(
                                  border: Border.all(
@@ -138,11 +138,11 @@ class _GenerateTicketScreenState extends State<GenerateTicketScreen> {
                                ),
                              )
                          ),
-                         SizedBox(height: 10),
+                         const SizedBox(height: 10),
                          const Align(
                              alignment: Alignment.topLeft,
                              child: Text("Priority", style: TextStyle(color: kPrimaryColor, fontSize: 14, fontWeight: FontWeight.w500))),
-                         SizedBox(height: 10),
+                         const SizedBox(height: 10),
                          Container(
                              decoration: BoxDecoration(
                                  border: Border.all(
@@ -155,7 +155,7 @@ class _GenerateTicketScreenState extends State<GenerateTicketScreen> {
                                padding: const EdgeInsets.only(left: 10.0, right: 10.0),
                                child: DropdownButtonHideUnderline(
                                  child: DropdownButton(
-                                   hint: Text("Select"),
+                                   hint: const Text("Select"),
                                    isExpanded: true,
                                    value: initialpriority,
                                    icon: const Icon(Icons.arrow_drop_down_sharp),
@@ -174,11 +174,11 @@ class _GenerateTicketScreenState extends State<GenerateTicketScreen> {
                                ),
                              )
                          ),
-                         SizedBox(height: 10),
+                         const SizedBox(height: 10),
                          const Align(
                              alignment: Alignment.topLeft,
                              child: Text("Message", style: TextStyle(color: kPrimaryColor, fontSize: 14, fontWeight: FontWeight.w500))),
-                         SizedBox(height: 10),
+                         const SizedBox(height: 10),
                          Container(
                              decoration: BoxDecoration(
                                  border: Border.all(
@@ -207,7 +207,7 @@ class _GenerateTicketScreenState extends State<GenerateTicketScreen> {
                      ),
                    ),
                  ),
-                 SizedBox(height: 10),
+                 const SizedBox(height: 10),
                  InkWell(
                    onTap: () {
                      if(title.trim().length == 0 || title.trim().isEmpty || title == "Title"){
@@ -234,7 +234,7 @@ class _GenerateTicketScreenState extends State<GenerateTicketScreen> {
                            color: Colors.deepOrangeAccent,
                            borderRadius: BorderRadius.all(Radius.circular(8.0))
                        ),
-                       child: Text("Create", style: TextStyle(color: Colors.white)),
+                       child: const Text("Create", style: TextStyle(color: Colors.white)),
                      ),
                    ),
                  )

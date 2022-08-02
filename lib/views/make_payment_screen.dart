@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:rentit4me/themes/constant.dart';
+import 'package:rentit4me/views/dashboard.dart';
 import 'package:rentit4me/views/home_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -104,7 +105,7 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
               Icons.arrow_back,
               color: kPrimaryColor,
             )),
-        title: Text("Make Payment", style: TextStyle(color: kPrimaryColor)),
+        title: const Text("Make Payment", style: TextStyle(color: kPrimaryColor)),
         centerTitle: true,
       ),
       body: ModalProgressHUD(
@@ -113,7 +114,7 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              Container(
+               Container(
                   width: double.infinity,
                   child: Card(
                       elevation: 4.0,
@@ -129,32 +130,32 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text("Plan", style: TextStyle(color: kPrimaryColor, fontSize: 18, fontWeight: FontWeight.w400)),
-                                  Text(package_name, style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w300))
+                                  const Text("Plan", style: TextStyle(color: kPrimaryColor, fontSize: 18, fontWeight: FontWeight.w400)),
+                                  package_name == null ? const SizedBox() : Text(package_name, style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w300))
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text("Ad Duration", style: TextStyle(color: kPrimaryColor, fontSize: 18, fontWeight: FontWeight.w400)),
+                                  ad_duration == null ? SizedBox() : Text(ad_duration, style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w300))
                                 ],
                               ),
                               SizedBox(height: 10),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text("Ad Duration", style: TextStyle(color: kPrimaryColor, fontSize: 18, fontWeight: FontWeight.w400)),
-                                  Text(ad_duration, style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w300))
+                                  const Text("Ad Limit", style: TextStyle(color: kPrimaryColor, fontSize: 18, fontWeight: FontWeight.w400)),
+                                  ad_limit == null ? SizedBox() : Text(ad_limit, style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w300))
                                 ],
                               ),
                               SizedBox(height: 10),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text("Ad Limit", style: TextStyle(color: kPrimaryColor, fontSize: 18, fontWeight: FontWeight.w400)),
-                                  Text(ad_limit, style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w300))
-                                ],
-                              ),
-                              SizedBox(height: 10),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text("Membership Amount", style: TextStyle(color: kPrimaryColor, fontSize: 18, fontWeight: FontWeight.w400)),
-                                  Container(
+                                  const Text("Membership Amount", style: TextStyle(color: kPrimaryColor, fontSize: 18, fontWeight: FontWeight.w400)),
+                                  amount == null ? SizedBox() : Container(
                                       height: 25,
                                       width: 60,
                                       alignment: Alignment.center,
@@ -259,7 +260,7 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
           _loading = false;
         });
         showToast(jsonDecode(response.body)['ErrorMessage'].toString());
-        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeScreen()));
+        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Dashboard()));
       }
       else {
         setState(() {

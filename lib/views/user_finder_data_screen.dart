@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:group_radio_button/group_radio_button.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:rentit4me/network/api.dart';
@@ -13,26 +14,31 @@ import 'package:shared_preferences/shared_preferences.dart';
 class UserfinderDataScreen extends StatefulWidget {
   String getlocation;
   String getcategory;
+  String getcategoryslug;
   List data = [];
-  UserfinderDataScreen({this.getlocation, this.getcategory, this.data});
+  UserfinderDataScreen({this.getlocation, this.getcategory, this.getcategoryslug, this.data});
 
   @override
-  _UserfinderDataScreenState createState() =>
-      _UserfinderDataScreenState(getlocation, getcategory);
+  _UserfinderDataScreenState createState() => _UserfinderDataScreenState(getlocation, getcategory, getcategoryslug);
 }
 
 class _UserfinderDataScreenState extends State<UserfinderDataScreen> {
   String getlocation;
   String getcategory;
-  _UserfinderDataScreenState(this.getlocation, this.getcategory);
+  String getcategoryslug;
+  _UserfinderDataScreenState(this.getlocation, this.getcategory, this.getcategoryslug);
 
   int skipvalue = 0;
+  int pricesorting;
+  int renttyping;
 
   String locationvalue;
   String categoryvalue;
 
-  var location = [''];
-  var category = [''];
+  List location = [];
+  List category = [];
+  List categorylistData = [];
+  String categoryslugname;
 
   List<dynamic> _searchlist = [];
   List<dynamic> _productdata = [];
@@ -40,8 +46,17 @@ class _UserfinderDataScreenState extends State<UserfinderDataScreen> {
 
   bool isListing = true;
   final controller = ScrollController();
+  final TextEditingController typeAheadController = TextEditingController();
+  final searchController = TextEditingController();
 
-  String _verticalGroupValue;
+  bool isSearching = false;
+
+  String _priceGroupValue;
+  String _rentGroupValue;
+
+  String usercity;
+  String userstate;
+  String usercountry;
 
   @override
   void initState() {
@@ -57,13 +72,22 @@ class _UserfinderDataScreenState extends State<UserfinderDataScreen> {
          listEnd = true;
       });
     } else {
-      _getData(getlocation, getcategory);
+      _getData(getlocation, getcategoryslug);
       controller.addListener(() {
         if(controller.position.pixels == controller.position.maxScrollExtent && isListing) {
-          _getData(getlocation, getcategory);
+          _getData(getlocation, getcategoryslug);
         }
       });
     }
+
+    _getuserlocation();
+  }
+
+  _getuserlocation() async{
+     SharedPreferences prefs = await SharedPreferences.getInstance();
+     usercity = prefs.getString('city');
+     userstate = prefs.getString('state');
+     usercountry = prefs.getString('country');
   }
 
   Future<void> _setlocationorcategory(String lc, String cat) async{
@@ -88,50 +112,139 @@ class _UserfinderDataScreenState extends State<UserfinderDataScreen> {
               Icons.arrow_back,
               color: kPrimaryColor,
             )),
-        title: Text("Rentit4me", style: TextStyle(color: kPrimaryColor)),
+        title: !isSearching
+      ? const Text("Rentit4me", style: TextStyle(color: kPrimaryColor))
+        : Container(
+            margin: const EdgeInsets.only(top: 5.0, bottom: 5.0),
+            padding:
+            const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.indigo.shade50,
+              borderRadius: BorderRadius.all(Radius.circular(5)),
+            ),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: TextField(
+                    decoration: const InputDecoration(
+                      hintText: "Search Rentit4me",
+                      hintStyle: TextStyle(
+                          color: kPrimaryColor,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14),
+                      border: InputBorder.none,
+                    ),
+                    onChanged: (String text) {
+                      setState(() {
+                        _searchlist = _productdata.where((post) {
+                          var title = post['title'].toLowerCase();
+                          if (title
+                              .toLowerCase()
+                              .trim()
+                              .contains(text.toLowerCase().trim())) {
+                            return title.contains(text);
+                          } else {
+                            return title.contains(text);
+                          }
+                        }).toList();
+                      });
+                    },
+                  ),
+                ),
+                InkWell(
+                  onTap: (){
+                    FocusScope.of(context).unfocus();
+                    setState((){
+                       searchController.text = "";
+                       _searchlist.clear();
+                       _searchlist.addAll(_productdata);
+                       isSearching = !isSearching;
+                    });
+                  },
+                  child: const Icon(Icons.clear, color: kPrimaryColor),
+                )
+              ],
+            )),
         centerTitle: true,
+        actions: [
+          isSearching == true ? SizedBox() : IconButton(onPressed: (){
+             setState((){
+               isSearching = !isSearching;
+             });
+          }, icon: const Icon(Icons.search, color: kPrimaryColor))
+        ],
       ),
       body: ModalProgressHUD(
         inAsyncCall: isLoading,
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // Container(
+                  //   height: 35,
+                  //   width: size.width * 0.32,
+                  //   decoration: BoxDecoration(
+                  //       color: Colors.indigo.shade100,
+                  //       borderRadius: BorderRadius.all(Radius.circular(8))),
+                  //   alignment: Alignment.center,
+                  //   child: Padding(
+                  //     padding: EdgeInsets.symmetric(horizontal: 8.0),
+                  //     child: DropdownButton(
+                  //       value: locationvalue,
+                  //       hint: const Text("Location", style: TextStyle(color: kPrimaryColor, fontSize: 12)),
+                  //       isExpanded: true,
+                  //       underline: Container(
+                  //         height: 0,
+                  //         color: Colors.deepPurpleAccent,
+                  //       ),
+                  //       icon: const Visibility(visible: true, child: Icon(Icons.arrow_drop_down_sharp, size: 20, color: kPrimaryColor)),
+                  //       items: location.map((items) {
+                  //         return DropdownMenuItem(
+                  //           value: items,
+                  //           child: Text(items, style: TextStyle(color: kPrimaryColor, fontSize: 12)),
+                  //         );
+                  //       }).toList(),
+                  //       // After selecting the desired option,it will
+                  //       // change button value to selected value
+                  //       onChanged: (newValue) {
+                  //         setState(() {
+                  //           locationvalue = newValue;
+                  //         });
+                  //       },
+                  //     ),
+                  //   ),
+                  // ),
                   Container(
                     height: 35,
-                    width: size.width * 0.32,
-                    decoration: BoxDecoration(
-                        color: Colors.indigo.shade100,
-                        borderRadius: BorderRadius.all(Radius.circular(8))),
+                    width: size.width * 0.38,
                     alignment: Alignment.center,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8.0),
-                      child: DropdownButton(
-                        value: locationvalue,
-                        hint: const Text("Location", style: TextStyle(color: kPrimaryColor, fontSize: 12)),
-                        isExpanded: true,
-                        underline: Container(
-                          height: 0,
-                          color: Colors.deepPurpleAccent,
+                    child: TypeAheadField(
+                      //hideOnLoading: false,
+                      textFieldConfiguration: TextFieldConfiguration(
+                        controller: typeAheadController,
+                        decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.only(left: 5.0, top: 5.0),
+                            hintText: locationvalue == null ? "Search City" : locationvalue,
+                            border: const OutlineInputBorder()
                         ),
-                        icon: const Visibility(visible: true, child: Icon(Icons.arrow_drop_down_sharp, size: 20, color: kPrimaryColor)),
-                        items: location.map((String items) {
-                          return DropdownMenuItem(
-                            value: items,
-                            child: Text(items, style: TextStyle(color: kPrimaryColor, fontSize: 12)),
-                          );
-                        }).toList(),
-                        // After selecting the desired option,it will
-                        // change button value to selected value
-                        onChanged: (String newValue) {
-                          setState(() {
-                            locationvalue = newValue;
-                          });
-                        },
                       ),
+                      suggestionsCallback: (pattern) async {
+                        return await _getAllCity(pattern);
+                      },
+                      itemBuilder: (context, suggestion) {
+                        return ListTile(
+                          title: Text(suggestion),
+                        );
+                      },
+                      onSuggestionSelected: (suggestion) {
+                        typeAheadController.text = suggestion;
+                        setState((){
+                          locationvalue = suggestion;
+                        });
+                      },
                     ),
                   ),
                   Container(
@@ -140,9 +253,9 @@ class _UserfinderDataScreenState extends State<UserfinderDataScreen> {
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                         color: Colors.indigo.shade100,
-                        borderRadius: BorderRadius.all(Radius.circular(8))),
+                        borderRadius: const BorderRadius.all(Radius.circular(8))),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: DropdownButton(
                         hint: const Text("Category", style: TextStyle(color: kPrimaryColor, fontSize: 12)),
                         value: categoryvalue,
@@ -152,7 +265,7 @@ class _UserfinderDataScreenState extends State<UserfinderDataScreen> {
                           color: Colors.deepPurpleAccent,
                         ),
                         icon: const Visibility(visible: true, child: Icon(Icons.arrow_drop_down_sharp, size: 20, color: kPrimaryColor)),
-                        items: category.map((String items) {
+                        items: category.map((items) {
                           return DropdownMenuItem(
                             value: items,
                             child: Text(items,
@@ -160,9 +273,7 @@ class _UserfinderDataScreenState extends State<UserfinderDataScreen> {
                                 style: const TextStyle(color: kPrimaryColor, fontSize: 12)),
                           );
                         }).toList(),
-                        // After selecting the desired option,it will
-                        // change button value to selected value
-                        onChanged: (String newValue) {
+                        onChanged: (newValue) {
                           setState(() {
                             categoryvalue = newValue;
                           });
@@ -172,12 +283,19 @@ class _UserfinderDataScreenState extends State<UserfinderDataScreen> {
                   ),
                   InkWell(
                     onTap: () {
+                      categorylistData.forEach((element) {
+                          if(element['title'].toString() == categoryvalue){
+                             setState((){
+                               categoryslugname = element['slug'].toString();
+                             });
+                          }
+                      });
                       setState(() {
-                        skipvalue = 0;
+                         skipvalue = 0;
                         _searchlist.clear();
                         _productdata.clear();
                       });
-                      _getData(locationvalue, categoryvalue);
+                      _getData(locationvalue, categoryslugname);
                     },
                     child: Container(
                       height: 35,
@@ -193,39 +311,123 @@ class _UserfinderDataScreenState extends State<UserfinderDataScreen> {
               ),
             ),
             Padding(
-              padding: EdgeInsets.all(7.0),
+              padding: const EdgeInsets.all(7.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Padding(
                     padding:EdgeInsets.only(left: 8.0),
-                    child: Text("SORT BY", style: TextStyle(color: Colors.deepOrangeAccent, fontWeight: FontWeight.w700)),
+                    child: Text("FILTER", style: TextStyle(color: Colors.deepOrangeAccent, fontWeight: FontWeight.w700)),
                   ),
-                  SizedBox(height: 6.0),
+                  const SizedBox(height: 6.0),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Row(
+                      children: const[
+                         Text("SORT BY", style: TextStyle(color: Colors.deepOrangeAccent, fontWeight: FontWeight.w700)),
+                         Text("(Price)", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700))
+                      ],
+                    )
+                  ),
                   RadioGroup<String>.builder(
                     horizontalAlignment: MainAxisAlignment.start,
-                    groupValue: _verticalGroupValue,
-
+                    groupValue: _priceGroupValue,
                     direction: Axis.horizontal,
                     onChanged: (value) => setState(() {
-                      _verticalGroupValue = value;
-                      if(_verticalGroupValue == "Lowest To Highest"){
-                        _getfilterData(locationvalue, categoryvalue, "0");
+                      _priceGroupValue = value;
+                      if(_priceGroupValue == "Lowest To Highest"){
+                        // setState((){
+                        //   _productdata.sort((a, b) => a['price'].compareTo(b['price']));
+                        //   _searchlist.clear();
+                        //   _searchlist.addAll(_productdata);
+                        // });
+                        // print("......"+_productdata.toString());
+                        //_getfilterData(category, location, sortby, search, country, state, city, pattern, renttype)
+                        _getfilterData(categoryslugname, locationvalue, "0", "", usercountry, userstate, usercity, searchController.text, _rentGroupValue);
                       }
                       else{
-                        _getfilterData(locationvalue, categoryvalue, "1");
+                        // setState((){
+                        //   _productdata.sort((a, b) => b['price'].compareTo(a['price']));
+                        //   _searchlist.clear();
+                        //   _searchlist.addAll(_productdata);
+                        // });
+                        // // _getfilterData(locationvalue, categoryvalue, "1");
+                        _getfilterData(categoryslugname, locationvalue, "1", "", usercountry, userstate, usercity, searchController.text, _rentGroupValue);
                       }
                     }),
-                    textStyle: TextStyle(fontSize: 12),
-                    items: ["Lowest To Highest", "Highest To Lowest"],
+                    textStyle: const TextStyle(fontSize: 12),
+                    items: const ["Lowest To Highest", "Highest To Lowest"],
                     itemBuilder: (item) => RadioButtonBuilder(item,
                     ),
                     activeColor: Colors.red,
                   ),
+                  Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Row(
+                        children: const[
+                          Text("SORT BY", style: TextStyle(color: Colors.deepOrangeAccent, fontWeight: FontWeight.w700)),
+                          Text("(Rent type)", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700))
+                        ],
+                      )
+                  ),
+                  Column(
+                    children: [
+                      Padding(
+                          padding: EdgeInsets.only(right: size.width * 0.28),
+                          child: RadioGroup<String>.builder(
+                            groupValue: _rentGroupValue,
+                            direction: Axis.horizontal,
+                            onChanged: (value) => setState(() {
+                              _rentGroupValue = value;
+                              if(_rentGroupValue == "Hourly"){
+                                // setState((){
+                                //   _productdata.sort((a, b) => a['price'].compareTo(b['price']));
+                                //   _searchlist.clear();
+                                //   _searchlist.addAll(_productdata);
+                                // });
+                                _getfilterData(categoryslugname, locationvalue, "0", "", usercountry, userstate, usercity, searchController.text, _rentGroupValue);
+                              }
+                              else{
+                                _getfilterData(categoryslugname, locationvalue, "0", "", usercountry, userstate, usercity, searchController.text, _rentGroupValue);
+                              }
+                            }),
+                            textStyle: const TextStyle(fontSize: 12),
+                            items: const ["Hourly", "Weekly"],
+                            itemBuilder: (item) => RadioButtonBuilder(item),
+                            activeColor: Colors.red,
+                          ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(right: size.width * 0.29),
+                        child: RadioGroup<String>.builder(
+                          groupValue: _rentGroupValue,
+                          direction: Axis.horizontal,
+                          onChanged: (value) => setState(() {
+                            _rentGroupValue = value;
+                            if(_rentGroupValue == "Hourly"){
+                              // setState((){
+                              //   _productdata.sort((a, b) => a['price'].compareTo(b['price']));
+                              //   _searchlist.clear();
+                              //   _searchlist.addAll(_productdata);
+                              // });
+                              _getfilterData(categoryslugname, locationvalue, "0", "", usercountry, userstate, usercity, searchController.text, _rentGroupValue);
+                            }
+                            else{
+                              _getfilterData(categoryslugname, locationvalue, "0", "", usercountry, userstate, usercity, searchController.text, _rentGroupValue);
+                            }
+                          }),
+                          textStyle: const TextStyle(fontSize: 12),
+                          items: const ["Monthly", "Yearly"],
+                          itemBuilder: (item) => RadioButtonBuilder(item),
+                          activeColor: Colors.red,
+                        ),
+                      ),
+                    ],
+                  )
                 ],
               ),
             ),
-            Padding(
+            /*Padding(
               padding: EdgeInsets.all(7.0),
               child: Container(
                   margin: EdgeInsets.only(top: 5),
@@ -267,12 +469,12 @@ class _UserfinderDataScreenState extends State<UserfinderDataScreen> {
                       const Icon(Icons.search, color: kPrimaryColor)
                     ],
                   )),
-            ),
+            ),*/
             Expanded(
                 child: isLoading
                     ? const Center(child: SizedBox())
                     : _productdata.length == 0
-                        ? const Center(child: Text("No data Found"))
+                        ? const Center(child: Text("No data found at selected location"))
                         : Padding(
                             padding: EdgeInsets.all(7.0),
                             child: SingleChildScrollView(
@@ -287,7 +489,7 @@ class _UserfinderDataScreenState extends State<UserfinderDataScreen> {
                                               crossAxisCount: 2,
                                               crossAxisSpacing: 4.0,
                                               mainAxisSpacing: 4.0,
-                                              childAspectRatio: 1.1),
+                                              childAspectRatio: 1.0),
                                       itemBuilder: (context, index) {
                                         if (index == _searchlist.length) {
                                           return Container(
@@ -311,23 +513,22 @@ class _UserfinderDataScreenState extends State<UserfinderDataScreen> {
                                                     width: double.infinity,
                                                     errorWidget: (context, url,
                                                             error) =>
-                                                        Image.asset(
-                                                            'assets/images/no_image.jpg'),
+                                                        Image.asset('assets/images/no_image.jpg'),
                                                     fit: BoxFit.cover,
                                                     imageUrl:
-                                                        "${bannerpath + _searchlist[index]['upload_base_path'].toString() + _searchlist[index]['file_name'].toString()}",
+                                                        sliderpath + _searchlist[index]['upload_base_path'].toString() + _searchlist[index]['file_name'].toString(),
                                                   ),
-                                                  SizedBox(height: 5.0),
+                                                  const SizedBox(height: 5.0),
                                                   Padding(
-                                                    padding: EdgeInsets.only(left: 5.0, right: 15.0),
+                                                    padding: const EdgeInsets.only(left: 5.0, right: 15.0),
                                                     child: Align(
                                                       alignment: Alignment.topLeft,
                                                       child: Text(_searchlist[index]['title'].toString(),
-                                                          maxLines: 1,
+                                                          maxLines: 2,
                                                           style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 16)),
                                                     ),
                                                   ),
-                                                  SizedBox(height: 5.0),
+                                                  const SizedBox(height: 5.0),
                                                   Padding(
                                                     padding:
                                                         const EdgeInsets.only(
@@ -339,18 +540,12 @@ class _UserfinderDataScreenState extends State<UserfinderDataScreen> {
                                                               .spaceBetween,
                                                       children: [
                                                         SizedBox(
-                                                          width:
-                                                              size.width * 0.28,
+                                                          width: size.width * 0.28,
                                                           child: Text(
                                                               "Starting from ${_searchlist[index]['currency'].toString()} ${_searchlist[index]['price'].toString()}",
-                                                              style: TextStyle(
-                                                                  color:
-                                                                      kPrimaryColor,
-                                                                  fontSize: 12)),
+                                                              style: const TextStyle(color: kPrimaryColor, fontSize: 12)),
                                                         ),
-                                                        Icon(
-                                                            Icons.add_box_rounded,
-                                                            color: kPrimaryColor)
+                                                        const Icon(Icons.add_box_rounded, color: kPrimaryColor)
                                                       ],
                                                     ),
                                                   )
@@ -360,12 +555,8 @@ class _UserfinderDataScreenState extends State<UserfinderDataScreen> {
                                           );
                                         }
                                       }),
-                                  SizedBox(height: 20),
-                                  listEnd
-                                      ? SizedBox()
-                                      : Center(
-                                          child: CircularProgressIndicator(),
-                                        ),
+                                  const SizedBox(height: 20),
+                                  //listEnd ? const SizedBox() : const Center(child: CircularProgressIndicator()),
                                 ],
                               ),
                             ),
@@ -381,6 +572,12 @@ class _UserfinderDataScreenState extends State<UserfinderDataScreen> {
     setState((){
        isLoading = true;
     });
+    print(jsonEncode({
+      "city_name": location,
+      "category": category,
+      "limit": "10",
+      "skip": skipvalue
+    }));
     final body = {
       "city_name": location,
       "category": category,
@@ -393,6 +590,7 @@ class _UserfinderDataScreenState extends State<UserfinderDataScreen> {
           "Accept": "application/json",
           'Content-Type': 'application/json'
         });
+    print("new data "+response.body);
     setState(() {
       isLoading = false;
     });
@@ -439,23 +637,62 @@ class _UserfinderDataScreenState extends State<UserfinderDataScreen> {
         location.clear();
         category.clear();
         jsonDecode(response.body)['Response']['cities'].forEach((element){location.add(element['name'].toString());});
+        categorylistData.addAll(jsonDecode(response.body)['Response']['categories']);
         jsonDecode(response.body)['Response']['categories'].forEach((element){category.add(element['title'].toString());});
       });
       _setlocationorcategory(getlocation, getcategory);
     }
   }
 
-  Future<void> _getfilterData(String location, String category, String sortvalue) async{
+  Future<List> _getAllCity(String pattern) async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final body = {
+      "country": prefs.getString('country'),
+      "search_city" : pattern
+    };
+    var response = await http.post(Uri.parse(BASE_URL + citiesUrl),
+        body: jsonEncode(body),
+        headers: {
+          "Accept": "application/json",
+          'Content-Type': 'application/json'
+        });
+
+    List temp=jsonDecode(response.body)['Response'];
+
+    List temp2=[];
+    temp.forEach((element) {
+      temp2.add(element['name']);
+    });
+    return temp2;
+  }
+
+  Future<void> _getfilterData(String category, String location, String sortby, String search, String country, String state, String city, String pattern, String renttype) async{
     _productdata.clear();
     _searchlist.clear();
     setState((){
       isLoading = true;
     });
-    final body = {
-      "city_name": location,
+    print(jsonEncode({
       "category": category,
-      "exclude": "1",
-      "sortby": sortvalue
+      "city_name": location,
+      "sortby": sortby,
+      "search" : search,
+      "country" : country,
+      "state" : state,
+      "city" : city,
+      "q" : pattern,
+      "tenure" : renttype
+    }));
+    final body = {
+      "category": category,
+      "city_name": location,
+      "sortby": sortby,
+      "search" : search,
+      "country" : country,
+      "state" : state,
+      "city" : city,
+      "q" : pattern,
+      "tenure" : renttype
     };
     var response = await http.post(Uri.parse(BASE_URL + filterUrl),
         body: jsonEncode(body),
@@ -466,6 +703,7 @@ class _UserfinderDataScreenState extends State<UserfinderDataScreen> {
     setState(() {
       isLoading = false;
     });
+    print("response data "+response.body);
     if (response.statusCode == 200) {
       var data = json.decode(response.body)['Response']['leads'];
       setState(() {

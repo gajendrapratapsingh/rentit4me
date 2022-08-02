@@ -7,6 +7,14 @@ const kCardColor = Color(0xFFfebd1b);
 const kContainerColor = Color(0xFFF7D5CD);
 const kOfferCardColor = Color(0xFFE7D4F9);
 
+const kSecondaryColor = Color(0xFFFE9901);
+const kContentColorLightTheme = Color(0xFF1D1D35);
+const kContentColorDarkTheme = Color(0xFFF5FCF9);
+const kWarninngColor = Color(0xFFF3BB1C);
+const kErrorColor = Color(0xFFF03738);
+
+const kDefaultPadding = 20.0;
+
 const kAnimationDuration = Duration(milliseconds: 200);
 
 const defaultDuration = Duration(milliseconds: 250);

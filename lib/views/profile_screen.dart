@@ -10,7 +10,6 @@ import 'package:rentit4me/network/api.dart';
 import 'package:rentit4me/themes/constant.dart';
 import 'package:http/http.dart' as http;
 import 'package:rentit4me/views/home_screen.dart';
-import 'package:rentit4me/views/payment_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {

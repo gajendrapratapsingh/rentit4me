@@ -1,28 +1,34 @@
 import 'dart:convert';
+
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:group_radio_button/group_radio_button.dart';
+import 'package:http/http.dart' as http;
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:rentit4me/network/api.dart';
 import 'package:rentit4me/themes/constant.dart';
 import 'package:rentit4me/views/otp_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SignupConsumerScreen extends StatefulWidget {
-  const SignupConsumerScreen({Key key}) : super(key: key);
+class SignupUserScreen extends StatefulWidget {
+  String name;
+  String email;
+  SignupUserScreen({this.name, this.email});
 
   @override
-  State<SignupConsumerScreen> createState() => _SignupConsumerScreenState();
+  State<SignupUserScreen> createState() => _SignupUserScreenState(name, email);
 }
 
-class _SignupConsumerScreenState extends State<SignupConsumerScreen> {
+class _SignupUserScreenState extends State<SignupUserScreen> {
 
-  bool _loading = false;
+  String name;
+  String email;
+  _SignupUserScreenState(this.name, this.email);
 
   final nameController = TextEditingController();
-  //final businessController = TextEditingController();
+  final businessController = TextEditingController();
   final emailController = TextEditingController();
   final mobileController = TextEditingController();
   final countrynameController = TextEditingController();
@@ -30,14 +36,16 @@ class _SignupConsumerScreenState extends State<SignupConsumerScreen> {
   final pwdController = TextEditingController();
   final confirmpwdController = TextEditingController();
 
-  String selectedCode = "India +91";
-  String countrycode = "91";
-
+  String selectedCode = "Country Code";
+  String countrycode;
   String countryname;
   var countrycodelistwithname = [''];
   var countrycodelist = [''];
   var countrynamelist = [''];
 
+  bool _loading = false;
+
+  var _result = "Consumer";
   String fcmToken;
 
   @override
@@ -46,18 +54,20 @@ class _SignupConsumerScreenState extends State<SignupConsumerScreen> {
     super.initState();
     _getCountryData();
 
+    _setuserfetchdata();
+
     FirebaseMessaging.instance.getToken().then((value) {
       setState(() {
-        fcmToken = value.toString();
-        print(fcmToken);
+          fcmToken = value.toString();
+          print(fcmToken);
       });
     });
   }
 
-
   @override
   void dispose() {
     nameController.dispose();
+    businessController.dispose();
     emailController.dispose();
     mobileController.dispose();
     alternamemobileContoller.dispose();
@@ -65,6 +75,13 @@ class _SignupConsumerScreenState extends State<SignupConsumerScreen> {
     pwdController.dispose();
     confirmpwdController.dispose();
     super.dispose();
+  }
+
+  _setuserfetchdata(){
+     setState((){
+       nameController.text = name;
+       emailController.text = email;
+     });
   }
 
   @override
@@ -89,8 +106,55 @@ class _SignupConsumerScreenState extends State<SignupConsumerScreen> {
               children: [
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                       SizedBox(
+                         width: MediaQuery.of(context).size.width * 0.40,
+                         child: Row(
+                           children: [
+                             Radio(
+                                 value: 'Consumer',
+                                 groupValue: _result,
+                                 onChanged:(value){
+                                   setState((){
+                                     _result = value;
+                                   });
+                                 }
+                             ),
+                             const SizedBox(width: 0.0),
+                             const Text("Consumer", style: TextStyle(color: Colors.black, fontSize: 16))
+                           ],
+                         )
+                       ),
+                       SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.40,
+                          child: Row(
+                            children: [
+                              Radio(
+                                  value: 'Business',
+                                  groupValue: _result,
+                                  onChanged:(value){
+                                    setState((){
+                                      _result = value;
+                                    });
+                                  }
+                              ),
+                              const Text("Business", style: TextStyle(color: Colors.black, fontSize: 16))
+                            ],
+                          )
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
                   child: _fullnameTextbox("Full Name"),
                 ),
+                _result.toString() == "Business" ? Padding(
+                  padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
+                  child: _businessnameTextbox("Business Name"),
+                ) : SizedBox(),
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
                   child: _emailTextbox("Email Address"),
@@ -104,7 +168,7 @@ class _SignupConsumerScreenState extends State<SignupConsumerScreen> {
                     autoFocusSearchBox: true,
                     showSearchBox: true,
                     hint: 'Country Code',
-                    dropdownSearchDecoration:InputDecoration(
+                    dropdownSearchDecoration:  InputDecoration(
                         enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none
@@ -161,12 +225,16 @@ class _SignupConsumerScreenState extends State<SignupConsumerScreen> {
                         showToast("Please enter your name");
                         return;
                       }
-                      else if(emailController.text.toString().trim().isEmpty && EmailValidator.validate(emailController.text.toString().trim()) == false){
-                        showToast("Please enter valid email address");
-                        return;
-                      }
                       else if(countrycode == null || countrycode == "" || countrycode == "Country Code"){
                         showToast("Please select country code");
+                        return;
+                      }
+                      else if(_result.toString() == "Business" && businessController.text.toString().trim().isEmpty){
+                        showToast("Please enter your business name");
+                        return;
+                      }
+                      else if(emailController.text.toString().trim().isEmpty && EmailValidator.validate(emailController.text.toString().trim()) == false){
+                        showToast("Please enter valid email address");
                         return;
                       }
                       else if(mobileController.text.toString().trim().isEmpty){
@@ -180,7 +248,7 @@ class _SignupConsumerScreenState extends State<SignupConsumerScreen> {
                       else {
                         _register(
                             nameController.text.toString(),
-                            "",
+                            businessController.text.toString(),
                             emailController.text.toString(),
                             countrycode,
                             mobileController.text.toString(),
@@ -213,7 +281,7 @@ class _SignupConsumerScreenState extends State<SignupConsumerScreen> {
       margin: EdgeInsets.only(left: 20, right: 20, bottom: 10),
       child: TextFormField(
         textCapitalization: TextCapitalization.sentences,
-        //controller: nameController,
+        controller: nameController,
         validator: (value) {
           return null;
         },
@@ -230,13 +298,35 @@ class _SignupConsumerScreenState extends State<SignupConsumerScreen> {
       ),
     );
   }
+  Widget _businessnameTextbox(_initialValue) {
+    return Container(
+      margin: EdgeInsets.only(left: 20, right: 20, bottom: 10),
+      child: TextFormField(
+        textCapitalization: TextCapitalization.sentences,
+        //controller: businessController,
+        validator: (value) {
+          return null;
+        },
+        onSaved: (String value) {
+          businessController.text = value;
+        },
+        onChanged: (value){
+          businessController.text = value;
+        },
+        cursorColor: kPrimaryColor,
+        decoration: InputDecoration(
+            hintText: _initialValue.toString(),
+            labelText: 'Business Name*'),
+      ),
+    );
+  }
   Widget _emailTextbox(_initialValue) {
     return Container(
       margin: EdgeInsets.only(left: 20, right: 20, bottom: 10),
       child: TextFormField(
         textCapitalization: TextCapitalization.sentences,
         keyboardType: TextInputType.emailAddress,
-        //controller: emailController,
+        controller: emailController,
         validator: (value) {
           return null;
         },
@@ -253,27 +343,7 @@ class _SignupConsumerScreenState extends State<SignupConsumerScreen> {
       ),
     );
   }
-  Widget _CountrynameTextbox(_initialValue) {
-    return Container(
-      margin: EdgeInsets.only(left: 20, right: 20, bottom: 10),
-      child: TextFormField(
-        textCapitalization: TextCapitalization.sentences,
-        validator: (value) {
-          return null;
-        },
-        onSaved: (String value) {
-          countrynameController.text = value;
-        },
-        onChanged: (value){
-          countrynameController.text = value;
-        },
-        cursorColor: kPrimaryColor,
-        decoration: InputDecoration(
-            hintText: _initialValue.toString(),
-            labelText: 'Country Name*'),
-      ),
-    );
-  }
+
   Widget _mobileTextbox(_initialValue) {
     return Container(
       margin: EdgeInsets.only(left: 20, right: 20, bottom: 10),
@@ -292,10 +362,11 @@ class _SignupConsumerScreenState extends State<SignupConsumerScreen> {
         },
         cursorColor: kPrimaryColor,
         decoration: InputDecoration(
-            hintText: _initialValue.toString(),
-            labelText: 'Mobile*',
-             counterText: "",
+          hintText: _initialValue.toString(),
+          labelText: 'Mobile*',
+          counterText: "",
         ),
+
       ),
     );
   }
@@ -317,9 +388,9 @@ class _SignupConsumerScreenState extends State<SignupConsumerScreen> {
         },
         cursorColor: kPrimaryColor,
         decoration: InputDecoration(
-            hintText: _initialValue.toString(),
-            labelText: 'Alternate Mobile(optional)',
-            counterText: "",
+          hintText: _initialValue.toString(),
+          labelText: 'Alternate Mobile(optional)',
+          counterText: "",
         ),
       ),
     );
@@ -376,11 +447,12 @@ class _SignupConsumerScreenState extends State<SignupConsumerScreen> {
         countrycodelistwithname.clear();
         countrycodelist.clear();
         countrynamelist.clear();
-        for(int i=0; i<jsonDecode(response.body)['Response'].length; i++){
-          countrycodelistwithname.add("${jsonDecode(response.body)['Response'][i]['name']} +${jsonDecode(response.body)['Response'][i]['dialcode']}");
-          countrycodelist.add("+${jsonDecode(response.body)['Response'][i]['dialcode']}");
-          countrynamelist.add(jsonDecode(response.body)['Response'][i]['name'].toString());
-        }
+
+        jsonDecode(response.body)['Response'].forEach((element){
+          countrycodelistwithname.add(element['name'].toString()+" "+"+"+element['dialcode'].toString());
+          countrycodelist.add("+"+element['dialcode'].toString());
+          countrynamelist.add(element['name'].toString());
+        });
       });
     }
   }
@@ -396,7 +468,7 @@ class _SignupConsumerScreenState extends State<SignupConsumerScreen> {
       "email": email,
       "countrycode": countrycode,
       "mobile" : mobile,
-      "user_type" : "3",
+      "user_type" : _result.toString() == "Business" ? "4" : "3",
       "password" : password,
       "token" : fcmToken,
       "latitude" : prefs.getString('latitude'),
@@ -408,14 +480,12 @@ class _SignupConsumerScreenState extends State<SignupConsumerScreen> {
       "email": email,
       "countrycode": countrycode,
       "mobile" : mobile,
-      "user_type" : "3",
+      "user_type" : _result.toString() == "Business" ? "4" : "3",
       "password" : password,
       "password_confirmation" : confirmpwd,
       "token" : fcmToken,
       "latitude" : prefs.getString('latitude'),
       "longitude" : prefs.getString('longitude'),
-      //"latitude" : "44.534721",
-      //"longitude" : "24.307261",
     };
     var response = await http.post(Uri.parse(BASE_URL + register),
         body: jsonEncode(body),
@@ -430,7 +500,7 @@ class _SignupConsumerScreenState extends State<SignupConsumerScreen> {
         _loading = false;
       });
       if(jsonDecode(response.body)['ErrorCode'].toString() == "0") {
-         prefs.setString('userid', jsonDecode(response.body)['Response']['id'].toString());
+        prefs.setString('userid', jsonDecode(response.body)['Response']['id'].toString());
         _sendotp(mobile);
       }
       else{
@@ -471,8 +541,8 @@ class _SignupConsumerScreenState extends State<SignupConsumerScreen> {
         }
     );
     if(jsonDecode(response.body)['ErrorCode'].toString() == "0"){
-       showToast(jsonDecode(response.body)['Response']['otp'].toString());
-       Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  OtpScreen(phone: mobile, otp: jsonDecode(response.body)['Response']['otp'].toString())));
+      showToast(jsonDecode(response.body)['Response']['otp'].toString());
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) =>  OtpScreen(phone: mobile, otp: jsonDecode(response.body)['Response']['otp'].toString())));
     }
 
   }

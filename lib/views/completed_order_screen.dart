@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:rentit4me/network/api.dart';
 import 'package:rentit4me/themes/constant.dart';
+import 'package:rentit4me/views/order_detail_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CompletedOrderScreen extends StatefulWidget {
@@ -44,11 +45,11 @@ class _CompletedOrderScreenState extends State<CompletedOrderScreen> {
             onTap: () {
               Navigator.of(context).pop();
             },
-            child: Icon(
+            child: const Icon(
               Icons.arrow_back,
               color: kPrimaryColor,
             )),
-        title: Text("Completed Orders", style: TextStyle(color: kPrimaryColor)),
+        title: const Text("Completed Orders", style: TextStyle(color: kPrimaryColor)),
         centerTitle: true,
       ),
       body: ModalProgressHUD(
@@ -65,7 +66,7 @@ class _CompletedOrderScreenState extends State<CompletedOrderScreen> {
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       children: [
-                        SizedBox(height: 5),
+                        const SizedBox(height: 5),
                         Padding(
                           padding: const EdgeInsets.only(left: 0.0),
                           child: TextFormField(
@@ -90,15 +91,13 @@ class _CompletedOrderScreenState extends State<CompletedOrderScreen> {
                             },
                           ),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                //Text("From Date", style: TextStyle(color: kPrimaryColor, fontSize: 14, fontWeight: FontWeight.w500)),
-                                //SizedBox(height: 10),
                                 Container(
                                     width: size.width * 0.42,
                                     decoration: BoxDecoration(
@@ -126,8 +125,6 @@ class _CompletedOrderScreenState extends State<CompletedOrderScreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                //Text("To Date", style: TextStyle(color: kPrimaryColor, fontSize: 14, fontWeight: FontWeight.w500)),
-                                //SizedBox(height: 10),
                                 Container(
                                     width: size.width * 0.42,
                                     decoration: BoxDecoration(
@@ -154,14 +151,19 @@ class _CompletedOrderScreenState extends State<CompletedOrderScreen> {
                             )
                           ],
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         InkWell(
                           onTap: () {
-                             if(searchvalue == "Enter order id" || searchvalue.length == 0 || searchvalue.isEmpty){
-                                _completedorderslistByDate();
+                             if(searchvalue == "Enter order id" && startdate == "From Date"){
+                               showToast("Please enter your search or select date");
                              }
                              else{
-                               _completedorderslistBySearch();
+                               if(searchvalue == "Enter order id" || searchvalue.length == 0 || searchvalue.isEmpty){
+                                 _completedorderslistByDate();
+                               }
+                               else{
+                                 _completedorderslistBySearch();
+                               }
                              }
                           },
                           child: Card(
@@ -177,7 +179,7 @@ class _CompletedOrderScreenState extends State<CompletedOrderScreen> {
                                   color: Colors.deepOrangeAccent,
                                   borderRadius: BorderRadius.all(Radius.circular(8.0))
                               ),
-                              child: Text("Filter", style: TextStyle(color: Colors.white)),
+                              child: const Text("Filter", style: TextStyle(color: Colors.white)),
                             ),
                           ),
                         )
@@ -185,7 +187,7 @@ class _CompletedOrderScreenState extends State<CompletedOrderScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
                 Container(
                    height: size.height * 0.50,
                    child: ListView.separated(
@@ -199,12 +201,12 @@ class _CompletedOrderScreenState extends State<CompletedOrderScreen> {
                            showDialog(
                                 context: context,
                                 builder: (_) => AlertDialog(
-                                title: Text('Detail Information'),
+                                title: const Text('Detail Information'),
                                 content: SingleChildScrollView(child:  Column(children: [
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                         title: Text("Order Id"),
+                                         title: const Text("Order Id"),
                                          subtitle: Text(completedorderslist[index]['order_id'].toString()),
                                           
                                       ),
@@ -212,7 +214,7 @@ class _CompletedOrderScreenState extends State<CompletedOrderScreen> {
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                         title: Text("Product Name"),
+                                         title: const Text("Product Name"),
                                          subtitle: Text(completedorderslist[index]["title"].toString()),
                                           
                                       ),
@@ -220,7 +222,7 @@ class _CompletedOrderScreenState extends State<CompletedOrderScreen> {
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                         title: Text("Product Quantity"),
+                                         title: const Text("Product Quantity"),
                                          subtitle: Text(completedorderslist[index]["quantity"].toString()),
                                           
                                       ),
@@ -228,7 +230,7 @@ class _CompletedOrderScreenState extends State<CompletedOrderScreen> {
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                         title: Text("Rent Type"),
+                                         title: const Text("Rent Type"),
                                          subtitle: Text(completedorderslist[index]["rent_type_name"].toString()),
                                           
                                       ),
@@ -236,7 +238,7 @@ class _CompletedOrderScreenState extends State<CompletedOrderScreen> {
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                         title: Text("Period"),
+                                         title: const Text("Period"),
                                          subtitle: Text(completedorderslist[index]["period"].toString()),
                                           
                                       ),
@@ -244,7 +246,7 @@ class _CompletedOrderScreenState extends State<CompletedOrderScreen> {
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                         title: Text("Product Price(INR)"),
+                                         title: const Text("Product Price(INR)"),
                                          subtitle: Text(completedorderslist[index]["product_price"].toString()),
                                           
                                       ),
@@ -252,7 +254,7 @@ class _CompletedOrderScreenState extends State<CompletedOrderScreen> {
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                         title: Text("Offer Amount(INR)"),
+                                         title: const Text("Offer Amount(INR)"),
                                          subtitle: Text(completedorderslist[index]["renter_amount"].toString()),
                                           
                                       ),
@@ -260,7 +262,7 @@ class _CompletedOrderScreenState extends State<CompletedOrderScreen> {
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                         title: Text("Total Rent(INR)"),
+                                         title: const Text("Total Rent(INR)"),
                                          subtitle: Text(completedorderslist[index]["total_rent"].toString()),
                                           
                                       ),
@@ -268,7 +270,7 @@ class _CompletedOrderScreenState extends State<CompletedOrderScreen> {
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                         title: Text("Total Security(INR)"),
+                                         title: const Text("Total Security(INR)"),
                                          subtitle: Text(completedorderslist[index]["total_security"].toString()),
                                           
                                       ),
@@ -276,7 +278,7 @@ class _CompletedOrderScreenState extends State<CompletedOrderScreen> {
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                         title: Text("Total Rent(INR)"),
+                                         title: const Text("Total Rent(INR)"),
                                          subtitle: Text(completedorderslist[index]["total_rent"].toString()),
                                           
                                       ),
@@ -284,7 +286,7 @@ class _CompletedOrderScreenState extends State<CompletedOrderScreen> {
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                 title: Text("Final Amount(INR)"),
+                                 title: const Text("Final Amount(INR)"),
                                          subtitle: Text(completedorderslist[index]["final_amount"].toString()),
                                           
                                       ),
@@ -295,36 +297,57 @@ class _CompletedOrderScreenState extends State<CompletedOrderScreen> {
                          child: Card(
                             elevation: 4.0,
                             child: Padding(
-                              padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
-                              child: ListTile(
-                                 title: Text("Order Id : "+completedorderslist[index]['order_id'].toString()),
-                                 subtitle: Column(
-                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                   children: [
-                                      Text("Product : "+completedorderslist[index]['title'].toString()),
-                                      SizedBox(height: 5),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text("Qty: "+completedorderslist[index]['quantity'].toString()),
-                                          Text("Period: "+completedorderslist[index]['period'].toString()),
-                                          Text("Rent type: "+completedorderslist[index]['rent_type_name'].toString()),
-                                      ])
-                                   ],
-                                 ),
-                                 trailing: completedorderslist[index]["offer_status"].toString() == "1" ? InkWell(
-                                      onTap: (){
-                                          
-                                      }, 
-                                      child: Container(
-                                         padding: EdgeInsets.all(4.0),
-                                         decoration: BoxDecoration(
-                                           borderRadius: BorderRadius.all(Radius.circular(4.0)),
-                                           border: Border.all(color: Colors.blue)
-                                        ),
-                                        child: Text("Action", style: TextStyle(color: Colors.blue)),
-                                      ), 
-                                 ) : _getaction(completedorderslist[index]["offer_status"].toString()),
+                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                      padding: const EdgeInsets.only(left : 8.0),
+                                      child: Text("Order Id : ${completedorderslist[index]['order_id']}", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500))),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      TextButton(onPressed: (){
+                                        Navigator.push(context, MaterialPageRoute(builder: (context) => OrderDetailScreen(orderid: completedorderslist[index]['id'].toString())));
+                                      }, child: SizedBox(
+                                          width: size.width * 0.60,
+                                          child: Text("Product Name : ${completedorderslist[index]['title']}")
+                                      )),
+                                      const SizedBox(width: 4.0),
+                                      InkWell(onTap: (){
+                                        //_confirmation(context, myorderslist[index]['id'].toString());
+                                      }, child: Container(
+                                          width: 80,
+                                          alignment: Alignment.center,
+                                          padding: EdgeInsets.all(4.0),
+                                          decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.all(Radius.circular(4.0)),
+                                              border: Border.all(color: Colors.grey)),  child: const Text("NA", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey))))
+                                    ],
+                                  ),
+                                  const SizedBox(height: 10.0),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text("Quantity: ${completedorderslist[index]['quantity']}"),
+                                        completedorderslist[index]['period'].toString() == "" || completedorderslist[index]['period'] == null ? SizedBox() : Text("Period: "+completedorderslist[index]['period'].toString()+" "+_getrenttype(completedorderslist[index]['period'].toString(), completedorderslist[index]['rent_type_name'].toString()), style: TextStyle(color: Colors.black, fontSize: 14)),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text("Rent type: ${completedorderslist[index]['rent_type_name']}"),
+                                        Text("Status: ${completedorderslist[index]['status']}"),
+                                      ],
+                                    ),
+                                  )
+                                ],
                               ),
                             ),
                          ),
@@ -549,6 +572,34 @@ class _CompletedOrderScreenState extends State<CompletedOrderScreen> {
       setState(() {
         enddate = DateFormat('yyyy-MM-dd').format(picked);
       });
+  }
+
+
+  String _getrenttype(String period, String renttypevalue){
+    if(renttypevalue.toLowerCase() == "hourly" &&  period == "1"){
+      return "Hour";
+    }
+    if(renttypevalue.toLowerCase() == "hourly" &&  period != "1"){
+      return "Hours";
+    }
+    else if(renttypevalue.toLowerCase() == "days" && period == "1"){
+      return "Day";
+    }
+    else if(renttypevalue.toLowerCase() == "days" && period != "1"){
+      return "Days";
+    }
+    else if(renttypevalue.toLowerCase() == "monthly" && period == "1"){
+      return "Month";
+    }
+    else if(renttypevalue.toLowerCase() == "monthly" && period != "1"){
+      return "Months";
+    }
+    else if(renttypevalue == "yearly" && period == "1"){
+      return "Year";
+    }
+    else if(renttypevalue == "yearly" && period != "1"){
+      return "Years";
+    }
   }
 
 }

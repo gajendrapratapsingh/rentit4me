@@ -30,7 +30,7 @@ class _DeliveryStatusScreenState extends State<DeliveryStatusScreen> {
               Icons.arrow_back,
               color: kPrimaryColor,
             )),
-        title: Text("Delivery Status", style: TextStyle(color: kPrimaryColor)),
+        title: const Text("Delivery Status", style: TextStyle(color: kPrimaryColor)),
         centerTitle: true,
       ),
       body: ModalProgressHUD(
@@ -39,7 +39,7 @@ class _DeliveryStatusScreenState extends State<DeliveryStatusScreen> {
           child: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: _loading == true ? SizedBox() : Column(
+              child: _loading == true ? const SizedBox() : Column(
                 children: [
                   Card(
                     elevation: 4.0,
@@ -58,7 +58,7 @@ class _DeliveryStatusScreenState extends State<DeliveryStatusScreen> {
                                     const SizedBox(height: 5.0),
                                     SizedBox(
                                        width: size.width * 0.50,
-                                       child: Text("Black and white headphone", style: TextStyle(color: Colors.black , fontSize: 16))
+                                       child: const Text("Black and white headphone", style: TextStyle(color: Colors.black , fontSize: 16))
                                     )
                                  ],
                                ),
@@ -72,7 +72,7 @@ class _DeliveryStatusScreenState extends State<DeliveryStatusScreen> {
                                )
                             ],
                           ),
-                          SizedBox(height: 8.0),
+                          const SizedBox(height: 8.0),
                           Row(
                             children: [
                               SizedBox(
@@ -96,7 +96,7 @@ class _DeliveryStatusScreenState extends State<DeliveryStatusScreen> {
                               )
                             ],
                           ),
-                          SizedBox(height: 8.0),
+                          const SizedBox(height: 8.0),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -121,7 +121,7 @@ class _DeliveryStatusScreenState extends State<DeliveryStatusScreen> {
                               )
                             ],
                           ),
-                          SizedBox(height: 8.0),
+                          const SizedBox(height: 8.0),
                           Align(
                             alignment: Alignment.topRight,
                             child: InkWell(
@@ -142,7 +142,7 @@ class _DeliveryStatusScreenState extends State<DeliveryStatusScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Card(
                     elevation: 4.0,
                     child: Padding(
@@ -292,7 +292,7 @@ class _DeliveryStatusScreenState extends State<DeliveryStatusScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Card(
                     elevation: 4.0,
                     child: Container(

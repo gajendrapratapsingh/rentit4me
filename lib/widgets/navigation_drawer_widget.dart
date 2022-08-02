@@ -88,10 +88,17 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
 
   void _setUserdetail(String profilepicurl, String name, String email, String mobile) async{
      SharedPreferences prefs = await SharedPreferences.getInstance();
-     prefs.setString('profile', sliderpath+profilepicurl);
-     prefs.setString('name', name);
-     prefs.setString('email', email);
-     prefs.setString('mobile', mobile);
+     try{
+       prefs.setString('profile', sliderpath+profilepicurl);
+       prefs.setString('name', name);
+       prefs.setString('email', email);
+       prefs.setString('mobile', mobile);
+     }
+     catch(e){
+        setState((){
+           name = "Hi Guest";
+        });
+     }
   }
 
   @override
@@ -115,7 +122,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                   ExpansionTile(
                     iconColor: Colors.white,
                     collapsedIconColor: Colors.white,
-                    title: Text("MY ACCOUNT", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
+                    title: const Text("MY ACCOUNT", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
                     children: <Widget>[
                       InkWell(
                         onTap: () async{
@@ -129,7 +136,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                                 Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
                               }
                               else{
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => SelectMemberShipScreen()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => SelectMemberShipScreen(pageswitch: "Home")));
                               }
                             }
                             else{
@@ -150,19 +157,19 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                         onTap:() async{
                            SharedPreferences prefs = await SharedPreferences.getInstance();
                            if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
-                             Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                             Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())).then((value) => Navigator.of(context).pop());
                            }
                            else{
                              if(trustedbadge == "1") {
                                if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
-                                 Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                                 Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen())).then((value) => Navigator.of(context).pop());
                                }
                                else{
-                                 Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentScreen()));
+                                 Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentScreen())).then((value) => Navigator.of(context).pop());
                                }
                              }
                              else{
-                               Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentScreen()));
+                               Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentScreen())).then((value) => Navigator.of(context).pop());
                              }
                            }
                         },
@@ -178,19 +185,19 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                         onTap: () async{
                           SharedPreferences prefs = await SharedPreferences.getInstance();
                           if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())).then((value) => Navigator.of(context).pop());
                           }
                           else{
                             if(trustedbadge == "1"){
                               if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen())).then((value) => Navigator.of(context).pop());
                               }
                               else{
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => GenerateTicketScreen()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => GenerateTicketScreen())).then((value) => Navigator.of(context).pop());
                               }
                             }
                             else{
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => GenerateTicketScreen()));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => GenerateTicketScreen())).then((value) => Navigator.of(context).pop());
                             }
                           }
                         },
@@ -206,19 +213,19 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                         onTap: () async{
                           SharedPreferences prefs = await SharedPreferences.getInstance();
                           if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())).then((value) => Navigator.of(context).pop());
                           }
                           else{
                             if(trustedbadge == "1"){
                               if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen())).then((value) => Navigator.of(context).pop());
                               }
                               else{
-                                Navigator.of(context).push(MaterialPageRoute(builder: (context) => MyticketScreen()));
+                                Navigator.of(context).push(MaterialPageRoute(builder: (context) => MyticketScreen())).then((value) => Navigator.of(context).pop());
                               }
                             }
                             else{
-                              Navigator.of(context).push(MaterialPageRoute(builder: (context) => MyticketScreen()));
+                              Navigator.of(context).push(MaterialPageRoute(builder: (context) => MyticketScreen())).then((value) => Navigator.of(context).pop());
                             }
                           }
                         },
@@ -232,11 +239,11 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                       ),
                     ],
                   ),
-                  Divider(color: Colors.white70),
+                  const Divider(color: Colors.white70),
                   ExpansionTile(
                     iconColor: Colors.white,
                     collapsedIconColor: Colors.white,
-                    title: Text("MY LISTING", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
+                    title: const Text("MY LISTING", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
                     children: <Widget>[
                       InkWell(
                         onTap: () async{
@@ -247,14 +254,14 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                             else{
                               if(trustedbadge == "1"){
                                 if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen())).then((value) => Navigator.of(context).pop());
                                 }
                                 else{
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => AddlistingScreen()));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => AddlistingScreen())).then((value) => Navigator.of(context).pop());
                                 }
                               }
                               else{
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => AddlistingScreen()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => AddlistingScreen())).then((value) => Navigator.of(context).pop());
                               }
                             }
                         },
@@ -270,19 +277,19 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                         onTap: () async{
                           SharedPreferences prefs = await SharedPreferences.getInstance();
                           if(prefs.getString('userid') == null || prefs.getString('userid') == "") {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())).then((value) => Navigator.of(context).pop());
                            }
                            else{
                             if(trustedbadge == "1"){
                               if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen())).then((value) => Navigator.of(context).pop());
                               }
                               else{
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => AlllistingScreen()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => AlllistingScreen())).then((value) => Navigator.of(context).pop());
                               }
                             }
                             else{
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => AlllistingScreen()));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => AlllistingScreen())).then((value) => Navigator.of(context).pop());
                             }
                           }
                         },
@@ -298,19 +305,19 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                         onTap: () async{
                           SharedPreferences prefs = await SharedPreferences.getInstance();
                           if(prefs.getString('userid') == null || prefs.getString('userid') == "") {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())).then((value) => Navigator.of(context).pop());
                           }
                           else{
                             if(trustedbadge == "1"){
                               if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen())).then((value) => Navigator.of(context).pop());
                               }
                               else{
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => ActivelistingScreen()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => ActivelistingScreen())).then((value) => Navigator.of(context).pop());
                               }
                             }
                             else{
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => ActivelistingScreen()));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => ActivelistingScreen())).then((value) => Navigator.of(context).pop());
                             }
                           }
                         },
@@ -326,19 +333,19 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                         onTap: () async{
                           SharedPreferences prefs = await SharedPreferences.getInstance();
                           if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())).then((value) => Navigator.of(context).pop());
                            }
                            else{
                             if(trustedbadge == "1"){
                               if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen())).then((value) => Navigator.of(context).pop());
                               }
                               else{
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => InactivelsitingScreen()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => InactivelsitingScreen())).then((value) => Navigator.of(context).pop());
                               }
                             }
                             else{
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => InactivelsitingScreen()));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => InactivelsitingScreen())).then((value) => Navigator.of(context).pop());
                             }
                           }
                         },
@@ -354,19 +361,19 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                         onTap: () async{
                              SharedPreferences prefs = await SharedPreferences.getInstance();
                              if(prefs.getString('userid') == null || prefs.getString('userid') == "") {
-                                 Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                                 Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())).then((value) => Navigator.of(context).pop());
                              }
                              else{
                                if(trustedbadge == "1"){
                                  if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
-                                   Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                                   Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen())).then((value) => Navigator.of(context).pop());
                                  }
                                  else{
-                                   Navigator.push(context, MaterialPageRoute(builder: (context) => PromotedlistScreen()));
+                                   Navigator.push(context, MaterialPageRoute(builder: (context) => PromotedlistScreen())).then((value) => Navigator.of(context).pop());
                                  }
                                }
                                else{
-                                 Navigator.push(context, MaterialPageRoute(builder: (context) => PromotedlistScreen()));
+                                 Navigator.push(context, MaterialPageRoute(builder: (context) => PromotedlistScreen())).then((value) => Navigator.of(context).pop());
                                }
                              }
 
@@ -381,29 +388,29 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                       ),
                     ],
                   ),
-                  Divider(color: Colors.white70),
+                  const Divider(color: Colors.white70),
                   ExpansionTile(
                     collapsedIconColor: Colors.white,
                     iconColor: Colors.white,
-                    title: Text("MY INBOX", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
+                    title: const Text("MY INBOX", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
                     children: <Widget>[
                       InkWell(
                         onTap: () async{
                           SharedPreferences prefs = await SharedPreferences.getInstance();
                           if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())).then((value) => Navigator.of(context).pop());
                           }
                           else{
                             if(trustedbadge == "1"){
                               if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen())).then((value) => Navigator.of(context).pop());
                               }
                               else{
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen())).then((value) => Navigator.of(context).pop());
                               }
                             }
                             else{
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen()));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen())).then((value) => Navigator.of(context).pop());
                             }
                           }
                         },
@@ -419,19 +426,19 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                         onTap: () async{
                           SharedPreferences prefs = await SharedPreferences.getInstance();
                           if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())).then((value) => Navigator.of(context).pop());
                           }
                           else{
                             if(trustedbadge == "1"){
                               if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen())).then((value) => Navigator.of(context).pop());
                               }
                               else{
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => MessageScreen()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => MessageScreen())).then((value) => Navigator.of(context).pop());
                               }
                             }
                             else{
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => MessageScreen()));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => MessageScreen())).then((value) => Navigator.of(context).pop());
                             }
                           }
                         },
@@ -447,19 +454,19 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                         onTap: () async{
                            SharedPreferences prefs = await SharedPreferences.getInstance();
                            if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())).then((value) => Navigator.of(context).pop());
                            }
                            else{
                              if(trustedbadge == "1"){
                                if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
-                                 Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                                 Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen())).then((value) => Navigator.of(context).pop());
                                }
                                else{
-                                 Navigator.push(context, MaterialPageRoute(builder: (context) => OfferMadeScreen()));
+                                 Navigator.push(context, MaterialPageRoute(builder: (context) => OfferMadeScreen())).then((value) => Navigator.of(context).pop());
                                }
                              }
                              else{
-                               Navigator.push(context, MaterialPageRoute(builder: (context) => OfferMadeScreen()));
+                               Navigator.push(context, MaterialPageRoute(builder: (context) => OfferMadeScreen())).then((value) => Navigator.of(context).pop());
                              }
                            }
 
@@ -476,19 +483,19 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                         onTap: () async{
                           SharedPreferences prefs = await SharedPreferences.getInstance();
                           if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())).then((value) => Navigator.of(context).pop());
                           }
                           else{
                             if(trustedbadge == "1"){
                               if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen())).then((value) => Navigator.of(context).pop());
                               }
                               else{
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => OfferRecievedScreen()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => OfferRecievedScreen())).then((value) => Navigator.of(context).pop());
                               }
                             }
                             else{
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => OfferRecievedScreen()));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => OfferRecievedScreen())).then((value) => Navigator.of(context).pop());
                             }
                           }
 
@@ -497,38 +504,37 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                           alignment: Alignment.topLeft,
                           child: Padding(
                             padding: EdgeInsets.all(8.0),
-                            child: Text("Offers Recieved", style: TextStyle(color: Colors.white, fontSize: 16)),
+                            child: Text("Offers Received", style: TextStyle(color: Colors.white, fontSize: 16)),
                           ),
                         ),
                       ),
                     ],
                   ),
-                  Divider(color: Colors.white70),
+                  const Divider(color: Colors.white70),
                   ExpansionTile(
                     collapsedIconColor: Colors.white,
                     iconColor: Colors.white,
-                    title: Text("MY ORDERS", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
+                    title: const Text("MY ORDERS", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
                     children: <Widget>[
                       InkWell(
                         onTap: () async{
                           SharedPreferences prefs = await SharedPreferences.getInstance();
                              if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
-                               Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                               Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())).then((value) => Navigator.of(context).pop());
                              }
                              else{
                                if(trustedbadge == "1") {
                                  if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
-                                   Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                                   Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen())).then((value) => Navigator.of(context).pop());
                                  }
                                  else{
-                                   Navigator.push(context, MaterialPageRoute(builder: (context) => MyOrdersScreen()));
+                                   Navigator.push(context, MaterialPageRoute(builder: (context) => MyOrdersScreen())).then((value) => Navigator.of(context).pop());
                                  }
                                }
                                else{
-                                 Navigator.push(context, MaterialPageRoute(builder: (context) => MyOrdersScreen()));
+                                 Navigator.push(context, MaterialPageRoute(builder: (context) => MyOrdersScreen())).then((value) => Navigator.of(context).pop());
                                }
                              }
-
                         },
                         child: const Align(
                           alignment: Alignment.topLeft,
@@ -542,19 +548,19 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                         onTap: () async{
                           SharedPreferences prefs = await SharedPreferences.getInstance();
                           if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())).then((value) => Navigator.of(context).pop());
                           }
                           else{
                             if(trustedbadge == "1") {
                               if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen())).then((value) => Navigator.of(context).pop());
                               }
                               else{
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => ActiveOrderScreen()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => ActiveOrderScreen())).then((value) => Navigator.of(context).pop());
                               }
                             }
                             else{
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => ActiveOrderScreen()));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => ActiveOrderScreen())).then((value) => Navigator.of(context).pop());
                             }
                           }
 
@@ -569,19 +575,19 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                         onTap:() async{
                           SharedPreferences prefs = await SharedPreferences.getInstance();
                           if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())).then((value) => Navigator.of(context).pop());
                           }
                           else{
                             if(trustedbadge == "1"){
                               if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen())).then((value) => Navigator.of(context).pop());
                               }
                               else{
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => CompletedOrderScreen()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => CompletedOrderScreen())).then((value) => Navigator.of(context).pop());
                               }
                             }
                             else{
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => CompletedOrderScreen()));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => CompletedOrderScreen())).then((value) => Navigator.of(context).pop());
                             }
                           }
                         },
@@ -596,19 +602,19 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                       InkWell(onTap: () async{
                           SharedPreferences prefs = await SharedPreferences.getInstance();
                           if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())).then((value) => Navigator.of(context).pop());
                           }
                           else{
                             if(trustedbadge == "1"){
                               if(trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen())).then((value) => Navigator.of(context).pop());
                               }
                               else{
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => OrderRecievedScreen()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => OrderRecievedScreen())).then((value) => Navigator.of(context).pop());
                               }
                             }
                             else{
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => OrderRecievedScreen()));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => OrderRecievedScreen())).then((value) => Navigator.of(context).pop());
                             }
                           }
 
@@ -617,36 +623,36 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                           alignment: Alignment.topLeft,
                           child: Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: Text("Orders Recieved", style: TextStyle(color: Colors.white, fontSize: 16)),
+                              child: Text("Orders Received", style: TextStyle(color: Colors.white, fontSize: 16)),
                           ),
                         ),
                       ),
 
                     ],
                   ),
-                  Divider(color: Colors.white70),
+                  const Divider(color: Colors.white70),
                   ExpansionTile(
                     iconColor: Colors.white,
                     collapsedIconColor: Colors.white,
-                    title: Text("MANAGE PROFILE", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
+                    title: const Text("MANAGE PROFILE", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
                     children: <Widget>[
                       InkWell(
                         onTap: () async{
                           SharedPreferences prefs = await SharedPreferences.getInstance();
                           if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())).then((value) => Navigator.of(context).pop());
                           }
                           else{
                             if(trustedbadge == "1"){
                               if(trustedbadgeapproval == null || trustedbadgeapproval == "null" || trustedbadgeapproval == "" || trustedbadgeapproval == "Pending" || trustedbadgeapproval == "pending"){
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PendingStatusScreen())).then((value) => Navigator.of(context).pop());
                               }
                               else{
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => UserDetailScreen()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => UserDetailScreen())).then((value) => Navigator.of(context).pop());
                               }
                             }
                             else{
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => UserDetailScreen()));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => UserDetailScreen())).then((value) => Navigator.of(context).pop());
                             }
                           }
 
@@ -663,10 +669,10 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                         onTap: () async{
                            SharedPreferences prefs = await SharedPreferences.getInstance();
                            if(prefs.getString('userid') == null || prefs.getString('userid') == ""){
-                               Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                               Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())).then((value) => Navigator.of(context).pop());
                            }
                           else{
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => ChangePasswordScreen()));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => ChangePasswordScreen())).then((value) => Navigator.of(context).pop());
                           }
                           },
                         child: const Align(

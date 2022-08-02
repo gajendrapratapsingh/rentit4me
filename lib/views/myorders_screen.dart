@@ -60,7 +60,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
               Icons.arrow_back,
               color: kPrimaryColor,
             )),
-        title: Text("My Orders", style: TextStyle(color: kPrimaryColor)),
+        title: const Text("My Orders", style: TextStyle(color: kPrimaryColor)),
         centerTitle: true,
       ),
       body: ModalProgressHUD(
@@ -77,7 +77,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       children: [
-                        SizedBox(height: 5),
+                        const SizedBox(height: 5),
                         Padding(
                           padding: const EdgeInsets.only(left: 0.0),
                           child: TextFormField(
@@ -162,15 +162,21 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                             )
                           ],
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         InkWell(
                           onTap: () {
-                            if(searchvalue == "Enter order id" || searchvalue.length == 0 || searchvalue.isEmpty){
-                               _myorderslistByDate();
+                            if(searchvalue == "Enter order id" && startdate == "From Date"){
+                               showToast("Please enter order id or select date");
                             }
-                            else {
-                              _myorderslistBySearch();
+                            else{
+                              if(searchvalue == "Enter order id" || searchvalue.length == 0 || searchvalue.isEmpty){
+                                _myorderslistByDate();
+                              }
+                              else {
+                                _myorderslistBySearch();
+                              }
                             }
+
                           },
                           child: Card(
                             elevation: 8.0,
@@ -185,8 +191,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                                   color: Colors.deepOrangeAccent,
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(8.0))),
-                              child: Text("Filter",
-                                  style: TextStyle(color: Colors.white)),
+                              child: const Text("Filter", style: TextStyle(color: Colors.white)),
                             ),
                           ),
                         )
@@ -194,7 +199,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
                 Container(
                   height: size.height * 0.50,
                   child: ListView.separated(
@@ -209,106 +214,84 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                           showDialog(
                               context: context,
                               builder: (_) => AlertDialog(
-                                  title: Text('Detail Information'),
+                                  title: const Text('Detail Information'),
                                   content: SingleChildScrollView(
                                       child: Column(children: [
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                        title: Text("Rentee"),
-                                        subtitle: Text(myorderslist[index]
-                                                ['name']
-                                            .toString()),
+                                        title: const Text("Rentee"),
+                                        subtitle: Text(myorderslist[index]['name'].toString()),
                                       ),
                                     ),
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                        title: Text("Product Name"),
-                                        subtitle: Text(myorderslist[index]
-                                                ["title"]
-                                            .toString()),
+                                        title: const Text("Product Name"),
+                                        subtitle: Text(myorderslist[index]["title"].toString()),
                                       ),
                                     ),
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                        title: Text("Product Quantity"),
-                                        subtitle: Text(myorderslist[index]
-                                                ["quantity"]
-                                            .toString()),
+                                        title: const Text("Product Quantity"),
+                                        subtitle: Text(myorderslist[index]["quantity"].toString()),
                                       ),
                                     ),
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                        title: Text("Rent Type"),
-                                        subtitle: Text(myorderslist[index]
-                                                ["rent_type_name"]
-                                            .toString()),
+                                        title: const Text("Rent Type"),
+                                        subtitle: Text(myorderslist[index]["rent_type_name"].toString()),
                                       ),
                                     ),
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                        title: Text("Period"),
-                                        subtitle: Text(myorderslist[index]
-                                                ["period"]
-                                            .toString()),
+                                        title: const Text("Period"),
+                                        subtitle: Text(myorderslist[index]["period"].toString()),
                                       ),
                                     ),
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                        title: Text("Product Price(XCD)"),
-                                        subtitle: Text(myorderslist[index]
-                                                ["product_price"]
-                                            .toString()),
+                                        title: const Text("Product Price(XCD)"),
+                                        subtitle: Text(myorderslist[index]["product_price"].toString()),
                                       ),
                                     ),
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                        title: Text("Offer Amount(XCD)"),
-                                        subtitle: Text(myorderslist[index]
-                                                ["renter_amount"]
-                                            .toString()),
+                                        title: const Text("Offer Amount(XCD)"),
+                                        subtitle: Text(myorderslist[index]["renter_amount"].toString()),
                                       ),
                                     ),
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                        title: Text("Total Rent(XCD)"),
-                                        subtitle: Text(myorderslist[index]
-                                                ["total_rent"]
-                                            .toString()),
+                                        title: const Text("Total Rent(XCD)"),
+                                        subtitle: Text(myorderslist[index]["total_rent"].toString()),
                                       ),
                                     ),
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                        title: Text("Total Security(XCD)"),
-                                        subtitle: Text(myorderslist[index]
-                                                ["total_security"]
-                                            .toString()),
+                                        title: const Text("Total Security(XCD)"),
+                                        subtitle: Text(myorderslist[index]["total_security"].toString()),
                                       ),
                                     ),
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                        title: Text("Total Rent(XCD)"),
-                                        subtitle: Text(myorderslist[index]
-                                                ["total_rent"]
-                                            .toString()),
+                                        title: const Text("Total Rent(XCD)"),
+                                        subtitle: Text(myorderslist[index]["total_rent"].toString()),
                                       ),
                                     ),
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                        title: Text("Final Amount(XCD)"),
-                                        subtitle: Text(myorderslist[index]
-                                                ["final_amount"]
-                                            .toString()),
+                                        title: const Text("Final Amount(XCD)"),
+                                        subtitle: Text(myorderslist[index]["final_amount"].toString()),
                                       ),
                                     ),
                                   ]))));
@@ -386,6 +369,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
 
   Future<void> _myorderslist() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    print(prefs.getString('userid'));
     setState(() {
         _progress = true;
         myorderslist.clear();
@@ -398,10 +382,10 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           headers: {
             "Accept": "application/json",
             'Content-Type': 'application/json'
-          });
+      });
       print(response.body);
-      if (response.statusCode == 200) {
-        if (jsonDecode(response.body)['ErrorCode'].toString() == "0") {
+      if(response.statusCode == 200) {
+        if(jsonDecode(response.body)['ErrorCode'].toString() == "0") {
           setState(() {
             myorderslist.addAll(jsonDecode(response.body)['Response']['Orders']);
             _progress = false;
@@ -514,11 +498,11 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         onTap: (){},
         child: Container(
           width: 80,
-          padding: EdgeInsets.all(4.0),
+          padding: const EdgeInsets.all(4.0),
           decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(4.0)),
               border: Border.all(color: Colors.grey)),
-          child: Text("NA", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey)),
+          child: const Text("NA", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey)),
         ),
       );
     }
@@ -555,10 +539,11 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         );
       },
     );
-    if (picked != null)
+    if(picked != null) {
       setState(() {
         startdate = DateFormat('yyyy-MM-dd').format(picked);
       });
+    }
   }
 
   Future<void> _selectEndtDate(BuildContext context) async {
@@ -592,10 +577,11 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         );
       },
     );
-    if (picked != null)
+    if(picked != null) {
       setState(() {
         enddate = DateFormat('yyyy-MM-dd').format(picked);
       });
+    }
   }
 
   Future<void> _confirmation(BuildContext context, String orderid) {
@@ -664,22 +650,22 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   }
 
   String _getrenttype(String period, String renttypevalue){
-    if(renttypevalue == "hourly" &&  period == "1"){
+    if(renttypevalue.toLowerCase() == "hourly" &&  period == "1"){
       return "Hour";
     }
-    if(renttypevalue == "hourly" &&  period != "1"){
+    if(renttypevalue.toLowerCase() == "hourly" &&  period != "1"){
       return "Hours";
     }
-    else if(renttypevalue == "days" && period == "1"){
+    else if(renttypevalue.toLowerCase() == "days" && period == "1"){
       return "Day";
     }
-    else if(renttypevalue == "days" && period != "1"){
+    else if(renttypevalue.toLowerCase() == "days" && period != "1"){
       return "Days";
     }
-    else if(renttypevalue == "monthly" && period == "1"){
+    else if(renttypevalue.toLowerCase() == "monthly" && period == "1"){
       return "Month";
     }
-    else if(renttypevalue == "monthly" && period != "1"){
+    else if(renttypevalue.toLowerCase() == "monthly" && period != "1"){
       return "Months";
     }
     else if(renttypevalue == "yearly" && period == "1"){

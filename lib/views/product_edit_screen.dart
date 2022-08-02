@@ -111,6 +111,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
   @override
   void initState() {
     super.initState();
+    print("............productid"+productid);
     _getpreproductedit(productid);
     _getCategories();
   }
@@ -150,9 +151,9 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Align(alignment: Alignment.topLeft, child: Text("General", style: TextStyle(color: kPrimaryColor, fontSize: 21, fontWeight: FontWeight.bold))),
-                        SizedBox(height: 15),
+                        const SizedBox(height: 15),
                         const Align(alignment: Alignment.topLeft, child: Text("Main Image", style: TextStyle(color: kPrimaryColor, fontWeight: FontWeight.bold))),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         Container(
                           decoration: BoxDecoration(
                             border: Border.all(color: Colors.grey, width: 1.0),
@@ -167,13 +168,13 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                                   height: 45,
                                   width: 45,
                                   alignment: Alignment.topLeft,
-                                  child: mainimage == "Main Image (Minimum Aspect Ration - 648px X 480px)*" ? Text(mainimage, style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600)) : Image.file(File(mainimage)),
+                                  child: mainimage == "Main Image (Minimum Aspect Ration - 648px X 480px)*" ? Text(mainimage, style: TextStyle(color: Colors.black, fontSize: 14)) : mainimage.contains('http') ? Image.network(mainimage) : Image.file(File(mainimage)),
                                 ),
                               ),
                             ),
                             InkWell(
                               onTap: () {
-                                showmainimageCaptureOptions(1);
+                                showmainimageCaptureOptions(1, 0);
                               },
                               child: Container(
                                 width: 120,
@@ -202,52 +203,62 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                                   fontWeight: FontWeight.bold),
                             ),
                             ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  primary: kPrimaryColor,
-                                ),
+                                style: ElevatedButton.styleFrom(primary: kPrimaryColor),
                                 onPressed: () {
                                   if(additionalimage.length > 3){
                                     showToast("Already added maximumn number of additional image");
                                   }
                                   else{
-                                    showmainimageCaptureOptions(2);
+                                    showmainimageCaptureOptions(2, 0);
                                   }
-
                                 },
                                 child: Text("ADD"))
                           ],
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
+                        const Text("You can add upto 4 images", style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w500)),
+                        const SizedBox(height: 10),
                         Container(
                             height: 140,
                             width: double.infinity,
-                            decoration: BoxDecoration(
-                                border:
-                                Border.all(color: Colors.grey, width: 1.0),
-                                borderRadius:
-                                BorderRadius.all(Radius.circular(8.0))),
+                            decoration: BoxDecoration(border: Border.all(color: Colors.grey, width: 1.0), borderRadius: BorderRadius.all(Radius.circular(8.0))),
                             child: GridView.count(
                                 padding: EdgeInsets.zero,
                                 crossAxisCount: 3,
                                 physics: ClampingScrollPhysics(),
-                                children: additionalimage
-                                    .map((e) => InkWell(
-                                  onTap: (){
-                                    setState(() {
-                                      additionalimage.removeAt(additionalimage.indexOf(e));
-                                    });
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 4.0),
-                                    child: Stack(
-                                      alignment: Alignment.topRight,
-                                      children: [
-                                        Image.file(File(e), fit: BoxFit.fill),
-                                        Icon(Icons.cancel, color: Colors.red)
-                                      ],
+                                children: additionalimage.map((e) => Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 4.0),
+                                  child:
+                                      e['image'].toString().contains('http') ? InkWell(
+                                        onTap: (){
+                                          showmainimageCaptureOptions(3, additionalimage.indexOf(e));
+                                        },
+                                        child: Stack(
+                                          alignment: Alignment.topRight,
+                                          children: [
+                                            Image.network(e['image']),
+                                            Icon(Icons.update)
+                                          ],
+                                        ),
+                                      ): InkWell(
+                                            onTap: (){
+                                              setState((){
+                                                additionalimage.removeAt(additionalimage.indexOf(e));
+                                              });
+                                            },
+                                            child: Stack(
+                                              alignment: Alignment.topRight,
+                                              children: [
+                                                Image.file(File(e['image']), fit: BoxFit.fill),
+                                                Icon(Icons.clear, color: Colors.red)
+                                              ],
+                                            ),
 
-                                    ),
-                                  ),
+                                      ) ,
+                                      //const Icon(Icons.cancel, color: Colors.red)
+
+
+
                                 ))
                                     .toList())
                         ),
@@ -318,8 +329,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                                   const EdgeInsets.only(left: 5.0, right: 5.0),
                                   child: DropdownButton(
                                     hint: Text(subcategoryhint,
-                                        style: TextStyle(
-                                            color: Colors.grey, fontSize: 14)),
+                                        style: const TextStyle(color: Colors.grey, fontSize: 14)),
                                     value: initialsubcatvalue,
                                     icon: const Icon(Icons.arrow_drop_down_rounded),
                                     items: _subcategorieslist.map((items) {
@@ -337,7 +347,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                                     },
                                   ),
                                 ))),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         const Align(
                           alignment: Alignment.topLeft,
                           child: Text(
@@ -347,7 +357,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                                 fontWeight: FontWeight.bold),
                           ),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         Container(
                           decoration: BoxDecoration(
                               border: Border.all(color: Colors.grey, width: 1),
@@ -1031,9 +1041,6 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
         categoryid = data['posted_ad'][0]['categories'][0]['id'].toString();
         subcategoryid = data['posted_ad'][0]['categories'][1]['id'].toString();
 
-        //statusint = data['posted_ad'][0]['status'].toString() == "6" ? 1 : 0;
-        //statusvalue = data['posted_ad'][0]['status'].toString() == "6" ? "Active" : "Inactive";
-
         negotiablevalue = data['posted_ad'][0]['negotiate'].toString() == "1" ? "Yes" : "No";
         hidemobilevalue = data['posted_ad'][0]['mobile_hidden'].toString() == "1" ? "Yes" : "No";
 
@@ -1056,17 +1063,16 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
              }
         });
 
-
         data['Images'].forEach((element){
-            //additionalimage.add('https://dev.techstreet.in/rentit4me/public/assets/frontend/images/listings/6259622011f4a.jpg');
             if(element['is_main'] == 1){
-               mainimage = "https://dev.techstreet.in/rentit4me/public/${element['upload_base_path'].toString()}${element['file_name'].toString()}";
+               mainimage = sliderpath+"${element['upload_base_path'].toString()}${element['file_name'].toString()}";
             }
             else{
-              additionalimage.add("https://dev.techstreet.in/rentit4me/public/${element['upload_base_path'].toString()}${element['file_name'].toString()}");
+              additionalimage.add({"update" : false,"image" : sliderpath+"${element['upload_base_path'].toString()}${element['file_name'].toString()}","id": element['id'].toString()});
             }
 
         });
+
         data['Pricing'].forEach((element) {
             if(element['rent_type_name'].toString() == "Hourly"){
                _checkhour = true;
@@ -1138,7 +1144,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
     }
   }
 
-  Future<void> showmainimageCaptureOptions(int datafor) async {
+  Future<void> showmainimageCaptureOptions(int datafor, int index) async {
     final ImagePicker _picker = ImagePicker();
     await showModalBottomSheet(
         shape: const RoundedRectangleBorder(
@@ -1181,12 +1187,19 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
 
                                 case 2:
                                   setState(() {
-                                    additionalimage.add(result.path.toString());
+                                    additionalimage.add({"image": result.path.toString(), "id" : "-", "update": true});
+                                  });
+                                  break;
+                                case 3:
+                                  setState(() {
+                                    additionalimage[index]["image"]=result.path.toString();
+                                    additionalimage[index]["update"]=true;
                                   });
                                   break;
                               }
                             }
                             Navigator.of(context).pop();
+                            print(".........................2"+jsonEncode(additionalimage).toString());
                           },
                           style: ButtonStyle(
                               backgroundColor:
@@ -1217,12 +1230,19 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
 
                                 case 2:
                                   setState(() {
-                                    additionalimage.add(result.path.toString());
+                                    additionalimage.add({"image": result.path.toString(), "id" : "-", "update": true});
+                                  });
+                                  break;
+                                case 3:
+                                  setState(() {
+                                    additionalimage[index]["image"]=result.path.toString();
+                                    additionalimage[index]["update"]=true;
                                   });
                                   break;
                               }
                             }
                             Navigator.of(context).pop();
+                            print("........................."+jsonEncode(additionalimage).toString());
                           },
                           style: ButtonStyle(
                               backgroundColor:
@@ -1240,6 +1260,14 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
   }
 
   Future<Map> submitpostaddData(List files) async {
+    List update = [];
+    List images = [];
+    List ids = [];
+    files.forEach((element) {
+        update.add(element['update']);
+        images.add(element['image']);
+        ids.add(element['id']);
+    });
     print(productid);
     print(categoryid);
     print(subcategoryid);
@@ -1255,7 +1283,6 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
 
     print(files.length.toString());
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
     List temp = [];
     renttype.forEach((element) {
       if(element['enable']){
@@ -1293,40 +1320,47 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
       requestMulti.fields["rent_type[3]"] = renttype[2]['type'].toString();
       requestMulti.fields["price[4]"] = renttype[3]['amount'].toString();
       requestMulti.fields["rent_type[4]"] = renttype[3]['type'].toString();
+      requestMulti.fields["files"] = renttype[3]['type'].toString();
+      requestMulti.fields["update"] = update.join(",");
+      requestMulti.fields["image"] = images.join(",");
+      requestMulti.fields["id"] = ids.join(",");
 
+      print(jsonEncode(requestMulti.fields));
 
-      requestMulti.files.add(http.MultipartFile(
-          "main_image", File(mainimage).openRead(),
-          File(mainimage).lengthSync(),
-          filename: "image" + p.extension(mainimage.toString())));
-
-      List<http.MultipartFile> newList = [];
-
-      if (files.length > 0) {
-        for (var i = 0; i < files.length; i++) {
-          File imageFile = File(files[i].toString());
-          var stream = http.ByteStream(imageFile.openRead());
-          var length = await imageFile.length();
-          var multipartFile = http.MultipartFile("images[]", stream, length,
-              filename: "image" + p.extension(files[i].toString()));
-          newList.add(multipartFile);
-        }
-      } else {
-        requestMulti.fields['images[]'] = "";
-      }
-
-      requestMulti.files.addAll(newList);
-
-      var response = await requestMulti.send();
-      var respStr = await response.stream.bytesToString();
-      setState(() {
-        _loading = false;
-      });
-      if(jsonDecode(respStr)['ErrorCode'] == 0) {
-        showToast(jsonDecode(respStr)['ErrorMessage'].toString());
-      }else{
-        showToast(jsonDecode(respStr)['ErrorMessage'].toString());
-      }
+    //
+    //
+    //   requestMulti.files.add(http.MultipartFile(
+    //       "main_image", File(mainimage).openRead(),
+    //       File(mainimage).lengthSync(),
+    //       filename: "image" + p.extension(mainimage.toString())));
+    //
+    //   List<http.MultipartFile> newList = [];
+    //
+    //   if (files.length > 0) {
+    //     for (var i = 0; i < files.length; i++) {
+    //       File imageFile = File(files[i]["image"].toString());
+    //       var stream = http.ByteStream(imageFile.openRead());
+    //       var length = await imageFile.length();
+    //       var multipartFile = http.MultipartFile("images[]", stream, length,
+    //           filename: "image" + p.extension(files[i]["image"].toString()));
+    //       newList.add(multipartFile);
+    //     }
+    //   } else {
+    //     requestMulti.fields['images[]'] = "";
+    //   }
+    //
+    //   requestMulti.files.addAll(newList);
+    //
+    //   var response = await requestMulti.send();
+    //   var respStr = await response.stream.bytesToString();
+    //   setState(() {
+    //     _loading = false;
+    //   });
+    //   if(jsonDecode(respStr)['ErrorCode'] == 0) {
+    //     showToast(jsonDecode(respStr)['ErrorMessage'].toString());
+    //   }else{
+    //     showToast(jsonDecode(respStr)['ErrorMessage'].toString());
+    //   }
     }
   }
 }

@@ -48,7 +48,7 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
               Icons.arrow_back,
               color: kPrimaryColor,
             )),
-        title: Text("Active Orders", style: TextStyle(color: kPrimaryColor)),
+        title: const Text("Active Orders", style: TextStyle(color: kPrimaryColor)),
         centerTitle: true,
       ),
       body: ModalProgressHUD(
@@ -65,7 +65,7 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       children: [
-                        SizedBox(height: 5),
+                        const SizedBox(height: 5),
                         Padding(
                           padding: const EdgeInsets.only(left: 0.0),
                           child: TextFormField(
@@ -90,15 +90,13 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
                             },
                           ),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                //Text("From Date", style: TextStyle(color: kPrimaryColor, fontSize: 14, fontWeight: FontWeight.w500)),
-                                //SizedBox(height: 10),
                                 Container(
                                     width: size.width * 0.42,
                                     decoration: BoxDecoration(
@@ -116,7 +114,7 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
                                           Text(startdate, style: TextStyle(color: Colors.grey)),
                                           IconButton(onPressed: (){
                                             _selectStartDate(context);
-                                          }, icon: Icon(Icons.calendar_today_sharp, size: 16, color: kPrimaryColor))
+                                          }, icon: const Icon(Icons.calendar_today_sharp, size: 16, color: kPrimaryColor))
                                         ],
                                       ),
                                     )
@@ -126,8 +124,6 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                //Text("To Date", style: TextStyle(color: kPrimaryColor, fontSize: 14, fontWeight: FontWeight.w500)),
-                                //SizedBox(height: 10),
                                 Container(
                                     width: size.width * 0.42,
                                     decoration: BoxDecoration(
@@ -142,10 +138,10 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(enddate, style: TextStyle(color: Colors.grey)),
+                                          Text(enddate, style: const TextStyle(color: Colors.grey)),
                                           IconButton(onPressed: (){
                                             _selectEndtDate(context);
-                                          }, icon: Icon(Icons.calendar_today_sharp, size: 16, color: kPrimaryColor))
+                                          }, icon: const Icon(Icons.calendar_today_sharp, size: 16, color: kPrimaryColor))
                                         ],
                                       ),
                                     )
@@ -154,14 +150,19 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
                             )
                           ],
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         InkWell(
                           onTap: () {
-                            if(searchvalue == "Enter order id" || searchvalue.length == 0 || searchvalue.isEmpty){
-                               _myactiveorderslistByDate();
+                            if(searchvalue == "Enter order id" && startdate == "From Date"){
+                              showToast("Please enter your search or select date");
                             }
                             else{
-                              _myactiveorderslistBySearch();
+                              if(searchvalue == "Enter order id" || searchvalue.length == 0 || searchvalue.isEmpty){
+                                _myactiveorderslistByDate();
+                              }
+                              else{
+                                _myactiveorderslistBySearch();
+                              }
                             }
                           },
                           child: Card(
@@ -177,7 +178,7 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
                                   color: Colors.deepOrangeAccent,
                                   borderRadius: BorderRadius.all(Radius.circular(8.0))
                               ),
-                              child: Text("Filter", style: TextStyle(color: Colors.white)),
+                              child: const Text("Filter", style: TextStyle(color: Colors.white)),
                             ),
                           ),
                         )
@@ -185,7 +186,7 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
                 Container(
                    height: size.height * 0.50,
                    child: ListView.separated(
@@ -199,12 +200,12 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
                            showDialog(
                                 context: context,
                                 builder: (_) => AlertDialog(
-                                title: Text('Detail Information'),
+                                title: const Text('Detail Information'),
                                 content: SingleChildScrollView(child:  Column(children: [
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                         title: Text("Order Id"),
+                                         title: const Text("Order Id"),
                                          subtitle: Text(myactiveorderslist[index]['order_id'].toString()),
                                           
                                       ),
@@ -212,7 +213,7 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                         title: Text("Product Name"),
+                                         title: const Text("Product Name"),
                                          subtitle: Text(myactiveorderslist[index]["title"].toString()),
                                           
                                       ),
@@ -220,7 +221,7 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                         title: Text("Product Quantity"),
+                                         title: const Text("Product Quantity"),
                                          subtitle: Text(myactiveorderslist[index]["quantity"].toString()),
                                           
                                       ),
@@ -236,7 +237,7 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                         title: Text("Period"),
+                                         title: const Text("Period"),
                                          subtitle: Text(myactiveorderslist[index]["period"].toString()),
                                           
                                       ),
@@ -244,7 +245,7 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                         title: Text("Product Price(INR)"),
+                                         title: const Text("Product Price(INR)"),
                                          subtitle: Text(myactiveorderslist[index]["product_price"].toString()),
                                           
                                       ),
@@ -252,7 +253,7 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                         title: Text("Offer Amount(INR)"),
+                                         title: const Text("Offer Amount(INR)"),
                                          subtitle: Text(myactiveorderslist[index]["renter_amount"].toString()),
                                           
                                       ),
@@ -260,7 +261,7 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                         title: Text("Total Rent(INR)"),
+                                         title: const Text("Total Rent(INR)"),
                                          subtitle: Text(myactiveorderslist[index]["total_rent"].toString()),
                                           
                                       ),
@@ -268,7 +269,7 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                         title: Text("Total Security(INR)"),
+                                         title: const Text("Total Security(INR)"),
                                          subtitle: Text(myactiveorderslist[index]["total_security"].toString()),
                                           
                                       ),
@@ -276,7 +277,7 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                         title: Text("Total Rent(INR)"),
+                                         title: const Text("Total Rent(INR)"),
                                          subtitle: Text(myactiveorderslist[index]["total_rent"].toString()),
                                           
                                       ),
@@ -284,8 +285,7 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
                                     Card(
                                       color: Colors.grey[100],
                                       child: ListTile(
-                                 title: Text("Final Amount(INR)"),
-                                         subtitle: Text(myactiveorderslist[index]["final_amount"].toString()),
+                                 title: const Text("Final Amount(INR)"), subtitle: Text(myactiveorderslist[index]["final_amount"].toString()),
                                           
                                       ),
                                     ),
@@ -301,7 +301,7 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
                                children: [
                                  Padding(
                                      padding: const EdgeInsets.only(left : 8.0),
-                                     child: Text("Order Id : " +myactiveorderslist[index]['order_id'].toString(), style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500))),
+                                     child: Text("Order Id : ${myactiveorderslist[index]['order_id']}", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500))),
                                  Row(
                                    mainAxisAlignment: MainAxisAlignment.start,
                                    children: [
@@ -309,9 +309,9 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
                                        Navigator.push(context, MaterialPageRoute(builder: (context) => OrderDetailScreen(orderid: myactiveorderslist[index]['id'].toString())));
                                      }, child: SizedBox(
                                          width: size.width * 0.60,
-                                         child: Text("Product Name : "+myactiveorderslist[index]['title'].toString())
+                                         child: Text("Product Name : ${myactiveorderslist[index]['title']}")
                                      )),
-                                     SizedBox(width: 4.0),
+                                     const SizedBox(width: 4.0),
                                         InkWell(onTap: (){
                                         //_confirmation(context, myorderslist[index]['id'].toString());
                                      }, child: Container(
@@ -320,29 +320,28 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
                                          padding: EdgeInsets.all(4.0),
                                          decoration: BoxDecoration(
                                              borderRadius: BorderRadius.all(Radius.circular(4.0)),
-                                             border: Border.all(color: Colors.grey)),  child: Text("NA", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey))))
+                                             border: Border.all(color: Colors.grey)),  child: const Text("NA", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey))))
                                    ],
                                  ),
-                                 SizedBox(height: 10.0),
+                                 const SizedBox(height: 10.0),
                                  Padding(
                                    padding: const EdgeInsets.all(8.0),
                                    child: Row(
                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                      children: [
-                                       Text("Quantity: "+myactiveorderslist[index]['quantity'].toString()),
+                                       Text("Quantity: ${myactiveorderslist[index]['quantity']}"),
                                        myactiveorderslist[index]['period'].toString() == "" || myactiveorderslist[index]['period'] == null ? SizedBox() : Text("Period: "+myactiveorderslist[index]['period'].toString()+" "+_getrenttype(myactiveorderslist[index]['period'].toString(), myactiveorderslist[index]['rent_type_name'].toString()), style: TextStyle(color: Colors.black, fontSize: 14)),
-                                       //Text("Period: "+myorderslist[index]['period'].toString()),
                                      ],
                                    ),
                                  ),
-                                 SizedBox(height: 5.0),
+                                 const SizedBox(height: 5.0),
                                  Padding(
                                    padding: const EdgeInsets.all(8.0),
                                    child: Row(
                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                      children: [
-                                       Text("Rent type: "+myactiveorderslist[index]['rent_type_name'].toString()),
-                                       Text("Status: "+myactiveorderslist[index]['status'].toString()),
+                                       Text("Rent type: ${myactiveorderslist[index]['rent_type_name']}"),
+                                       Text("Status: ${myactiveorderslist[index]['status']}"),
                                      ],
                                    ),
                                  )
@@ -372,14 +371,14 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
             borderRadius: BorderRadius.all(Radius.circular(4.0)),
             border: Border.all(color: Colors.blue)
         ),
-        child: Text("Edit", style: TextStyle(color: Colors.blue)),
+        child: const Text("Edit", style: TextStyle(color: Colors.blue)),
       );
     }
     else if(statusvalue == "13"){
-      return Text("NA", style: TextStyle(color: Colors.grey));
+      return const Text("NA", style: TextStyle(color: Colors.grey));
     }
     else{
-      return Text("NA", style: TextStyle(color: Colors.grey));
+      return const Text("NA", style: TextStyle(color: Colors.grey));
     }
   }
 
@@ -534,10 +533,11 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
         );
       },
     );
-    if (picked != null)
+    if(picked != null) {
       setState(() {
         startdate = DateFormat('yyyy-MM-dd').format(picked);
       });
+    }
   }
 
   Future<void> _selectEndtDate(BuildContext context) async {
@@ -571,29 +571,30 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
         );
       },
     );
-    if (picked != null)
+    if(picked != null) {
       setState(() {
         enddate = DateFormat('yyyy-MM-dd').format(picked);
       });
+    }
   }
 
   String _getrenttype(String period, String renttypevalue){
-    if(renttypevalue == "hourly" &&  period == "1"){
+    if(renttypevalue.toLowerCase() == "hourly" &&  period == "1"){
       return "Hour";
     }
-    if(renttypevalue == "hourly" &&  period != "1"){
+    if(renttypevalue.toLowerCase() == "hourly" &&  period != "1"){
       return "Hours";
     }
-    else if(renttypevalue == "days" && period == "1"){
+    else if(renttypevalue.toLowerCase() == "days" && period == "1"){
       return "Day";
     }
-    else if(renttypevalue == "days" && period != "1"){
+    else if(renttypevalue.toLowerCase() == "days" && period != "1"){
       return "Days";
     }
-    else if(renttypevalue == "monthly" && period == "1"){
+    else if(renttypevalue.toLowerCase() == "monthly" && period == "1"){
       return "Month";
     }
-    else if(renttypevalue == "monthly" && period != "1"){
+    else if(renttypevalue.toLowerCase() == "monthly" && period != "1"){
       return "Months";
     }
     else if(renttypevalue == "yearly" && period == "1"){
